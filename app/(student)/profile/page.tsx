@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { KeyRound, LogOut, UserRound } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { BadgeShelf, type BadgeView } from '@/components/BadgeShelf'
+import { awardBadgesForUser } from '@/lib/badges/award'
 
 export const metadata = {
   title: '自分'
@@ -14,6 +15,9 @@ export default async function ProfilePage() {
     data: { user }
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  // 過去の記録に対しても遡及的にバッジを付与（既獲得分はスキップされる）
+  await awardBadgesForUser(user.id)
 
   const [{ data: profile }, { data: allBadges }, { data: ownedBadges }] = await Promise.all([
     supabase
