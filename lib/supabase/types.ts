@@ -466,6 +466,7 @@ export type Database = {
           id: string
           level_text: string | null
           role: string
+          synthetic_email: string | null
           updated_at: string
         }
         Insert: {
@@ -476,6 +477,7 @@ export type Database = {
           id: string
           level_text?: string | null
           role: string
+          synthetic_email?: string | null
           updated_at?: string
         }
         Update: {
@@ -486,6 +488,7 @@ export type Database = {
           id?: string
           level_text?: string | null
           role?: string
+          synthetic_email?: string | null
           updated_at?: string
         }
         Relationships: []

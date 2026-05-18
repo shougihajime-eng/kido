@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { signupWithPinAction } from './actions'
 
 type Role = 'student' | 'parent' | 'teacher'
 
@@ -15,58 +15,32 @@ const ROLES: { value: Role; label: string; desc: string }[] = [
 export function SignupForm() {
   const router = useRouter()
   const [displayName, setDisplayName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [pin, setPin] = useState('')
   const [role, setRole] = useState<Role>('student')
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            app: 'kido',
-            role,
-            display_name: displayName
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
-        }
+      const result = await signupWithPinAction({
+        displayName,
+        role,
+        pin
       })
 
-      if (error) {
-        setError(error.message)
+      if (!result.ok) {
+        setError(result.error)
         return
       }
 
-      // セッションが即時取得できる設定の場合（メール確認OFFのとき）
-      if (data.session) {
-        router.push('/dashboard')
-        router.refresh()
-        return
-      }
-
-      // メール確認待ち
-      setSuccess(true)
+      router.push(result.role === 'student' ? '/dashboard' : '/family')
+      router.refresh()
     })
   }
 
-  if (success) {
-    return (
-      <div className="flex flex-col gap-4 bg-surface border border-border rounded-2xl p-6 text-center">
-        <p className="text-accent text-lg font-semibold">確認メールを送りました</p>
-        <p className="text-text-muted text-sm">
-          メールに記載されたリンクをクリックして、登録を完了してください。
-        </p>
-      </div>
-    )
-  }
+  const canSubmit = displayName.trim().length > 0 && /^\d{4}$/.test(pin) && !isPending
 
   return (
     <form
@@ -75,7 +49,7 @@ export function SignupForm() {
     >
       {/* ロール選択 */}
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-text-muted">役割を選んでください</span>
+        <span className="text-sm text-text-muted">やくわりを選んでください</span>
         <div className="flex flex-col gap-2">
           {ROLES.map((r) => (
             <button
@@ -95,41 +69,42 @@ export function SignupForm() {
         </div>
       </div>
 
+      {/* 名前 */}
       <label className="flex flex-col gap-2">
-        <span className="text-sm text-text-muted">表示名（ニックネーム）</span>
+        <span className="text-sm text-text-muted">なまえ（自分や生徒を表す呼び名）</span>
         <input
           type="text"
           required
           maxLength={40}
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="例：はじめ、おとうさん など"
+          autoComplete="off"
           className="h-11 px-3 rounded-lg bg-surface-elevated border border-border text-text focus:border-accent focus:outline-none transition-colors"
         />
+        <span className="text-[11px] text-text-dim">
+          世界で1つだけ。同じ名前は使えない（重なったら違う呼び名にして）
+        </span>
       </label>
 
+      {/* PIN */}
       <label className="flex flex-col gap-2">
-        <span className="text-sm text-text-muted">メールアドレス</span>
+        <span className="text-sm text-text-muted">あいことば（4桁の数字）</span>
         <input
-          type="email"
+          type="text"
           required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="h-11 px-3 rounded-lg bg-surface-elevated border border-border text-text focus:border-accent focus:outline-none transition-colors"
+          inputMode="numeric"
+          pattern="[0-9]{4}"
+          maxLength={4}
+          autoComplete="off"
+          value={pin}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+          placeholder="0000"
+          className="h-14 px-3 rounded-lg bg-surface-elevated border border-border text-text font-num text-3xl tracking-[0.5em] text-center focus:border-accent focus:outline-none transition-colors"
         />
-      </label>
-
-      <label className="flex flex-col gap-2">
-        <span className="text-sm text-text-muted">パスワード（8文字以上）</span>
-        <input
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-11 px-3 rounded-lg bg-surface-elevated border border-border text-text focus:border-accent focus:outline-none transition-colors"
-        />
+        <span className="text-[11px] text-text-dim">
+          ログインのときに使うから、忘れない数字にしよう（誕生日とかは避けて）
+        </span>
       </label>
 
       {error && (
@@ -140,8 +115,8 @@ export function SignupForm() {
 
       <button
         type="submit"
-        disabled={isPending}
-        className="h-11 rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep transition-colors disabled:opacity-50"
+        disabled={!canSubmit}
+        className="h-12 rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep transition-colors disabled:opacity-50"
       >
         {isPending ? '登録中…' : 'アカウントを作る'}
       </button>
