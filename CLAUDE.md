@@ -27,10 +27,11 @@
 
 | 用途               | URL                                                         | 備考                                   |
 | ------------------ | ----------------------------------------------------------- | -------------------------------------- |
-| 本番（予定）       | https://kido.vercel.app                                     | Vercel 連携後に正式URL確定             |
+| **本番 URL**       | **https://kido-phi.vercel.app**                             | Vercel 自動デプロイ                    |
 | 開発サーバ         | http://localhost:3000                                       | `npm run dev`                          |
 | Supabase Dashboard | https://supabase.com/dashboard/project/eqkaaohdbqefuszxwqzr | スキーマ: `kido`                       |
-| GitHub repo        | （未作成）                                                  | `gh repo create shougihajime-eng/kido` |
+| Vercel Dashboard   | https://vercel.com/shougihajime-3368s-projects/kido         | デプロイ・環境変数管理                 |
+| GitHub repo        | https://github.com/shougihajime-eng/kido                    | push で自動デプロイ                    |
 
 ---
 
