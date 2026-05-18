@@ -9,9 +9,17 @@
 
 ## 進捗（いまここ）
 
-- ✅ **直近で済んだこと**: Phase A 進行中。Next.js 雛形、デザイントークン、Supabase クライアント、PWA マニフェスト、認証ミドルウェア、マイグレーション SQL を作成。
-- 🟡 **進行中**: Phase A 残り（Supabase スキーマ実適用、GitHub 連携、Vercel 連携）
-- 🔜 **次の一歩**: Supabase Dashboard で Exposed schemas に `kido` を追加 → migration push → 開発サーバ起動確認 → GitHub repo 作成 → Vercel 連携
+- ✅ **直近で済んだこと**（2026-05-19）: **Phase A 完了！**
+  - Next.js 16 / TypeScript / Tailwind v4 / PWA マニフェスト
+  - Supabase クライアント（browser/server/admin）+ 型
+  - ログイン・サインアップ・サインアウト・コールバック画面
+  - ダッシュボード骨組み（ストリーク🔥・週間プレースホルダ）
+  - 認証ミドルウェア（未ログインを /login へリダイレクト）
+  - GitHub repo 作成 + Vercel 自動連携
+  - **本番 URL 公開: https://kido-phi.vercel.app**
+  - Supabase に `kido` スキーマ + 13テーブル + RLS + プリセット8カテゴリ + 9バッジ 適用済
+- 🟡 **進行中**: はじめさんに Supabase Dashboard 設定をお願い中（次節参照）
+- 🔜 **次の一歩**: はじめさんの設定後 → Phase B（招待コードによる親子先生紐づけ）
 
 ---
 

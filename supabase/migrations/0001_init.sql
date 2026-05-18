@@ -3,48 +3,14 @@
 -- 他プロジェクト（shogi_hajime_ai, shogi_jikanwari, hajime_shogi）には触れない
 
 ------------------------------------------------------------
--- 0) スキーマ
+-- 0) スキーマ + 共通権限
 ------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS kido;
-
 GRANT USAGE ON SCHEMA kido TO anon, authenticated, service_role;
 
 ------------------------------------------------------------
--- 1) ヘルパー関数（SECURITY DEFINER で RLS バイパス）
+-- 1) 共通 updated_at トリガー関数（テーブル参照しないのでここで OK）
 ------------------------------------------------------------
-
--- 紐づけ確認済の親・先生かどうか
-CREATE OR REPLACE FUNCTION kido.is_linked_adult(target_student uuid)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = kido, public
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM kido.relationships
-    WHERE adult_id = auth.uid()
-      AND student_id = target_student
-      AND confirmed = TRUE
-  );
-$$;
-
--- 自分のロールが指定値か
-CREATE OR REPLACE FUNCTION kido.has_role(target_role text)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = kido, public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM kido.profiles
-    WHERE id = auth.uid() AND role = target_role
-  );
-$$;
-
--- updated_at 自動更新
 CREATE OR REPLACE FUNCTION kido.set_updated_at()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -56,8 +22,10 @@ END;
 $$;
 
 ------------------------------------------------------------
--- 2) profiles
+-- 2) 全テーブル定義（先に作る → あとでヘルパー関数 & RLS）
 ------------------------------------------------------------
+
+-- profiles
 CREATE TABLE kido.profiles (
   id            uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   role          text NOT NULL CHECK (role IN ('student', 'parent', 'teacher')),
@@ -73,8 +41,223 @@ CREATE TRIGGER trg_profiles_updated_at
   BEFORE UPDATE ON kido.profiles
   FOR EACH ROW EXECUTE FUNCTION kido.set_updated_at();
 
-ALTER TABLE kido.profiles ENABLE ROW LEVEL SECURITY;
+-- relationships
+CREATE TABLE kido.relationships (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  adult_id    uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  student_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  kind        text NOT NULL CHECK (kind IN ('parent', 'teacher')),
+  confirmed   boolean NOT NULL DEFAULT TRUE,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (adult_id, student_id),
+  CHECK (adult_id <> student_id)
+);
+CREATE INDEX idx_relationships_adult ON kido.relationships(adult_id);
+CREATE INDEX idx_relationships_student ON kido.relationships(student_id);
 
+-- invite_codes
+CREATE TABLE kido.invite_codes (
+  code        text PRIMARY KEY,
+  student_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  kind        text NOT NULL CHECK (kind IN ('parent', 'teacher')),
+  expires_at  timestamptz NOT NULL,
+  used_at     timestamptz,
+  used_by     uuid REFERENCES kido.profiles(id),
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_invite_codes_student ON kido.invite_codes(student_id);
+
+-- categories
+CREATE TABLE kido.categories (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  key          text UNIQUE,
+  owner_id     uuid REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  name_ja      text NOT NULL,
+  icon_key     text NOT NULL,
+  color_token  text NOT NULL,
+  is_preset    boolean NOT NULL DEFAULT FALSE,
+  sort_order   integer NOT NULL DEFAULT 0,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_categories_owner ON kido.categories(owner_id) WHERE owner_id IS NOT NULL;
+
+-- training_records
+CREATE TABLE kido.training_records (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id           uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  date              date NOT NULL,
+  category_id       uuid NOT NULL REFERENCES kido.categories(id),
+  duration_minutes  integer NOT NULL CHECK (duration_minutes > 0 AND duration_minutes <= 1440),
+  memo              text,
+  kifu_url          text,
+  recorded_at       timestamptz NOT NULL DEFAULT now(),
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  updated_at        timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_training_records_user_date ON kido.training_records(user_id, date DESC);
+CREATE INDEX idx_training_records_category ON kido.training_records(category_id);
+
+CREATE TRIGGER trg_training_records_updated_at
+  BEFORE UPDATE ON kido.training_records
+  FOR EACH ROW EXECUTE FUNCTION kido.set_updated_at();
+
+-- favorites
+CREATE TABLE kido.favorites (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id           uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  category_id       uuid NOT NULL REFERENCES kido.categories(id),
+  default_minutes   integer NOT NULL CHECK (default_minutes > 0 AND default_minutes <= 1440),
+  label             text NOT NULL,
+  sort_order        integer NOT NULL DEFAULT 0,
+  created_at        timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_favorites_user ON kido.favorites(user_id, sort_order);
+
+-- goals
+CREATE TABLE kido.goals (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  period          text NOT NULL CHECK (period IN ('weekly', 'monthly')),
+  category_id     uuid REFERENCES kido.categories(id),
+  target_minutes  integer NOT NULL CHECK (target_minutes > 0),
+  start_date      date NOT NULL,
+  end_date        date NOT NULL,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  CHECK (end_date >= start_date)
+);
+CREATE INDEX idx_goals_user ON kido.goals(user_id, end_date DESC);
+
+-- comments
+CREATE TABLE kido.comments (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  record_id    uuid NOT NULL REFERENCES kido.training_records(id) ON DELETE CASCADE,
+  author_id    uuid REFERENCES kido.profiles(id) ON DELETE SET NULL,
+  author_role  text NOT NULL CHECK (author_role IN ('student', 'parent', 'teacher', 'ai')),
+  content      text NOT NULL CHECK (length(content) > 0 AND length(content) <= 2000),
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_comments_record ON kido.comments(record_id, created_at);
+
+-- diary_entries
+CREATE TABLE kido.diary_entries (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  date        date NOT NULL,
+  content     text NOT NULL,
+  visibility  text NOT NULL CHECK (visibility IN ('self', 'teacher', 'parent', 'ai')),
+  ai_reply    text,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_diary_user_date ON kido.diary_entries(user_id, date DESC);
+
+-- rating_history
+CREATE TABLE kido.rating_history (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  date         date NOT NULL,
+  platform     text NOT NULL,
+  rating_value integer NOT NULL,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_rating_user_date ON kido.rating_history(user_id, date DESC);
+
+-- follows
+CREATE TABLE kido.follows (
+  follower_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  followed_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (follower_id, followed_id),
+  CHECK (follower_id <> followed_id)
+);
+
+-- badges (master)
+CREATE TABLE kido.badges (
+  id             text PRIMARY KEY,
+  name           text NOT NULL,
+  description    text NOT NULL,
+  icon_key       text NOT NULL,
+  criteria_json  jsonb NOT NULL
+);
+
+-- user_badges (earned)
+CREATE TABLE kido.user_badges (
+  user_id     uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  badge_id    text NOT NULL REFERENCES kido.badges(id),
+  earned_at   timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, badge_id)
+);
+
+-- ai_comments
+CREATE TABLE kido.ai_comments (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
+  generated_at  timestamptz NOT NULL DEFAULT now(),
+  content       text NOT NULL,
+  comment_type  text NOT NULL CHECK (comment_type IN ('daily', 'weekly', 'event')),
+  read_at       timestamptz
+);
+CREATE INDEX idx_ai_comments_user_time ON kido.ai_comments(user_id, generated_at DESC);
+
+------------------------------------------------------------
+-- 3) ヘルパー関数（テーブル参照あり → plpgsql で遅延評価）
+------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION kido.is_linked_adult(target_student uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = kido, public
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM kido.relationships
+    WHERE adult_id = auth.uid()
+      AND student_id = target_student
+      AND confirmed = TRUE
+  );
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION kido.has_role(target_role text)
+RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = kido, public
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM kido.profiles
+    WHERE id = auth.uid() AND role = target_role
+  );
+END;
+$$;
+
+------------------------------------------------------------
+-- 4) RLS 有効化
+------------------------------------------------------------
+ALTER TABLE kido.profiles         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.relationships    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.invite_codes     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.categories       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.training_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.favorites        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.goals            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.comments         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.diary_entries    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.rating_history   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.follows          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.badges           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.user_badges      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kido.ai_comments      ENABLE ROW LEVEL SECURITY;
+
+------------------------------------------------------------
+-- 5) RLS ポリシー
+------------------------------------------------------------
+
+-- profiles
 CREATE POLICY "profiles_select_self_or_linked"
   ON kido.profiles FOR SELECT
   USING (
@@ -84,7 +267,6 @@ CREATE POLICY "profiles_select_self_or_linked"
       SELECT 1 FROM kido.relationships r
       WHERE r.student_id = auth.uid() AND r.adult_id = profiles.id
     )
-    -- 仲間フィード用：相互フォロー or 同じ大人配下にいる生徒同士
     OR EXISTS (
       SELECT 1 FROM kido.follows f
       WHERE (f.follower_id = auth.uid() AND f.followed_id = profiles.id)
@@ -101,25 +283,7 @@ CREATE POLICY "profiles_update_self"
   USING (id = auth.uid())
   WITH CHECK (id = auth.uid());
 
-------------------------------------------------------------
--- 3) relationships（生徒 ↔ 親・先生）
-------------------------------------------------------------
-CREATE TABLE kido.relationships (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  adult_id    uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  student_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  kind        text NOT NULL CHECK (kind IN ('parent', 'teacher')),
-  confirmed   boolean NOT NULL DEFAULT TRUE,
-  created_at  timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (adult_id, student_id),
-  CHECK (adult_id <> student_id)
-);
-
-CREATE INDEX idx_relationships_adult ON kido.relationships(adult_id);
-CREATE INDEX idx_relationships_student ON kido.relationships(student_id);
-
-ALTER TABLE kido.relationships ENABLE ROW LEVEL SECURITY;
-
+-- relationships
 CREATE POLICY "relationships_select_party"
   ON kido.relationships FOR SELECT
   USING (adult_id = auth.uid() OR student_id = auth.uid());
@@ -128,25 +292,7 @@ CREATE POLICY "relationships_delete_party"
   ON kido.relationships FOR DELETE
   USING (adult_id = auth.uid() OR student_id = auth.uid());
 
--- INSERT は招待コード経由のサーバー処理（service_role）のみ
-
-------------------------------------------------------------
--- 4) invite_codes（生徒が発行 → 親・先生が入力）
-------------------------------------------------------------
-CREATE TABLE kido.invite_codes (
-  code        text PRIMARY KEY,
-  student_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  kind        text NOT NULL CHECK (kind IN ('parent', 'teacher')),
-  expires_at  timestamptz NOT NULL,
-  used_at     timestamptz,
-  used_by     uuid REFERENCES kido.profiles(id),
-  created_at  timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_invite_codes_student ON kido.invite_codes(student_id);
-
-ALTER TABLE kido.invite_codes ENABLE ROW LEVEL SECURITY;
-
+-- invite_codes
 CREATE POLICY "invite_codes_select_own_student"
   ON kido.invite_codes FOR SELECT
   USING (student_id = auth.uid());
@@ -161,28 +307,7 @@ CREATE POLICY "invite_codes_delete_own"
   ON kido.invite_codes FOR DELETE
   USING (student_id = auth.uid());
 
--- 引き換え（UPDATE used_at, used_by）と relationships への挿入は
--- API ルートで service_role 経由で行う
-
-------------------------------------------------------------
--- 5) categories（カテゴリ：プリセット8種 + ユーザーカスタム）
-------------------------------------------------------------
-CREATE TABLE kido.categories (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  key          text UNIQUE,  -- preset は 'kifu_narabe' 等の安定キー、custom は NULL
-  owner_id     uuid REFERENCES kido.profiles(id) ON DELETE CASCADE,  -- preset は NULL
-  name_ja      text NOT NULL,
-  icon_key     text NOT NULL,
-  color_token  text NOT NULL,
-  is_preset    boolean NOT NULL DEFAULT FALSE,
-  sort_order   integer NOT NULL DEFAULT 0,
-  created_at   timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_categories_owner ON kido.categories(owner_id) WHERE owner_id IS NOT NULL;
-
-ALTER TABLE kido.categories ENABLE ROW LEVEL SECURITY;
-
+-- categories
 CREATE POLICY "categories_select_preset_or_own"
   ON kido.categories FOR SELECT
   USING (is_preset = TRUE OR owner_id = auth.uid());
@@ -199,31 +324,7 @@ CREATE POLICY "categories_delete_custom_self"
   ON kido.categories FOR DELETE
   USING (owner_id = auth.uid() AND is_preset = FALSE);
 
-------------------------------------------------------------
--- 6) training_records（練習記録）
-------------------------------------------------------------
-CREATE TABLE kido.training_records (
-  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id           uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  date              date NOT NULL,
-  category_id       uuid NOT NULL REFERENCES kido.categories(id),
-  duration_minutes  integer NOT NULL CHECK (duration_minutes > 0 AND duration_minutes <= 1440),
-  memo              text,
-  kifu_url          text,
-  recorded_at       timestamptz NOT NULL DEFAULT now(),
-  created_at        timestamptz NOT NULL DEFAULT now(),
-  updated_at        timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_training_records_user_date ON kido.training_records(user_id, date DESC);
-CREATE INDEX idx_training_records_category ON kido.training_records(category_id);
-
-CREATE TRIGGER trg_training_records_updated_at
-  BEFORE UPDATE ON kido.training_records
-  FOR EACH ROW EXECUTE FUNCTION kido.set_updated_at();
-
-ALTER TABLE kido.training_records ENABLE ROW LEVEL SECURITY;
-
+-- training_records
 CREATE POLICY "training_select_self_or_linked"
   ON kido.training_records FOR SELECT
   USING (
@@ -244,67 +345,18 @@ CREATE POLICY "training_update_self" ON kido.training_records
 CREATE POLICY "training_delete_self" ON kido.training_records
   FOR DELETE USING (user_id = auth.uid());
 
-------------------------------------------------------------
--- 7) favorites（ワンタップ用お気に入り組み合わせ）
-------------------------------------------------------------
-CREATE TABLE kido.favorites (
-  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id           uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  category_id       uuid NOT NULL REFERENCES kido.categories(id),
-  default_minutes   integer NOT NULL CHECK (default_minutes > 0 AND default_minutes <= 1440),
-  label             text NOT NULL,
-  sort_order        integer NOT NULL DEFAULT 0,
-  created_at        timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_favorites_user ON kido.favorites(user_id, sort_order);
-
-ALTER TABLE kido.favorites ENABLE ROW LEVEL SECURITY;
-
+-- favorites
 CREATE POLICY "favorites_all_self" ON kido.favorites
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
-------------------------------------------------------------
--- 8) goals（週間/月間の目標）
-------------------------------------------------------------
-CREATE TABLE kido.goals (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id         uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  period          text NOT NULL CHECK (period IN ('weekly', 'monthly')),
-  category_id     uuid REFERENCES kido.categories(id),
-  target_minutes  integer NOT NULL CHECK (target_minutes > 0),
-  start_date      date NOT NULL,
-  end_date        date NOT NULL,
-  created_at      timestamptz NOT NULL DEFAULT now(),
-  CHECK (end_date >= start_date)
-);
-
-CREATE INDEX idx_goals_user ON kido.goals(user_id, end_date DESC);
-
-ALTER TABLE kido.goals ENABLE ROW LEVEL SECURITY;
-
+-- goals
 CREATE POLICY "goals_select_self_or_linked" ON kido.goals
   FOR SELECT USING (user_id = auth.uid() OR kido.is_linked_adult(user_id));
 
 CREATE POLICY "goals_modify_self" ON kido.goals
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
-------------------------------------------------------------
--- 9) comments（記録への先生・親・AIコメント）
-------------------------------------------------------------
-CREATE TABLE kido.comments (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  record_id    uuid NOT NULL REFERENCES kido.training_records(id) ON DELETE CASCADE,
-  author_id    uuid REFERENCES kido.profiles(id) ON DELETE SET NULL,  -- NULL = AI
-  author_role  text NOT NULL CHECK (author_role IN ('student', 'parent', 'teacher', 'ai')),
-  content      text NOT NULL CHECK (length(content) > 0 AND length(content) <= 2000),
-  created_at   timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_comments_record ON kido.comments(record_id, created_at);
-
-ALTER TABLE kido.comments ENABLE ROW LEVEL SECURITY;
-
+-- comments
 CREATE POLICY "comments_select_related" ON kido.comments
   FOR SELECT USING (
     author_id = auth.uid()
@@ -329,23 +381,7 @@ CREATE POLICY "comments_insert_linked_adult" ON kido.comments
 CREATE POLICY "comments_delete_own" ON kido.comments
   FOR DELETE USING (author_id = auth.uid());
 
-------------------------------------------------------------
--- 10) diary_entries（悩み相談）
-------------------------------------------------------------
-CREATE TABLE kido.diary_entries (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  date        date NOT NULL,
-  content     text NOT NULL,
-  visibility  text NOT NULL CHECK (visibility IN ('self', 'teacher', 'parent', 'ai')),
-  ai_reply    text,
-  created_at  timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_diary_user_date ON kido.diary_entries(user_id, date DESC);
-
-ALTER TABLE kido.diary_entries ENABLE ROW LEVEL SECURITY;
-
+-- diary_entries
 CREATE POLICY "diary_select_per_visibility" ON kido.diary_entries
   FOR SELECT USING (
     user_id = auth.uid()
@@ -364,41 +400,14 @@ CREATE POLICY "diary_select_per_visibility" ON kido.diary_entries
 CREATE POLICY "diary_modify_self" ON kido.diary_entries
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
-------------------------------------------------------------
--- 11) rating_history（棋力推移：将棋ウォーズ段級位など）
-------------------------------------------------------------
-CREATE TABLE kido.rating_history (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  date         date NOT NULL,
-  platform     text NOT NULL,
-  rating_value integer NOT NULL,
-  created_at   timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_rating_user_date ON kido.rating_history(user_id, date DESC);
-
-ALTER TABLE kido.rating_history ENABLE ROW LEVEL SECURITY;
-
+-- rating_history
 CREATE POLICY "rating_select_self_or_linked" ON kido.rating_history
   FOR SELECT USING (user_id = auth.uid() OR kido.is_linked_adult(user_id));
 
 CREATE POLICY "rating_modify_self" ON kido.rating_history
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
-------------------------------------------------------------
--- 12) follows（仲間フォロー関係）
-------------------------------------------------------------
-CREATE TABLE kido.follows (
-  follower_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  followed_id  uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  created_at   timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (follower_id, followed_id),
-  CHECK (follower_id <> followed_id)
-);
-
-ALTER TABLE kido.follows ENABLE ROW LEVEL SECURITY;
-
+-- follows
 CREATE POLICY "follows_select_party" ON kido.follows
   FOR SELECT USING (follower_id = auth.uid() OR followed_id = auth.uid());
 
@@ -408,58 +417,22 @@ CREATE POLICY "follows_insert_self" ON kido.follows
 CREATE POLICY "follows_delete_self" ON kido.follows
   FOR DELETE USING (follower_id = auth.uid());
 
-------------------------------------------------------------
--- 13) badges / user_badges（バッジマスタ + 獲得履歴）
-------------------------------------------------------------
-CREATE TABLE kido.badges (
-  id             text PRIMARY KEY,
-  name           text NOT NULL,
-  description    text NOT NULL,
-  icon_key       text NOT NULL,
-  criteria_json  jsonb NOT NULL
-);
-
-ALTER TABLE kido.badges ENABLE ROW LEVEL SECURITY;
+-- badges (master): 全員閲覧、変更は service_role のみ
 CREATE POLICY "badges_select_all" ON kido.badges FOR SELECT USING (TRUE);
--- INSERT/UPDATE/DELETE は service_role のみ
 
-CREATE TABLE kido.user_badges (
-  user_id     uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  badge_id    text NOT NULL REFERENCES kido.badges(id),
-  earned_at   timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (user_id, badge_id)
-);
-
-ALTER TABLE kido.user_badges ENABLE ROW LEVEL SECURITY;
+-- user_badges
 CREATE POLICY "user_badges_select_self_or_linked" ON kido.user_badges
   FOR SELECT USING (user_id = auth.uid() OR kido.is_linked_adult(user_id));
--- INSERT/UPDATE/DELETE は service_role のみ
 
-------------------------------------------------------------
--- 14) ai_comments（AI 生成コメント履歴）
-------------------------------------------------------------
-CREATE TABLE kido.ai_comments (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       uuid NOT NULL REFERENCES kido.profiles(id) ON DELETE CASCADE,
-  generated_at  timestamptz NOT NULL DEFAULT now(),
-  content       text NOT NULL,
-  comment_type  text NOT NULL CHECK (comment_type IN ('daily', 'weekly', 'event')),
-  read_at       timestamptz
-);
-
-CREATE INDEX idx_ai_comments_user_time ON kido.ai_comments(user_id, generated_at DESC);
-
-ALTER TABLE kido.ai_comments ENABLE ROW LEVEL SECURITY;
-
+-- ai_comments
 CREATE POLICY "ai_comments_select_self_or_linked" ON kido.ai_comments
   FOR SELECT USING (user_id = auth.uid() OR kido.is_linked_adult(user_id));
 
 CREATE POLICY "ai_comments_update_read_self" ON kido.ai_comments
   FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
--- INSERT は Vercel Cron 経由の service_role のみ
 
 ------------------------------------------------------------
--- 15) 権限まとめ
+-- 6) 権限まとめ
 ------------------------------------------------------------
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA kido TO authenticated;
 GRANT SELECT ON ALL TABLES IN SCHEMA kido TO anon;
