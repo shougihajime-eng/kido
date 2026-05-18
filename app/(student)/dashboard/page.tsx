@@ -1,9 +1,23 @@
 import Link from 'next/link'
-import { ChevronRight, Flame, KeyRound, PlusCircle, UsersRound } from 'lucide-react'
+import {
+  CheckCircle2,
+  ChevronRight,
+  Flame,
+  KeyRound,
+  PlusCircle,
+  Target,
+  UsersRound
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { AnimatedNumber } from '@/app/components/AnimatedNumber'
 import { getCategoryIcon, categoryColorVar } from '@/lib/category-icon'
-import { computeStreak, formatMinutes, todayLocalISO, ymdAddDays } from '@/lib/dates'
+import {
+  computeStreak,
+  daysRemaining,
+  formatMinutes,
+  todayLocalISO,
+  ymdAddDays
+} from '@/lib/dates'
 import { WeeklyBars } from '@/components/dashboard/WeeklyBars'
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown'
 
@@ -21,29 +35,40 @@ export default async function DashboardPage() {
   const weekStart = ymdAddDays(today, -6) // 直近7日（今日含む）
 
   const nowIso = new Date().toISOString()
-  const [{ data: profile }, { data: records30 }, { count: linkedCount }, { count: activeCodes }] =
-    await Promise.all([
-      supabase.from('profiles').select('display_name, role').eq('id', user!.id).maybeSingle(),
-      supabase
-        .from('training_records')
-        .select(
-          'id, date, duration_minutes, memo, recorded_at, category:categories(id, name_ja, icon_key, color_token)'
-        )
-        .eq('user_id', user!.id)
-        .gte('date', ymdAddDays(today, -29))
-        .order('date', { ascending: false })
-        .order('recorded_at', { ascending: false }),
-      supabase
-        .from('relationships')
-        .select('id', { count: 'exact', head: true })
-        .eq('student_id', user!.id),
-      supabase
-        .from('invite_codes')
-        .select('code', { count: 'exact', head: true })
-        .eq('student_id', user!.id)
-        .is('used_at', null)
-        .gt('expires_at', nowIso)
-    ])
+  const [
+    { data: profile },
+    { data: records30 },
+    { count: linkedCount },
+    { count: activeCodes },
+    { data: activeGoals }
+  ] = await Promise.all([
+    supabase.from('profiles').select('display_name, role').eq('id', user!.id).maybeSingle(),
+    supabase
+      .from('training_records')
+      .select(
+        'id, date, duration_minutes, memo, recorded_at, category:categories(id, name_ja, icon_key, color_token)'
+      )
+      .eq('user_id', user!.id)
+      .gte('date', ymdAddDays(today, -29))
+      .order('date', { ascending: false })
+      .order('recorded_at', { ascending: false }),
+    supabase
+      .from('relationships')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', user!.id),
+    supabase
+      .from('invite_codes')
+      .select('code', { count: 'exact', head: true })
+      .eq('student_id', user!.id)
+      .is('used_at', null)
+      .gt('expires_at', nowIso),
+    supabase
+      .from('goals')
+      .select('id, period, category_id, target_minutes, start_date, end_date')
+      .eq('user_id', user!.id)
+      .gte('end_date', today)
+      .order('end_date', { ascending: true })
+  ])
 
   type RowWithCat = {
     id: string
@@ -98,6 +123,29 @@ export default async function DashboardPage() {
     .map(([category_id, v]) => ({ category_id, ...v }))
     .sort((a, b) => b.minutes - a.minutes)
 
+  // 目標の進捗計算（直近30日の records から）
+  const goalsWithProgress = (activeGoals ?? []).map((g) => {
+    const inRange = records.filter((r) => r.date >= g.start_date && r.date <= g.end_date)
+    const matching = g.category_id
+      ? inRange.filter((r) => r.category?.id === g.category_id)
+      : inRange
+    const currentMinutes = matching.reduce((s, r) => s + r.duration_minutes, 0)
+    const ratio = Math.min(1, currentMinutes / g.target_minutes)
+    return {
+      id: g.id,
+      period: g.period as 'weekly' | 'monthly',
+      categoryId: g.category_id,
+      targetMinutes: g.target_minutes,
+      currentMinutes,
+      endDate: g.end_date,
+      ratio,
+      achieved: currentMinutes >= g.target_minutes
+    }
+  })
+
+  // 表示する目標を1〜2個選ぶ（未達成優先、達成済みは1個まで）
+  const featuredGoal = goalsWithProgress[0] // 最も期限が近いもの
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-baseline justify-between">
@@ -138,6 +186,101 @@ export default async function DashboardPage() {
         <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
         今、何してた？
       </Link>
+
+      {/* 目標の進捗（あれば） */}
+      {featuredGoal && (
+        <Link
+          href="/goals"
+          className="group bg-surface border border-border hover:border-accent rounded-2xl p-5 flex flex-col gap-3 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{
+                backgroundColor: featuredGoal.achieved
+                  ? 'rgba(16, 185, 129, 0.15)'
+                  : 'rgba(212, 162, 76, 0.15)',
+                color: featuredGoal.achieved ? 'var(--success)' : 'var(--accent)'
+              }}
+            >
+              {featuredGoal.achieved ? (
+                <CheckCircle2 className="w-5 h-5" />
+              ) : (
+                <Target className="w-5 h-5" />
+              )}
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold">
+                {featuredGoal.period === 'weekly' ? '今週' : '今月'}の目標
+              </div>
+              <div className="text-xs text-text-dim mt-0.5">
+                あと {daysRemaining(featuredGoal.endDate, today)}日 ・ 目標{' '}
+                <span className="font-num">{Math.round(featuredGoal.targetMinutes / 60)}h</span>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors" />
+          </div>
+          <div>
+            <div className="flex items-baseline justify-between mb-1.5">
+              <div className="flex items-baseline gap-1">
+                <span
+                  className="font-num text-2xl font-bold"
+                  style={{
+                    color: featuredGoal.achieved ? 'var(--success)' : 'var(--accent)'
+                  }}
+                >
+                  {Math.round(featuredGoal.currentMinutes / 60)}
+                </span>
+                <span className="text-xs text-text-dim font-num">
+                  / {Math.round(featuredGoal.targetMinutes / 60)}h
+                </span>
+              </div>
+              <span
+                className={`text-sm font-num font-bold ${
+                  featuredGoal.achieved ? 'text-success' : 'text-text-muted'
+                }`}
+              >
+                {Math.round(featuredGoal.ratio * 100)}%
+              </span>
+            </div>
+            <div className="h-2.5 rounded-full bg-surface-elevated overflow-hidden">
+              <div
+                className="h-full rounded-full transition-[width] duration-700 ease-out"
+                style={{
+                  width: `${Math.round(featuredGoal.ratio * 100)}%`,
+                  backgroundColor: featuredGoal.achieved ? 'var(--success)' : 'var(--accent)',
+                  boxShadow: featuredGoal.achieved
+                    ? '0 0 16px rgba(16, 185, 129, 0.5)'
+                    : '0 0 12px rgba(212, 162, 76, 0.4)'
+                }}
+              />
+            </div>
+            {goalsWithProgress.length > 1 && (
+              <div className="text-[11px] text-text-dim mt-1.5">
+                他に {goalsWithProgress.length - 1} 個の目標があります
+              </div>
+            )}
+          </div>
+        </Link>
+      )}
+
+      {!featuredGoal && (
+        <Link
+          href="/goals"
+          className="group bg-surface border border-border hover:border-accent rounded-2xl p-4 flex items-center gap-3 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
+            <Target className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-sm">目標を立てる</div>
+            <div className="text-xs text-text-dim mt-0.5">
+              週ごとの目標時間でモチベーションを上げる
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors" />
+        </Link>
+      )}
 
       {/* ストリーク + 今週合計 */}
       <section className="grid grid-cols-2 gap-3">

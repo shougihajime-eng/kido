@@ -63,3 +63,41 @@ export function formatMinutes(minutes: number): string {
   if (m === 0) return `${h}時間`
   return `${h}時間${m}分`
 }
+
+/** 今週（月曜開始）の開始日 YYYY-MM-DD */
+export function startOfWeekISO(today: string = todayLocalISO()): string {
+  const d = parseYmd(today)
+  // getDay(): 日=0, 月=1, ..., 土=6
+  const dow = d.getDay()
+  const diff = dow === 0 ? -6 : 1 - dow // 月曜まで戻る
+  return ymdAddDays(today, diff)
+}
+
+/** 今週（日曜終わり）の終了日 YYYY-MM-DD */
+export function endOfWeekISO(today: string = todayLocalISO()): string {
+  return ymdAddDays(startOfWeekISO(today), 6)
+}
+
+/** 今月の開始日 YYYY-MM-DD */
+export function startOfMonthISO(today: string = todayLocalISO()): string {
+  const d = parseYmd(today)
+  return ymdLocal(new Date(d.getFullYear(), d.getMonth(), 1))
+}
+
+/** 今月の終了日 YYYY-MM-DD */
+export function endOfMonthISO(today: string = todayLocalISO()): string {
+  const d = parseYmd(today)
+  return ymdLocal(new Date(d.getFullYear(), d.getMonth() + 1, 0))
+}
+
+/** 指定日が start..end の範囲（両端含む）かどうか */
+export function isWithinRange(date: string, start: string, end: string): boolean {
+  return date >= start && date <= end
+}
+
+/** 期間の残り日数（end_date 含む） */
+export function daysRemaining(endDate: string, today: string = todayLocalISO()): number {
+  const start = parseYmd(today).getTime()
+  const end = parseYmd(endDate).getTime()
+  return Math.max(0, Math.ceil((end - start) / (24 * 60 * 60 * 1000)) + 1)
+}
