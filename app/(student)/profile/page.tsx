@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { KeyRound, LogOut, UserRound } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { BadgeShelf, type BadgeView } from '@/components/BadgeShelf'
 
 export const metadata = {
   title: '自分'
@@ -14,17 +15,36 @@ export default async function ProfilePage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, role, level_text, ai_tone')
-    .eq('id', user.id)
-    .maybeSingle()
+  const [{ data: profile }, { data: allBadges }, { data: ownedBadges }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('display_name, role, level_text, ai_tone')
+      .eq('id', user.id)
+      .maybeSingle(),
+    supabase.from('badges').select('id, name, description, icon_key'),
+    supabase.from('user_badges').select('badge_id, earned_at').eq('user_id', user.id)
+  ])
+
+  const ownedMap = new Map(
+    (ownedBadges ?? []).map((b) => [b.badge_id, b.earned_at as string])
+  )
+
+  const badges: BadgeView[] = (allBadges ?? []).map((b) => ({
+    id: b.id,
+    name: b.name,
+    description: b.description,
+    icon_key: b.icon_key,
+    earned: ownedMap.has(b.id),
+    earned_at: ownedMap.get(b.id) ?? null
+  }))
+
+  const earnedCount = badges.filter((b) => b.earned).length
 
   return (
     <div className="flex flex-col gap-6">
       <header>
         <h1 className="text-2xl font-bold">自分</h1>
-        <p className="text-sm text-text-muted">プロフィールと設定</p>
+        <p className="text-sm text-text-muted">プロフィールとバッジ</p>
       </header>
 
       <section className="bg-surface border border-border rounded-2xl p-6 flex items-center gap-4">
@@ -38,7 +58,17 @@ export default async function ProfilePage() {
             <div className="text-xs text-text-dim mt-1">{profile.level_text}</div>
           )}
         </div>
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-text-muted">バッジ</span>
+          <span className="font-num text-2xl font-bold text-accent">
+            {earnedCount}
+            <span className="text-xs text-text-dim font-normal"> / {badges.length}</span>
+          </span>
+        </div>
       </section>
+
+      {/* バッジ陳列棚 */}
+      {badges.length > 0 && <BadgeShelf badges={badges} />}
 
       <nav className="flex flex-col gap-2">
         <Link
@@ -64,7 +94,7 @@ export default async function ProfilePage() {
       <section className="bg-surface-elevated/40 border border-border rounded-2xl p-5 flex flex-col items-center gap-2 text-center">
         <UserRound className="h-5 w-5 text-text-dim" strokeWidth={2} />
         <p className="text-xs text-text-muted">
-          プロフィール編集（ニックネーム・棋力・AIのトーン）は
+          プロフィール編集（ニックネーム・棋力）は
           <br />
           このあと作っていきます。
         </p>

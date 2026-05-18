@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { awardBadgesForUser } from '@/lib/badges/award'
 
 export type SaveRecordResult =
-  | { ok: true; recordId: string }
+  | { ok: true; recordId: string; newBadges: string[] }
   | { ok: false; error: string }
 
 export type GameResultInput = {
@@ -72,8 +73,12 @@ export async function saveRecordAction(input: {
     }
   }
 
+  // バッジ評価：記録保存後、新規獲得バッジがあれば返す
+  const newBadges = await awardBadgesForUser(user.id)
+
   revalidatePath('/dashboard')
   revalidatePath('/record')
   revalidatePath('/games')
-  return { ok: true, recordId: data.id }
+  revalidatePath('/profile')
+  return { ok: true, recordId: data.id, newBadges }
 }

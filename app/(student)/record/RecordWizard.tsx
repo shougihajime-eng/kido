@@ -89,6 +89,7 @@ export function RecordWizard({ categories }: Props) {
   const [gameResult, setGameResult] = useState<GameResult | null>(null)
   const [openingTag, setOpeningTag] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [newBadgeCount, setNewBadgeCount] = useState(0)
 
   const selectedCategory = categoryId ? categories.find((c) => c.id === categoryId) : null
   const isJissen = selectedCategory?.key === 'jissen'
@@ -123,11 +124,17 @@ export function RecordWizard({ categories }: Props) {
         return
       }
       fireConfetti()
+      const badgeCount = result.newBadges?.length ?? 0
+      setNewBadgeCount(badgeCount)
       setStep('done')
-      setTimeout(() => {
-        router.push('/dashboard')
-        router.refresh()
-      }, 1600)
+      // 新バッジがあれば長めに、なければ通常
+      setTimeout(
+        () => {
+          router.push('/dashboard')
+          router.refresh()
+        },
+        badgeCount > 0 ? 2800 : 1600,
+      )
     })
   }
 
@@ -480,6 +487,21 @@ export function RecordWizard({ categories }: Props) {
                 {selectedCategory.name_ja} · {minutes}分
               </p>
             </div>
+            {newBadgeCount > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.5, type: 'spring', stiffness: 280, damping: 18 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent-soft border border-accent text-accent shadow-[0_0_24px_rgba(212,162,76,0.3)]"
+              >
+                <span className="text-lg" aria-hidden>
+                  🏆
+                </span>
+                <span className="text-sm font-bold">
+                  新しいバッジ {newBadgeCount}個 を獲得！
+                </span>
+              </motion.div>
+            )}
             <p className="text-xs text-text-dim">ダッシュボードに戻ります…</p>
           </motion.div>
         )}
