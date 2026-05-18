@@ -14,7 +14,7 @@ export function createAdminClient() {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
   }
 
-  return createSupabaseClient<Database>(url, serviceRoleKey, {
+  return createSupabaseClient<Database, 'kido'>(url, serviceRoleKey, {
     db: { schema: 'kido' },
     auth: {
       autoRefreshToken: false,

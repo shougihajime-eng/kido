@@ -10,7 +10,7 @@ const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth/callback', '/auth/error']
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
 
-  const supabase = createServerClient<Database>(url, anonKey, {
+  const supabase = createServerClient<Database, 'kido'>(url, anonKey, {
     db: { schema: 'kido' },
     cookies: {
       getAll() {

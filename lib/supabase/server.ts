@@ -8,7 +8,7 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 export async function createClient() {
   const cookieStore = await cookies()
 
-  return createServerClient<Database>(url, anonKey, {
+  return createServerClient<Database, 'kido'>(url, anonKey, {
     db: { schema: 'kido' },
     cookies: {
       getAll() {
