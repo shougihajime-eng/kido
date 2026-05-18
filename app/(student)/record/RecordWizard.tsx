@@ -10,12 +10,35 @@ import { saveRecordAction } from './actions'
 
 type CategoryRow = {
   id: string
+  key: string | null
   name_ja: string
   icon_key: string
   color_token: string
   sort_order: number
   is_preset: boolean
 }
+
+type GameResult = 'win' | 'loss' | 'draw' | 'jisho'
+
+const GAME_RESULTS: { value: GameResult; label: string; emoji: string; color: string }[] = [
+  { value: 'win', label: '勝ち', emoji: '◯', color: '#34d399' },
+  { value: 'loss', label: '負け', emoji: '✕', color: '#f87171' },
+  { value: 'draw', label: '引き分け', emoji: '△', color: '#a0a0a8' },
+  { value: 'jisho', label: '持将棋', emoji: '持', color: '#a78bfa' }
+]
+
+const OPENING_TAGS = [
+  '居飛車',
+  '振り飛車',
+  '角換わり',
+  '相掛かり',
+  '矢倉',
+  '横歩取り',
+  '中飛車',
+  '四間飛車',
+  '三間飛車',
+  'その他'
+]
 
 interface Props {
   categories: CategoryRow[]
@@ -63,9 +86,12 @@ export function RecordWizard({ categories }: Props) {
   const [date, setDate] = useState<string>(todayLocalISO())
   const [showMemo, setShowMemo] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [gameResult, setGameResult] = useState<GameResult | null>(null)
+  const [openingTag, setOpeningTag] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const selectedCategory = categoryId ? categories.find((c) => c.id === categoryId) : null
+  const isJissen = selectedCategory?.key === 'jissen'
 
   const onSelectCategory = (id: string) => {
     setCategoryId(id)
@@ -86,7 +112,11 @@ export function RecordWizard({ categories }: Props) {
         categoryId,
         durationMinutes: minutes,
         date,
-        memo: memo || undefined
+        memo: memo || undefined,
+        gameResult:
+          isJissen && gameResult
+            ? { result: gameResult, openingTag: openingTag ?? undefined }
+            : undefined
       })
       if (!result.ok) {
         setError(result.error)
@@ -313,6 +343,65 @@ export function RecordWizard({ categories }: Props) {
                 className="h-11 px-3 rounded-lg bg-surface-elevated border border-border text-text focus:border-accent focus:outline-none font-num"
               />
             </label>
+
+            {/* 対局結果（実戦カテゴリのみ） */}
+            {isJissen && (
+              <div className="flex flex-col gap-3">
+                <span className="text-sm text-text-muted">対局結果（任意）</span>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {GAME_RESULTS.map((g) => {
+                    const active = gameResult === g.value
+                    return (
+                      <motion.button
+                        key={g.value}
+                        type="button"
+                        whileTap={{ scale: 0.94 }}
+                        onClick={() => setGameResult(active ? null : g.value)}
+                        className="flex flex-col items-center gap-1 rounded-xl border py-2.5 transition-colors"
+                        style={{
+                          borderColor: active ? g.color : 'var(--border)',
+                          backgroundColor: active ? `${g.color}22` : 'var(--surface-elevated)'
+                        }}
+                      >
+                        <span
+                          className="text-xl font-bold"
+                          style={{ color: active ? g.color : 'var(--text-muted)' }}
+                        >
+                          {g.emoji}
+                        </span>
+                        <span className="text-[10px] font-medium text-text-muted">{g.label}</span>
+                      </motion.button>
+                    )
+                  })}
+                </div>
+
+                {gameResult && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs text-text-dim">戦型（任意）</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {OPENING_TAGS.map((tag) => {
+                        const active = openingTag === tag
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => setOpeningTag(active ? null : tag)}
+                            className="h-7 px-3 rounded-full text-xs border transition-colors"
+                            style={{
+                              borderColor: active ? 'var(--accent)' : 'var(--border)',
+                              backgroundColor: active ? 'var(--accent-soft)' : 'var(--surface-elevated)',
+                              color: active ? 'var(--accent)' : 'var(--text-muted)'
+                            }}
+                          >
+                            {tag}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* メモ（任意・折りたたみ） */}
             {!showMemo ? (

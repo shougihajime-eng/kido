@@ -7,11 +7,19 @@ export type SaveRecordResult =
   | { ok: true; recordId: string }
   | { ok: false; error: string }
 
+export type GameResultInput = {
+  result: 'win' | 'loss' | 'draw' | 'jisho'
+  openingTag?: string
+  opponentName?: string
+  timeControlMinutes?: number
+}
+
 export async function saveRecordAction(input: {
   categoryId: string
   durationMinutes: number
   date: string
   memo?: string
+  gameResult?: GameResultInput
 }): Promise<SaveRecordResult> {
   if (!input.categoryId) return { ok: false, error: 'カテゴリを選んでください' }
   if (!Number.isFinite(input.durationMinutes) || input.durationMinutes <= 0) {
@@ -41,7 +49,31 @@ export async function saveRecordAction(input: {
 
   if (error) return { ok: false, error: error.message }
 
+  // 対局結果が付いていれば紐づけて保存（実戦カテゴリのみの想定）
+  if (input.gameResult) {
+    const g = input.gameResult
+    if (!['win', 'loss', 'draw', 'jisho'].includes(g.result)) {
+      return { ok: false, error: '対局結果の形式が不正です' }
+    }
+    const { error: gErr } = await supabase.from('game_results').insert({
+      training_record_id: data.id,
+      user_id: user.id,
+      result: g.result,
+      opening_tag: g.openingTag?.trim() || null,
+      opponent_name: g.opponentName?.trim() || null,
+      time_control_minutes:
+        g.timeControlMinutes && g.timeControlMinutes > 0
+          ? Math.floor(g.timeControlMinutes)
+          : null
+    })
+    if (gErr) {
+      // training_record は残ってしまうが、ユーザーには通知
+      return { ok: false, error: `対局結果の保存に失敗しました: ${gErr.message}` }
+    }
+  }
+
   revalidatePath('/dashboard')
   revalidatePath('/record')
+  revalidatePath('/games')
   return { ok: true, recordId: data.id }
 }

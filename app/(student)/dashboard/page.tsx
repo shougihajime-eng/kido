@@ -4,6 +4,7 @@ import {
   ChevronRight,
   Flame,
   KeyRound,
+  MessageCircle,
   PlusCircle,
   Target,
   UsersRound
@@ -20,6 +21,7 @@ import {
 } from '@/lib/dates'
 import { WeeklyBars } from '@/components/dashboard/WeeklyBars'
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown'
+import { MoodQuickLog } from '@/components/dashboard/MoodQuickLog'
 
 export const metadata = {
   title: 'ホーム'
@@ -40,7 +42,8 @@ export default async function DashboardPage() {
     { data: records30 },
     { count: linkedCount },
     { count: activeCodes },
-    { data: activeGoals }
+    { data: activeGoals },
+    { data: moodLogs }
   ] = await Promise.all([
     supabase.from('profiles').select('display_name, role').eq('id', user!.id).maybeSingle(),
     supabase
@@ -67,8 +70,17 @@ export default async function DashboardPage() {
       .select('id, period, category_id, target_minutes, start_date, end_date')
       .eq('user_id', user!.id)
       .gte('end_date', today)
-      .order('end_date', { ascending: true })
+      .order('end_date', { ascending: true }),
+    supabase
+      .from('mood_logs')
+      .select('date, score')
+      .eq('user_id', user!.id)
+      .gte('date', ymdAddDays(today, -6))
+      .order('date', { ascending: true })
   ])
+
+  const todayMood = (moodLogs ?? []).find((m) => m.date === today)?.score ?? null
+  const recentMoods = (moodLogs ?? []).map((m) => ({ date: m.date, score: m.score }))
 
   type RowWithCat = {
     id: string
@@ -146,6 +158,68 @@ export default async function DashboardPage() {
   // 表示する目標を1〜2個選ぶ（未達成優先、達成済みは1個まで）
   const featuredGoal = goalsWithProgress[0] // 最も期限が近いもの
 
+  // 直近の記録に対するコメントを取得
+  const recordIds = records.map((r) => r.id)
+  const commentsByRecord = new Map<string, number>()
+  type RecentComment = {
+    id: string
+    record_id: string
+    author_role: 'parent' | 'teacher' | 'ai' | 'student'
+    author_display_name: string
+    content: string
+    created_at: string
+    record_label: string
+  }
+  const recentComments: RecentComment[] = []
+
+  if (recordIds.length > 0) {
+    const { data: rawComments } = await supabase
+      .from('comments')
+      .select('id, record_id, author_id, author_role, content, created_at')
+      .in('record_id', recordIds)
+      .order('created_at', { ascending: false })
+
+    const authorIds = Array.from(
+      new Set((rawComments ?? []).map((c) => c.author_id).filter((id): id is string => !!id))
+    )
+    const authorMap = new Map<string, string>()
+    if (authorIds.length > 0) {
+      const { data: authorProfiles } = await supabase
+        .from('profiles')
+        .select('id, display_name')
+        .in('id', authorIds)
+      for (const p of authorProfiles ?? []) {
+        authorMap.set(p.id, p.display_name)
+      }
+    }
+
+    const recordById = new Map(records.map((r) => [r.id, r]))
+
+    for (const c of rawComments ?? []) {
+      commentsByRecord.set(c.record_id, (commentsByRecord.get(c.record_id) ?? 0) + 1)
+      // 最新5件を採用
+      if (recentComments.length < 5) {
+        const rec = recordById.get(c.record_id)
+        const catName = rec?.category?.name_ja ?? '記録'
+        recentComments.push({
+          id: c.id,
+          record_id: c.record_id,
+          author_role: c.author_role as RecentComment['author_role'],
+          author_display_name: c.author_id
+            ? (authorMap.get(c.author_id) ?? '不明')
+            : c.author_role === 'ai'
+              ? 'AI コーチ'
+              : '不明',
+          content: c.content,
+          created_at: c.created_at,
+          record_label: rec
+            ? `${rec.date.slice(5).replace('-', '/')} ${catName}`
+            : catName
+        })
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-baseline justify-between">
@@ -186,6 +260,9 @@ export default async function DashboardPage() {
         <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
         今、何してた？
       </Link>
+
+      {/* 今日の気分 */}
+      <MoodQuickLog todayScore={todayMood} recent={recentMoods} />
 
       {/* 目標の進捗（あれば） */}
       {featuredGoal && (
@@ -338,6 +415,7 @@ export default async function DashboardPage() {
               const cat = r.category
               const Icon = getCategoryIcon(cat?.icon_key ?? 'plus')
               const color = categoryColorVar(cat?.color_token ?? 'cat-other')
+              const cmtCount = commentsByRecord.get(r.id) ?? 0
               return (
                 <li
                   key={r.id}
@@ -355,6 +433,12 @@ export default async function DashboardPage() {
                       <div className="text-xs text-text-muted truncate">{r.memo}</div>
                     )}
                   </div>
+                  {cmtCount > 0 && (
+                    <span className="inline-flex items-center gap-1 text-xs text-accent bg-accent-soft px-2 py-1 rounded-full">
+                      <MessageCircle className="w-3 h-3" />
+                      <span className="font-num font-bold">{cmtCount}</span>
+                    </span>
+                  )}
                   <div className="flex items-baseline gap-0.5">
                     <span className="font-num font-bold tabular-nums">{r.duration_minutes}</span>
                     <span className="text-xs text-text-muted">分</span>
@@ -362,6 +446,57 @@ export default async function DashboardPage() {
                 </li>
               )
             })}
+          </ul>
+        </section>
+      )}
+
+      {/* もらったコメント */}
+      {recentComments.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm text-text-muted flex items-center gap-2">
+            <MessageCircle className="w-4 h-4 text-accent" />
+            親・先生からのコメント
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {recentComments.map((c) => (
+              <li
+                key={c.id}
+                className="bg-surface border border-border rounded-2xl p-3 flex flex-col gap-1.5"
+              >
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-semibold text-text">{c.author_display_name}</span>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${
+                      c.author_role === 'parent'
+                        ? 'text-indigo bg-indigo/15 border-indigo/30'
+                        : c.author_role === 'teacher'
+                          ? 'text-accent bg-accent-soft border-accent/30'
+                          : 'text-cat-ai bg-cat-ai/15 border-cat-ai/30'
+                    }`}
+                  >
+                    {c.author_role === 'parent'
+                      ? '親'
+                      : c.author_role === 'teacher'
+                        ? '先生'
+                        : 'AI'}
+                  </span>
+                  <span className="ml-auto text-text-dim font-num">
+                    {c.record_label}
+                  </span>
+                </div>
+                <p className="text-sm whitespace-pre-wrap break-words text-text leading-relaxed">
+                  {c.content}
+                </p>
+                <div className="text-[10px] text-text-dim font-num">
+                  {new Date(c.created_at).toLocaleString('ja-JP', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </li>
+            ))}
           </ul>
         </section>
       )}

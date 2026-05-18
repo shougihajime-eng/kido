@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -275,6 +275,54 @@ export type Database = {
           },
         ]
       }
+      game_results: {
+        Row: {
+          created_at: string
+          id: string
+          opening_tag: string | null
+          opponent_name: string | null
+          result: string
+          time_control_minutes: number | null
+          training_record_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opening_tag?: string | null
+          opponent_name?: string | null
+          result: string
+          time_control_minutes?: number | null
+          training_record_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opening_tag?: string | null
+          opponent_name?: string | null
+          result?: string
+          time_control_minutes?: number | null
+          training_record_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_results_training_record_id_fkey"
+            columns: ["training_record_id"]
+            isOneToOne: true
+            referencedRelation: "training_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           category_id: string | null
@@ -362,6 +410,47 @@ export type Database = {
           {
             foreignKeyName: "invite_codes_used_by_fkey"
             columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mood_logs: {
+        Row: {
+          created_at: string
+          date: string
+          energy: number | null
+          id: string
+          memo: string | null
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          energy?: number | null
+          id?: string
+          memo?: string | null
+          score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          energy?: number | null
+          id?: string
+          memo?: string | null
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_logs_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -704,4 +793,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
