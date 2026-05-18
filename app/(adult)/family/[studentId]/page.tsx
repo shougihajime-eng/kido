@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronLeft, Calendar, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { todayLocalISO, ymdAddDays } from '@/lib/dates'
 
 export const metadata = {
   title: '生徒の記録'
@@ -44,9 +45,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
   }
 
   // 直近 14 日の記録
-  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10)
+  const fourteenDaysAgo = ymdAddDays(todayLocalISO(), -13)
 
   const { data: records } = await supabase
     .from('training_records')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { createElement, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, ChevronLeft, Minus, PencilLine, Plus, Sparkles } from 'lucide-react'
@@ -105,7 +105,7 @@ export function RecordWizard({ categories }: Props) {
     <div className="relative">
       {/* ステップインジケータ */}
       <div className="mb-6 flex items-center gap-2">
-        {(['category', 'minutes', 'confirm'] as Step[]).map((s, i) => {
+        {(['category', 'minutes', 'confirm'] as Step[]).map((s) => {
           const isPast =
             (s === 'category' && step !== 'category') ||
             (s === 'minutes' && (step === 'confirm' || step === 'done')) ||
@@ -400,7 +400,6 @@ export function RecordWizard({ categories }: Props) {
 }
 
 function CategoryChip({ cat, onChange }: { cat: CategoryRow; onChange: () => void }) {
-  const Icon = getCategoryIcon(cat.icon_key)
   const color = categoryColorVar(cat.color_token)
   return (
     <button
@@ -413,7 +412,10 @@ function CategoryChip({ cat, onChange }: { cat: CategoryRow; onChange: () => voi
         className="flex h-6 w-6 items-center justify-center rounded-md"
         style={{ backgroundColor: color + '33', color }}
       >
-        <Icon className="h-3.5 w-3.5" strokeWidth={2.4} />
+        {createElement(getCategoryIcon(cat.icon_key), {
+          className: 'h-3.5 w-3.5',
+          strokeWidth: 2.4
+        })}
       </span>
       <span className="text-sm font-medium">{cat.name_ja}</span>
       <span className="text-xs text-text-dim">変更</span>
@@ -422,7 +424,6 @@ function CategoryChip({ cat, onChange }: { cat: CategoryRow; onChange: () => voi
 }
 
 function CategorySummary({ cat, minutes }: { cat: CategoryRow; minutes: number }) {
-  const Icon = getCategoryIcon(cat.icon_key)
   const color = categoryColorVar(cat.color_token)
   return (
     <>
@@ -430,7 +431,10 @@ function CategorySummary({ cat, minutes }: { cat: CategoryRow; minutes: number }
         className="flex h-16 w-16 items-center justify-center rounded-2xl"
         style={{ backgroundColor: color + '22', color }}
       >
-        <Icon className="h-8 w-8" strokeWidth={2.2} />
+        {createElement(getCategoryIcon(cat.icon_key), {
+          className: 'h-8 w-8',
+          strokeWidth: 2.2
+        })}
       </span>
       <span className="text-lg font-semibold">{cat.name_ja}</span>
       <div className="flex items-baseline gap-2">

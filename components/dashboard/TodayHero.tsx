@@ -3,13 +3,6 @@
 import { motion } from 'framer-motion'
 import { AnimatedNumber } from '@/app/components/AnimatedNumber'
 
-function formatHM(minutes: number): string {
-  if (minutes < 60) return `${minutes}`
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return m === 0 ? `${h}h` : `${h}h${m}`
-}
-
 export function TodayHero({
   totalMinutes,
   recordCount,
