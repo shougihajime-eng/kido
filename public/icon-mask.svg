@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable icon: アイコン周囲にセーフゾーン (約10%) を確保 -->
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a22"/>
+      <stop offset="100%" stop-color="#0a0a0c"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0c060"/>
+      <stop offset="100%" stop-color="#b8893a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg2)"/>
+  <g transform="translate(256 256) scale(0.78)">
+    <polygon
+      points="0,-140 110,-80 100,140 -100,140 -110,-80"
+      fill="none"
+      stroke="url(#gold2)"
+      stroke-width="16"
+      stroke-linejoin="round"
+    />
+    <line x1="0" y1="-100" x2="0" y2="100"
+      stroke="url(#gold2)" stroke-width="14" stroke-linecap="round"/>
+    <line x1="-60" y1="-30" x2="60" y2="-30"
+      stroke="url(#gold2)" stroke-width="12" stroke-linecap="round"/>
+    <line x1="-50" y1="40" x2="50" y2="40"
+      stroke="url(#gold2)" stroke-width="12" stroke-linecap="round"/>
+  </g>
+</svg>

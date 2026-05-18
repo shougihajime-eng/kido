@@ -1,26 +1,211 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
+/* 棋道 デザイントークン
+ * ベース：ダーク基調（夜の静謐な空気）
+ * アクセント：金色（駒の色）と藍色
+ * 火：ストリーク用
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ベース */
+  --background: #0a0a0c;
+  --foreground: #f5f5f0;
+
+  /* 面 */
+  --surface: #15151a;
+  --surface-elevated: #1f1f26;
+  --surface-overlay: #2a2a33;
+
+  /* 線・区切り */
+  --border: #2e2e38;
+  --border-strong: #44444f;
+
+  /* 文字 */
+  --text: #f5f5f0;
+  --text-muted: #a0a0a8;
+  --text-dim: #6b6b75;
+
+  /* アクセント：金色（駒の色）*/
+  --accent: #d4a24c;
+  --accent-deep: #b8893a;
+  --accent-soft: rgba(212, 162, 76, 0.15);
+
+  /* セカンダリ：藍色 */
+  --indigo: #6366f1;
+  --indigo-deep: #4f46e5;
+
+  /* 状態色 */
+  --fire: #ff6b35;
+  --fire-bright: #ff9248;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  /* カテゴリカラー（練習種別の差し色）*/
+  --cat-kifu: #d4a24c; /* 棋譜並べ：金 */
+  --cat-tsume: #8b5cf6; /* 詰将棋：紫 */
+  --cat-game: #ef4444; /* 実戦：赤 */
+  --cat-study: #6366f1; /* 研究会：藍 */
+  --cat-vs: #ec4899; /* VS：桃 */
+  --cat-ai: #06b6d4; /* AI研究：水 */
+  --cat-book: #84cc16; /* 定跡研究：緑 */
+  --cat-other: #94a3b8; /* その他：灰 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-indigo: var(--indigo);
+  --color-indigo-deep: var(--indigo-deep);
+
+  --color-fire: var(--fire);
+  --color-fire-bright: var(--fire-bright);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+
+  --color-cat-kifu: var(--cat-kifu);
+  --color-cat-tsume: var(--cat-tsume);
+  --color-cat-game: var(--cat-game);
+  --color-cat-study: var(--cat-study);
+  --color-cat-vs: var(--cat-vs);
+  --color-cat-ai: var(--cat-ai);
+  --color-cat-book: var(--cat-book);
+  --color-cat-other: var(--cat-other);
+
+  /* フォント */
+  --font-sans: var(--font-noto-sans-jp), var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-noto-sans-jp), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', monospace;
+  --font-num: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', monospace;
+
+  /* タイポグラフィ */
+  --text-display: 4rem; /* 巨大な数字（今日の合計）*/
+  --text-huge: 3rem; /* セクションヘッダー */
+  --text-large: 1.5rem;
+  --text-base: 1rem;
+  --text-small: 0.875rem;
+  --text-tiny: 0.75rem;
+
+  /* イージング・遷移 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--background);
+  color: var(--text);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: 'palt' 1; /* 日本語カーニング */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* スクロールバー（ダーク基調用）*/
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
+
+/* セレクション */
+::selection {
+  background: var(--accent);
+  color: var(--background);
+}
+
+/* 数字を見せるためのユーティリティ */
+.font-num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings:
+    'tnum' 1,
+    'zero' 1;
+}
+
+/* 金色の光るテキスト */
+.gold-glow {
+  color: var(--accent);
+  text-shadow:
+    0 0 16px rgba(212, 162, 76, 0.45),
+    0 0 32px rgba(212, 162, 76, 0.25);
+}
+
+/* 炎が揺れる（ストリーク用） */
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(-1deg);
+    filter: drop-shadow(0 0 8px var(--fire-bright));
+  }
+  25% {
+    transform: scale(1.08) rotate(2deg);
+    filter: drop-shadow(0 0 12px var(--fire-bright));
+  }
+  50% {
+    transform: scale(0.95) rotate(-2deg);
+    filter: drop-shadow(0 0 6px var(--fire));
+  }
+  75% {
+    transform: scale(1.04) rotate(1deg);
+    filter: drop-shadow(0 0 10px var(--fire-bright));
+  }
+}
+.flame-flicker {
+  animation: flame-flicker 2.2s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+/* 数字の光るパルス（達成時）*/
+@keyframes pulse-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 8px rgba(212, 162, 76, 0.4),
+      0 0 24px rgba(212, 162, 76, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 24px rgba(212, 162, 76, 0.7),
+      0 0 48px rgba(212, 162, 76, 0.4);
+  }
+}
+.pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+/* セーフエリア（iOS PWAホーム画面）*/
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
