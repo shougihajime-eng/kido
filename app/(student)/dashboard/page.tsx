@@ -1,17 +1,16 @@
 import Link from 'next/link'
 import {
+  BookText,
   CheckCircle2,
   ChevronRight,
   Flame,
   KeyRound,
-  MessageCircle,
   PlusCircle,
   Target,
   UsersRound
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { AnimatedNumber } from '@/app/components/AnimatedNumber'
-import { getCategoryIcon, categoryColorVar } from '@/lib/category-icon'
 import {
   computeStreak,
   daysRemaining,
@@ -22,6 +21,8 @@ import {
 import { WeeklyBars } from '@/components/dashboard/WeeklyBars'
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown'
 import { MoodQuickLog } from '@/components/dashboard/MoodQuickLog'
+import { StudentRecordCard } from '@/components/records/StudentRecordCard'
+import { fetchCommentsForRecords } from '@/lib/comments-fetch'
 
 export const metadata = {
   title: 'ホーム'
@@ -48,8 +49,9 @@ export default async function DashboardPage() {
     supabase.from('profiles').select('display_name, role').eq('id', user!.id).maybeSingle(),
     supabase
       .from('training_records')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .select(
-        'id, date, duration_minutes, memo, recorded_at, category:categories(id, name_ja, icon_key, color_token, kind)'
+        'id, date, duration_minutes, memo, self_memo, recorded_at, category:categories(id, name_ja, icon_key, color_token, kind)'
       )
       .eq('user_id', user!.id)
       .gte('date', ymdAddDays(today, -29))
@@ -87,6 +89,7 @@ export default async function DashboardPage() {
     date: string
     duration_minutes: number
     memo: string | null
+    self_memo: string | null
     recorded_at: string
     category: {
       id: string
@@ -162,67 +165,18 @@ export default async function DashboardPage() {
   // 表示する目標を1〜2個選ぶ（未達成優先、達成済みは1個まで）
   const featuredGoal = goalsWithProgress[0] // 最も期限が近いもの
 
-  // 直近の記録に対するコメントを取得
+  // 直近の記録に対するコメントを取得（共通ヘルパ）
   const recordIds = records.map((r) => r.id)
-  const commentsByRecord = new Map<string, number>()
-  type RecentComment = {
-    id: string
-    record_id: string
-    author_role: 'parent' | 'teacher' | 'ai' | 'student'
-    author_display_name: string
-    content: string
-    created_at: string
-    record_label: string
-  }
-  const recentComments: RecentComment[] = []
+  const { byRecord: commentsByRecord } = await fetchCommentsForRecords(
+    supabase,
+    recordIds,
+    user!.id
+  )
 
-  if (recordIds.length > 0) {
-    const { data: rawComments } = await supabase
-      .from('comments')
-      .select('id, record_id, author_id, author_role, content, created_at')
-      .in('record_id', recordIds)
-      .order('created_at', { ascending: false })
-
-    const authorIds = Array.from(
-      new Set((rawComments ?? []).map((c) => c.author_id).filter((id): id is string => !!id))
-    )
-    const authorMap = new Map<string, string>()
-    if (authorIds.length > 0) {
-      const { data: authorProfiles } = await supabase
-        .from('profiles')
-        .select('id, display_name')
-        .in('id', authorIds)
-      for (const p of authorProfiles ?? []) {
-        authorMap.set(p.id, p.display_name)
-      }
-    }
-
-    const recordById = new Map(records.map((r) => [r.id, r]))
-
-    for (const c of rawComments ?? []) {
-      commentsByRecord.set(c.record_id, (commentsByRecord.get(c.record_id) ?? 0) + 1)
-      // 最新5件を採用
-      if (recentComments.length < 5) {
-        const rec = recordById.get(c.record_id)
-        const catName = rec?.category?.name_ja ?? '記録'
-        recentComments.push({
-          id: c.id,
-          record_id: c.record_id,
-          author_role: c.author_role as RecentComment['author_role'],
-          author_display_name: c.author_id
-            ? (authorMap.get(c.author_id) ?? '不明')
-            : c.author_role === 'ai'
-              ? 'AI コーチ'
-              : '不明',
-          content: c.content,
-          created_at: c.created_at,
-          record_label: rec
-            ? `${rec.date.slice(5).replace('-', '/')} ${catName}`
-            : catName
-        })
-      }
-    }
-  }
+  // 「コメントが付いた最近の記録」（今日以外も対象、コメント1件以上）
+  const recordsWithCommentsBeyondToday = records
+    .filter((r) => r.date !== today && (commentsByRecord.get(r.id)?.length ?? 0) > 0)
+    .slice(0, 5)
 
   return (
     <div className="flex flex-col gap-6">
@@ -410,100 +364,91 @@ export default async function DashboardPage() {
         <CategoryBreakdown items={byCategoryThisWeek} />
       )}
 
-      {/* 今日の記録リスト */}
+      {/* 今日の記録（タップで会話・自己メモ） */}
       {todayRecords.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h2 className="text-sm text-text-muted">今日の記録</h2>
-          <ul className="flex flex-col gap-2">
-            {todayRecords.map((r) => {
-              const cat = r.category
-              const Icon = getCategoryIcon(cat?.icon_key ?? 'plus')
-              const color = categoryColorVar(cat?.color_token ?? 'cat-other')
-              const cmtCount = commentsByRecord.get(r.id) ?? 0
-              return (
-                <li
-                  key={r.id}
-                  className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3"
-                >
-                  <span
-                    className="flex h-10 w-10 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: color + '22', color }}
-                  >
-                    <Icon className="h-5 w-5" strokeWidth={2.2} />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-text truncate">{cat?.name_ja ?? '—'}</div>
-                    {r.memo && (
-                      <div className="text-xs text-text-muted truncate">{r.memo}</div>
-                    )}
-                  </div>
-                  {cmtCount > 0 && (
-                    <span className="inline-flex items-center gap-1 text-xs text-accent bg-accent-soft px-2 py-1 rounded-full">
-                      <MessageCircle className="w-3 h-3" />
-                      <span className="font-num font-bold">{cmtCount}</span>
-                    </span>
-                  )}
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="font-num font-bold tabular-nums">{r.duration_minutes}</span>
-                    <span className="text-xs text-text-muted">分</span>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </section>
-      )}
-
-      {/* もらったコメント */}
-      {recentComments.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <h2 className="text-sm text-text-muted flex items-center gap-2">
-            <MessageCircle className="w-4 h-4 text-accent" />
-            親・先生からのコメント
+          <h2 className="text-sm text-text-muted flex items-center justify-between">
+            <span>今日の記録</span>
+            <span className="text-[10px] text-text-dim font-normal">
+              タップで会話・自分メモ
+            </span>
           </h2>
           <ul className="flex flex-col gap-2">
-            {recentComments.map((c) => (
-              <li
-                key={c.id}
-                className="bg-surface border border-border rounded-2xl p-3 flex flex-col gap-1.5"
-              >
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="font-semibold text-text">{c.author_display_name}</span>
-                  <span
-                    className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${
-                      c.author_role === 'parent'
-                        ? 'text-indigo bg-indigo/15 border-indigo/30'
-                        : c.author_role === 'teacher'
-                          ? 'text-accent bg-accent-soft border-accent/30'
-                          : 'text-cat-ai bg-cat-ai/15 border-cat-ai/30'
-                    }`}
-                  >
-                    {c.author_role === 'parent'
-                      ? '親'
-                      : c.author_role === 'teacher'
-                        ? '先生'
-                        : 'AI'}
-                  </span>
-                  <span className="ml-auto text-text-dim font-num">
-                    {c.record_label}
-                  </span>
-                </div>
-                <p className="text-sm whitespace-pre-wrap break-words text-text leading-relaxed">
-                  {c.content}
-                </p>
-                <div className="text-[10px] text-text-dim font-num">
-                  {new Date(c.created_at).toLocaleString('ja-JP', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </div>
-              </li>
+            {todayRecords.map((r) => (
+              <StudentRecordCard
+                key={r.id}
+                record={{
+                  id: r.id,
+                  date: r.date,
+                  duration_minutes: r.duration_minutes,
+                  memo: r.memo,
+                  self_memo: r.self_memo,
+                  category: r.category
+                    ? {
+                        name_ja: r.category.name_ja,
+                        icon_key: r.category.icon_key,
+                        color_token: r.category.color_token
+                      }
+                    : null
+                }}
+                comments={commentsByRecord.get(r.id) ?? []}
+              />
             ))}
           </ul>
         </section>
       )}
+
+      {/* コメントが届いた最近の記録（今日以外） */}
+      {recordsWithCommentsBeyondToday.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm text-text-muted flex items-center justify-between">
+            <span>新しいコメントが届いた記録</span>
+            <span className="text-[10px] text-text-dim font-normal">タップで会話</span>
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {recordsWithCommentsBeyondToday.map((r) => (
+              <StudentRecordCard
+                key={r.id}
+                record={{
+                  id: r.id,
+                  date: r.date,
+                  duration_minutes: r.duration_minutes,
+                  memo: r.memo,
+                  self_memo: r.self_memo,
+                  category: r.category
+                    ? {
+                        name_ja: r.category.name_ja,
+                        icon_key: r.category.icon_key,
+                        color_token: r.category.color_token
+                      }
+                    : null
+                }}
+                comments={commentsByRecord.get(r.id) ?? []}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* 日記（自己メモまとめ） */}
+      <Link
+        href="/diary"
+        className="group flex items-center gap-3 bg-surface border border-border hover:border-gold rounded-2xl p-4 transition-colors"
+      >
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: 'var(--gold-soft)', color: 'var(--gold-deep)' }}
+        >
+          <BookText className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm">日記をひらく</div>
+          <div className="text-xs text-text-dim mt-0.5">
+            自分だけ見える、まとまった考えごとや気づきメモ
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-gold transition-colors" />
+      </Link>
 
       {/* 親・先生を招待 */}
       <Link
