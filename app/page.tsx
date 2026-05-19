@@ -38,14 +38,14 @@ function Hero() {
           KIDO
         </div>
         <p className="text-text-muted text-lg sm:text-2xl mt-2 max-w-2xl leading-relaxed">
-          将棋プロ志望のための、
+          将棋を本気で楽しむ、
           <br className="sm:hidden" />
-          日々の研鑽を記録するアプリ
+          すべての人の研鑽ノート
         </p>
         <p className="text-text-dim text-base sm:text-lg max-w-xl leading-relaxed">
-          Strava がランニングを、Duolingo が語学を変えたように、
+          奨励会員・女流棋士志望・研修会員・<span className="text-accent font-semibold">アマチュア</span>。
           <br className="hidden sm:inline" />
-          棋道は将棋プロ志望の毎日を変えます。
+          段位の人も、級位の人も、毎日の積み重ねを大事にする方へ。
         </p>
 
         {/* CTA */}
@@ -88,7 +88,7 @@ function ValueProps() {
     {
       emoji: '🤝',
       title: '仲間と切磋琢磨',
-      body: 'みんなのがんばりが見えるランキング。ライバルにも会える。'
+      body: 'みんなのがんばりが見えるランキング。ライバルにも会える。競争が苦手な人はプライベートモードで。'
     }
   ]
   return (

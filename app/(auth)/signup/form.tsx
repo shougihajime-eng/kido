@@ -127,6 +127,10 @@ export function SignupForm() {
           <p className="text-[11px] text-text-dim leading-relaxed">
             ランキングで「どのクラスの人か」が分かるように使います。
           </p>
+          <p className="text-[11px] text-accent leading-relaxed bg-accent-soft/40 border border-accent/20 rounded-lg px-3 py-2">
+            奨励会員・女流棋士志望に限らず、<span className="font-bold">アマチュアの方も大歓迎</span>です。
+            段位（三段・四段…）も級位（1級・3級…）も選べます。
+          </p>
 
           <label className="flex flex-col gap-1.5 mt-1">
             <span className="text-xs text-text-muted">カテゴリを選ぶ</span>
