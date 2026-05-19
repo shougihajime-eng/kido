@@ -541,3 +541,144 @@ a,
     opacity: 1;
   }
 }
+
+/* ───────────────────────────────────────────────
+ * 名言「掛け軸モード」モーダル
+ * カードをタップ → 全画面で一句だけをどっしり味わう
+ * ─────────────────────────────────────────────── */
+
+/* 背景：暗くしすぎず、和紙の温かい色合いをそのまま濃くする */
+@keyframes meigen-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.meigen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background:
+    radial-gradient(ellipse 800px 600px at 50% 50%, rgba(250, 235, 200, 0.98), rgba(240, 220, 170, 0.96) 60%, rgba(200, 175, 120, 0.94) 100%);
+  animation: meigen-overlay-in 0.4s var(--ease-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  overflow: hidden;
+}
+/* 周りに薄い暈し（古い掛け軸ふう） */
+.meigen-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 50%, transparent 60%, rgba(80, 60, 30, 0.18) 100%);
+  pointer-events: none;
+}
+/* 金粉のキラ — モーダル内にも薄く乗せる */
+.meigen-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(184, 137, 58, 0.5) 1px, transparent 2px),
+    radial-gradient(circle at 28% 75%, rgba(184, 137, 58, 0.45) 1px, transparent 2px),
+    radial-gradient(circle at 45% 18%, rgba(184, 137, 58, 0.4) 1px, transparent 2px),
+    radial-gradient(circle at 62% 82%, rgba(184, 137, 58, 0.5) 1px, transparent 2px),
+    radial-gradient(circle at 78% 32%, rgba(184, 137, 58, 0.45) 1px, transparent 2px),
+    radial-gradient(circle at 88% 68%, rgba(184, 137, 58, 0.5) 1px, transparent 2px),
+    radial-gradient(circle at 22% 45%, rgba(184, 137, 58, 0.3) 1px, transparent 2px),
+    radial-gradient(circle at 72% 55%, rgba(184, 137, 58, 0.35) 1px, transparent 2px);
+}
+
+/* 掛け軸本体（中央のカード） */
+@keyframes scroll-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+.meigen-scroll {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  width: 100%;
+  max-height: 100%;
+  padding: 2rem 1.5rem 1.75rem;
+  border-radius: 16px;
+  background-color: #fdf6e3;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(184, 137, 58, 0.06) 0, transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(30, 64, 175, 0.04) 0, transparent 55%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(180, 140, 70, 0.025) 0px,
+      rgba(180, 140, 70, 0.025) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  box-shadow:
+    inset 0 0 0 1.5px rgba(184, 137, 58, 0.3),
+    inset 0 0 60px rgba(184, 137, 58, 0.07),
+    0 12px 40px rgba(80, 60, 30, 0.2);
+  animation: scroll-in 0.55s var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .meigen-scroll {
+    padding: 2.75rem 2.5rem 2.25rem;
+    gap: 1.75rem;
+  }
+}
+/* 掛け軸の上下に細い帯（軸頭・軸尾のイメージ） */
+.meigen-scroll::before,
+.meigen-scroll::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  height: 12px;
+  background: linear-gradient(
+    to bottom,
+    #8b6a2a,
+    #b8893a 45%,
+    #8b6a2a 100%
+  );
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.meigen-scroll::before { top: -6px; }
+.meigen-scroll::after { bottom: -6px; }
+
+/* モーダル内の大筆 */
+.meigen-scroll-text {
+  font-family: var(--font-fude);
+  color: #0d0d0d;
+  -webkit-text-stroke: 0.7px #0d0d0d;
+  text-shadow:
+    0 0 0.6px #0d0d0d,
+    0 1px 0 rgba(0, 0, 0, 0.12);
+  font-size: 1.75rem;
+  line-height: 1.55;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .meigen-scroll-text { font-size: 2.15rem; }
+}
+@media (min-width: 768px) {
+  .meigen-scroll-text { font-size: 2.55rem; }
+}
+
+/* スクロール切替時の墨が滲む再アニメ */
+.meigen-scroll-inner {
+  animation: ink-bloom 0.5s var(--ease-smooth);
+}
