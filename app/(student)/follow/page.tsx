@@ -40,6 +40,7 @@ export default async function FollowPage() {
     role: string
     level_kind: string | null
     level_text: string | null
+    private_mode: boolean | null
     total_minutes: number | string
     shogi_minutes: number | string
     active_days: number | string
@@ -57,21 +58,37 @@ export default async function FollowPage() {
     ((myRivals ?? []) as { rival_id: string }[]).map((r) => r.rival_id)
   )
 
+  // 自分のプロフィール（プライベートモード判定用）
+  const { data: meProfile } = await untyped
+    .from('profiles')
+    .select('private_mode')
+    .eq('id', user.id)
+    .maybeSingle()
+  const iAmPrivate = Boolean(meProfile?.private_mode)
+
   // 自分の表示名（ハイライト用）
   const me = leaders.find((l) => l.user_id === user.id)
 
   // 将棋時間で降順ソート（同点は active_days で）
+  // 他人で private_mode=true の人は名前を「ひみつの仲間」に置換、段級も伏せる、★対象外
   const sortedLeaders: LeaderRow[] = leaders
-    .map((l) => ({
-      userId: l.user_id,
-      displayName: l.display_name ?? '名前なし',
-      levelLabel: formatLevel(l.level_kind, l.level_text),
-      shogiMinutes: Number(l.shogi_minutes),
-      totalMinutes: Number(l.total_minutes),
-      activeDays: Number(l.active_days),
-      isMe: l.user_id === user.id,
-      isRival: rivalIds.has(l.user_id)
-    }))
+    .map((l) => {
+      const isMe = l.user_id === user.id
+      const isPrivateOther = !isMe && Boolean(l.private_mode)
+      return {
+        userId: l.user_id,
+        displayName: isPrivateOther
+          ? 'ひみつの仲間'
+          : (l.display_name ?? '名前なし'),
+        levelLabel: isPrivateOther ? '' : formatLevel(l.level_kind, l.level_text),
+        shogiMinutes: Number(l.shogi_minutes),
+        totalMinutes: Number(l.total_minutes),
+        activeDays: Number(l.active_days),
+        isMe,
+        isRival: rivalIds.has(l.user_id),
+        isPrivate: isPrivateOther
+      }
+    })
     .sort((a, b) => {
       if (b.shogiMinutes !== a.shogiMinutes) return b.shogiMinutes - a.shogiMinutes
       return b.activeDays - a.activeDays
@@ -91,6 +108,7 @@ export default async function FollowPage() {
       totalStudents={totalStudents}
       weekStart={weekStart}
       weekEnd={weekEnd}
+      iAmPrivate={iAmPrivate}
     />
   )
 }

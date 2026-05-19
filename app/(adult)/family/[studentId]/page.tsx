@@ -22,6 +22,7 @@ import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown'
 import { AnalysisCharts } from '@/app/(student)/analysis/AnalysisCharts'
 import { CalendarHeatmap } from '@/app/(student)/calendar/CalendarHeatmap'
 import { RecordWithComments } from './RecordWithComments'
+import { PrivateModeToggle } from './PrivateModeToggle'
 import { fetchCommentsForRecords } from '@/lib/comments-fetch'
 
 export const metadata = {
@@ -66,7 +67,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: student } = await (supabase
     .from('profiles')
-    .select('display_name, level_kind, level_text, avatar_url')
+    .select('display_name, level_kind, level_text, avatar_url, private_mode')
     .eq('id', studentId)
     .maybeSingle() as any)
 
@@ -298,6 +299,13 @@ export default async function StudentDetailPage({ params }: PageProps) {
           </div>
         </div>
       </header>
+
+      {/* プライベートモード切替（親・先生用） */}
+      <PrivateModeToggle
+        studentId={studentId}
+        studentName={student.display_name as string}
+        initialPrivateMode={Boolean(student.private_mode)}
+      />
 
       {/* 大きなサマリー（ぱっと見） */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">

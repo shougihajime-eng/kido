@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Trophy, UsersRound, Flame } from 'lucide-react'
+import { Star, Trophy, UsersRound, Flame, EyeOff } from 'lucide-react'
 import { toggleRivalAction } from './actions'
 
 export interface LeaderRow {
@@ -15,6 +15,7 @@ export interface LeaderRow {
   activeDays: number
   isMe: boolean
   isRival: boolean
+  isPrivate: boolean
 }
 
 interface Props {
@@ -25,6 +26,7 @@ interface Props {
   totalStudents: number
   weekStart: string
   weekEnd: string
+  iAmPrivate: boolean
 }
 
 type Tab = 'all' | 'rivals'
@@ -42,7 +44,8 @@ export function Leaderboard({
   myRank,
   totalStudents,
   weekStart,
-  weekEnd
+  weekEnd,
+  iAmPrivate
 }: Props) {
   const [tab, setTab] = useState<Tab>('all')
 
@@ -71,12 +74,18 @@ export function Leaderboard({
           </span>
           <span className="text-base text-text-muted">分</span>
         </div>
-        {totalStudents > 0 && (
+        {totalStudents > 0 && !iAmPrivate && (
           <div className="text-sm text-text-muted flex items-center gap-2">
             <Trophy className="w-4 h-4 text-sakura" />
             <span>
               {totalStudents}人中 <span className="font-num font-bold text-accent text-xl">{myRank}</span>位
             </span>
+          </div>
+        )}
+        {iAmPrivate && (
+          <div className="text-xs text-text-muted flex items-center gap-1.5 bg-surface-elevated px-3 py-1.5 rounded-full">
+            <EyeOff className="w-3.5 h-3.5" />
+            <span>プライベートモード（順位は表示しません）</span>
           </div>
         )}
       </section>
@@ -123,6 +132,7 @@ export function Leaderboard({
                   tab === 'all' ? i + 1 : rows.findIndex((r) => r.userId === row.userId) + 1
                 }
                 maxMinutes={Math.max(1, maxShogiMinutes)}
+                hideRank={iAmPrivate}
               />
             ))}
           </AnimatePresence>
@@ -139,11 +149,13 @@ export function Leaderboard({
 function LeaderRowCard({
   row,
   rank,
-  maxMinutes
+  maxMinutes,
+  hideRank
 }: {
   row: LeaderRow
   rank: number
   maxMinutes: number
+  hideRank: boolean
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -154,7 +166,7 @@ function LeaderRowCard({
 
   const handleToggleRival = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (row.isMe) return
+    if (row.isMe || row.isPrivate) return
     const nextValue = !optimisticRival
     setOptimisticRival(nextValue)
     startTransition(async () => {
@@ -169,7 +181,6 @@ function LeaderRowCard({
   const hours = Math.floor(row.shogiMinutes / 60)
   const mins = row.shogiMinutes % 60
 
-  const isTop3 = rank <= 3
   const rankBadgeColor =
     rank === 1
       ? 'bg-gold text-white'
@@ -203,17 +214,26 @@ function LeaderRowCard({
       />
 
       <div className="relative flex items-center gap-3">
-        {/* 順位 */}
-        <span
-          className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold font-num text-base shrink-0 ${rankBadgeColor}`}
-        >
-          {rank}
-        </span>
+        {/* 順位（プライベートモード時は非表示） */}
+        {hideRank ? (
+          <span
+            className="w-9 h-9 rounded-xl flex items-center justify-center font-bold font-num text-base shrink-0 bg-surface-overlay text-text-dim"
+            aria-hidden
+          >
+            ·
+          </span>
+        ) : (
+          <span
+            className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold font-num text-base shrink-0 ${rankBadgeColor}`}
+          >
+            {rank}
+          </span>
+        )}
 
         {/* 名前 */}
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-lg font-bold truncate">
+            <span className={`text-lg font-bold truncate ${row.isPrivate ? 'text-text-muted italic' : ''}`}>
               {row.displayName}
             </span>
             {row.isMe && (
@@ -255,8 +275,8 @@ function LeaderRowCard({
           )}
         </div>
 
-        {/* ライバル★ボタン */}
-        {!row.isMe && (
+        {/* ライバル★ボタン（プライベート相手には付けられない） */}
+        {!row.isMe && !row.isPrivate && (
           <button
             type="button"
             onClick={handleToggleRival}

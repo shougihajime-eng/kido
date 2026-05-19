@@ -15,6 +15,7 @@ export async function updateProfileAction(input: {
   displayName: string
   levelKind: LevelKind | null
   levelText: string
+  privateMode: boolean
 }): Promise<UpdateProfileResult> {
   const supabase = await createClient()
   const {
@@ -73,7 +74,8 @@ export async function updateProfileAction(input: {
     .update({
       display_name: nameCheck.name,
       level_kind: safeLevelKind,
-      level_text: safeLevelText
+      level_text: safeLevelText,
+      private_mode: role === 'student' ? Boolean(input.privateMode) : false
     } as any)
     .eq('id', user.id))
 

@@ -19,7 +19,7 @@ export default async function ProfileEditPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: profile } = await (supabase
     .from('profiles')
-    .select('display_name, role, level_kind, level_text')
+    .select('display_name, role, level_kind, level_text, private_mode')
     .eq('id', user.id)
     .maybeSingle() as any)
 
@@ -47,6 +47,7 @@ export default async function ProfileEditPage() {
         initialName={profile.display_name as string}
         initialLevelKind={(profile.level_kind ?? '') as LevelKind | ''}
         initialLevelText={(profile.level_text ?? '') as string}
+        initialPrivateMode={Boolean(profile.private_mode)}
         role={profile.role as 'student' | 'parent' | 'teacher'}
       />
     </div>

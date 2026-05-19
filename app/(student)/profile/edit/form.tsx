@@ -14,14 +14,22 @@ interface Props {
   initialName: string
   initialLevelKind: LevelKind | ''
   initialLevelText: string
+  initialPrivateMode: boolean
   role: 'student' | 'parent' | 'teacher'
 }
 
-export function ProfileEditForm({ initialName, initialLevelKind, initialLevelText, role }: Props) {
+export function ProfileEditForm({
+  initialName,
+  initialLevelKind,
+  initialLevelText,
+  initialPrivateMode,
+  role
+}: Props) {
   const router = useRouter()
   const [displayName, setDisplayName] = useState(initialName)
   const [levelKind, setLevelKind] = useState<LevelKind | ''>(initialLevelKind)
   const [levelText, setLevelText] = useState(initialLevelText)
+  const [privateMode, setPrivateMode] = useState(initialPrivateMode)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -49,7 +57,8 @@ export function ProfileEditForm({ initialName, initialLevelKind, initialLevelTex
       const result = await updateProfileAction({
         displayName,
         levelKind: isStudent && levelKind ? levelKind : null,
-        levelText: isStudent && needsAnyText ? levelText.trim() : ''
+        levelText: isStudent && needsAnyText ? levelText.trim() : '',
+        privateMode: isStudent ? privateMode : false
       })
 
       if (!result.ok) {
@@ -134,6 +143,37 @@ export function ProfileEditForm({ initialName, initialLevelKind, initialLevelTex
               />
             </label>
           )}
+        </div>
+      )}
+
+      {/* プライベートモード（生徒だけ） */}
+      {isStudent && (
+        <div className="flex flex-col gap-2 bg-surface-elevated/50 border border-border rounded-xl p-4">
+          <span className="text-sm font-semibold text-text">プライベートモード</span>
+          <p className="text-[11px] text-text-dim leading-relaxed">
+            ONにすると、仲間のランキングであなたの名前が「ひみつの仲間」と表示されます。
+            あなたの画面では順位の数字が消えて、自分のペースで取り組めます。
+            時間（がんばった分）は仲間にも見えます。
+          </p>
+          <label className="flex items-center gap-3 mt-1 cursor-pointer">
+            <button
+              type="button"
+              onClick={() => setPrivateMode((v) => !v)}
+              aria-pressed={privateMode}
+              className={`relative w-14 h-8 rounded-full transition-colors shrink-0 ${
+                privateMode ? 'bg-accent' : 'bg-surface-overlay border border-border'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${
+                  privateMode ? 'left-7' : 'left-1'
+                }`}
+              />
+            </button>
+            <span className="text-sm font-semibold">
+              {privateMode ? 'ON（プライベート）' : 'OFF（みんなに名前が見える）'}
+            </span>
+          </label>
         </div>
       )}
 
