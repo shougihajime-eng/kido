@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ShareAppButton } from '@/components/ShareAppButton'
 
 export default function LandingPage() {
   return (
@@ -213,6 +214,18 @@ function ClosingCTA() {
           </Link>
         </div>
         <div className="text-text-dim text-sm mt-4">完全無料・広告なし</div>
+
+        {/* 共有ボタン（広めてもらう） */}
+        <div className="mt-10 pt-10 border-t border-border w-full max-w-md flex flex-col items-center gap-3">
+          <p className="text-sm text-text-muted">
+            棋道を応援してくれるあなたへ
+          </p>
+          <ShareAppButton
+            size="lg"
+            label="お友達にすすめる"
+            hint="お友達・お子さんの先生・将棋仲間にこのアプリを伝える"
+          />
+        </div>
       </div>
     </section>
   )

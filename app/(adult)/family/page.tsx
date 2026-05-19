@@ -3,6 +3,7 @@ import { Crown, Eye, KeyRound, UserPlus, UsersRound } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatLevel } from '@/lib/level'
 import { RemoveLinkButton } from './RemoveLinkButton'
+import { ShareAppButton } from '@/components/ShareAppButton'
 
 export const metadata = {
   title: '見守り'
@@ -222,6 +223,14 @@ export default async function FamilyPage() {
         生徒の練習記録は「読み取り専用」で見られます。コメント機能は今後追加予定です。
         紐づきを解除すると、その生徒のデータは見られなくなります。
       </p>
+
+      {/* 共有ボタン */}
+      <div className="bg-surface border border-border rounded-2xl p-5 flex flex-col items-center gap-3 mt-2">
+        <p className="text-sm text-text-muted">
+          将棋仲間の親御さん・先生にもこのアプリを伝えてみませんか
+        </p>
+        <ShareAppButton size="md" label="知り合いにすすめる" />
+      </div>
     </div>
   )
 }

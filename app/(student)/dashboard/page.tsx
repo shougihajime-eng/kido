@@ -23,6 +23,7 @@ import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown'
 import { MoodQuickLog } from '@/components/dashboard/MoodQuickLog'
 import { MeigenCard } from '@/components/dashboard/MeigenCard'
 import { StudentRecordCard } from '@/components/records/StudentRecordCard'
+import { ShareAppButton } from '@/components/ShareAppButton'
 import { fetchCommentsForRecords } from '@/lib/comments-fetch'
 import { todayMeigenIndex } from '@/lib/meigen'
 
@@ -484,6 +485,12 @@ export default async function DashboardPage() {
         </div>
         <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors" />
       </Link>
+
+      {/* 共有ボタン */}
+      <div className="bg-surface border border-border rounded-2xl p-4 flex flex-col items-center gap-2">
+        <p className="text-xs text-text-muted">将棋仲間にもこのアプリを伝えてみよう</p>
+        <ShareAppButton size="md" label="お友達にすすめる" />
+      </div>
 
       <p className="text-center text-xs text-text-dim">
         ログイン中: <span className="font-num text-accent">{user?.email}</span>
