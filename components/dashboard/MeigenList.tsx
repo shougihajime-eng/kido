@@ -124,7 +124,7 @@ export function MeigenList() {
                   </span>
                 ))}
               </div>
-              <p className="font-fude text-[#2b2b2b] text-[1.15rem] sm:text-[1.3rem] leading-snug tracking-wide">
+              <p className="font-fude text-[1.25rem] sm:text-[1.4rem] leading-snug tracking-wide">
                 {m.text}
               </p>
               <p className="font-mincho text-xs sm:text-sm text-text-muted self-end">

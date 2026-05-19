@@ -300,12 +300,28 @@ a,
   padding-right: env(safe-area-inset-right);
 }
 
-/* 筆文字（毛筆）— 名言で使用 */
+/* 筆文字（毛筆）— 名言で使用
+ * Yuji Syuku は単一ウェイトなので、テキストストローク＋極軽い文字シャドウで
+ * 「墨をたっぷり含んだ太い筆字」に見えるように疑似ボールド化する。
+ * 色は真っ黒に寄せて、はっきり読めるようにする。 */
 .font-fude {
   font-family: var(--font-fude);
   font-weight: 400;
-  letter-spacing: 0.06em;
-  line-height: 1.55;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: #111111;
+  /* iPhone/Android Chrome/Safari で同じくらい太く見えるよう
+   * text-stroke と text-shadow を併用 */
+  -webkit-text-stroke: 0.6px #111111;
+  text-shadow:
+    0 0 0.5px #111111,
+    0 1px 0 rgba(17, 17, 17, 0.15);
+}
+/* PC では少し細めでもOK（高解像度ディスプレイで滲み防止） */
+@media (min-width: 768px) {
+  .font-fude {
+    -webkit-text-stroke: 0.5px #111111;
+  }
 }
 .font-mincho {
   font-family: var(--font-mincho);

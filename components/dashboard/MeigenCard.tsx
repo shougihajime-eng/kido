@@ -66,7 +66,7 @@ export function MeigenCard({ initialIndex, moreHref = '/meigen', compact = false
         className="ink-bloom flex-1 flex flex-col justify-center gap-3 sm:gap-4 py-2"
       >
         <p
-          className="font-fude text-[#2b2b2b] text-[1.55rem] sm:text-[1.85rem] md:text-[2.2rem] leading-snug tracking-wide text-center px-1"
+          className="font-fude text-[1.7rem] sm:text-[2rem] md:text-[2.35rem] leading-snug tracking-wide text-center px-1"
           // 改行を尊重しつつ、和文の禁則を効かせる
           style={{ wordBreak: 'normal', overflowWrap: 'break-word' }}
         >

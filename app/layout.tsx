@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_JP, Inter, JetBrains_Mono, Yuji_Mai, Shippori_Mincho } from 'next/font/google'
+import { Noto_Sans_JP, Inter, JetBrains_Mono, Yuji_Syuku, Shippori_Mincho } from 'next/font/google'
 import './globals.css'
 
 const notoSansJP = Noto_Sans_JP({
@@ -22,8 +22,8 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap'
 })
 
-// 筆文字（毛筆）— 名言カードで使用
-const yujiMai = Yuji_Mai({
+// 筆文字（毛筆・太字）— 名言カードで使用。Yuji Syuku は墨を含んだ太い筆字。
+const yujiSyuku = Yuji_Syuku({
   variable: '--font-fude',
   subsets: ['latin'],
   weight: ['400'],
@@ -75,7 +75,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="ja"
-      className={`${notoSansJP.variable} ${inter.variable} ${jetbrainsMono.variable} ${yujiMai.variable} ${shipporiMincho.variable} h-full antialiased`}
+      className={`${notoSansJP.variable} ${inter.variable} ${jetbrainsMono.variable} ${yujiSyuku.variable} ${shipporiMincho.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-text">{children}</body>
