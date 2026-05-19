@@ -76,7 +76,7 @@ export function GoalsManager({ goals, categories, today }: GoalsManagerProps) {
         particleCount: 60,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#d4a24c', '#b8893a', '#ff9248']
+        colors: ['#1e40af', '#b8893a', '#ec4899']
       })
       setShowForm(false)
       setCategoryId(null)
@@ -235,7 +235,7 @@ export function GoalsManager({ goals, categories, today }: GoalsManagerProps) {
             <button
               type="submit"
               disabled={isPending || targetHours <= 0}
-              className="h-12 rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep disabled:opacity-50 transition-colors"
+              className="h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all disabled:opacity-50 disabled:shadow-none"
             >
               {isPending ? '登録中…' : '目標を立てる'}
             </button>
@@ -398,8 +398,8 @@ function GoalCard({ goal, onDelete, today }: GoalCardProps) {
             style={{
               backgroundColor: achieved ? 'var(--success)' : color,
               boxShadow: achieved
-                ? '0 0 16px rgba(16, 185, 129, 0.5)'
-                : '0 0 12px rgba(212, 162, 76, 0.4)'
+                ? '0 0 12px rgba(5, 150, 105, 0.35)'
+                : `0 0 10px ${color}33`
             }}
           />
         </div>

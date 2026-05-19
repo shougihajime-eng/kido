@@ -37,10 +37,10 @@ export function WeeklyBars({
                   }}
                   className={`w-full rounded-t-md ${
                     isToday
-                      ? 'bg-accent shadow-[0_0_16px_rgba(212,162,76,0.5)]'
+                      ? 'bg-accent shadow-[0_2px_12px_rgba(30,64,175,0.35)]'
                       : d.minutes > 0
                         ? 'bg-accent/55'
-                        : 'bg-surface-elevated'
+                        : 'bg-surface-overlay'
                   }`}
                   style={{ minHeight: d.minutes > 0 ? 4 : 2 }}
                 />

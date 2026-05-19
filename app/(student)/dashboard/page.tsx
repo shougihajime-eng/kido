@@ -252,13 +252,13 @@ export default async function DashboardPage() {
         </span>
       </section>
 
-      {/* CTA：今、何してた？ */}
+      {/* CTA：今日何してましたか？ */}
       <Link
         href="/record"
-        className="group relative overflow-hidden flex items-center justify-center gap-3 h-16 rounded-2xl bg-accent text-background font-bold text-lg shadow-[0_0_32px_rgba(212,162,76,0.35)] hover:bg-accent-deep hover:shadow-[0_0_48px_rgba(212,162,76,0.5)] transition-all active:scale-[0.98]"
+        className="group relative overflow-hidden flex items-center justify-center gap-3 h-16 md:h-20 rounded-2xl bg-accent text-white font-bold text-lg md:text-xl shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all active:scale-[0.98]"
       >
-        <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
-        今、何してた？
+        <PlusCircle className="h-6 w-6 md:h-7 md:w-7 transition-transform group-hover:rotate-90" />
+        今日何してましたか？
       </Link>
 
       {/* 今日の気分 */}
@@ -275,8 +275,8 @@ export default async function DashboardPage() {
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{
                 backgroundColor: featuredGoal.achieved
-                  ? 'rgba(16, 185, 129, 0.15)'
-                  : 'rgba(212, 162, 76, 0.15)',
+                  ? 'rgba(5, 150, 105, 0.12)'
+                  : 'var(--accent-soft)',
                 color: featuredGoal.achieved ? 'var(--success)' : 'var(--accent)'
               }}
             >
@@ -327,8 +327,8 @@ export default async function DashboardPage() {
                   width: `${Math.round(featuredGoal.ratio * 100)}%`,
                   backgroundColor: featuredGoal.achieved ? 'var(--success)' : 'var(--accent)',
                   boxShadow: featuredGoal.achieved
-                    ? '0 0 16px rgba(16, 185, 129, 0.5)'
-                    : '0 0 12px rgba(212, 162, 76, 0.4)'
+                    ? '0 0 12px rgba(5, 150, 105, 0.35)'
+                    : '0 0 12px rgba(30, 64, 175, 0.25)'
                 }}
               />
             </div>

@@ -56,9 +56,9 @@ export function SignupForm() {
               key={r.value}
               type="button"
               onClick={() => setRole(r.value)}
-              className={`text-left p-3 rounded-lg border transition-all ${
+              className={`text-left p-4 rounded-xl border-2 transition-all ${
                 role === r.value
-                  ? 'border-accent bg-accent-soft shadow-[0_0_16px_rgba(212,162,76,0.15)]'
+                  ? 'border-accent bg-accent-soft shadow-[0_2px_12px_rgba(30,64,175,0.12)]'
                   : 'border-border bg-surface-elevated hover:border-border-strong'
               }`}
             >
@@ -116,7 +116,7 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={!canSubmit}
-        className="h-12 rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep transition-colors disabled:opacity-50"
+        className="h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all disabled:opacity-50 disabled:shadow-none"
       >
         {isPending ? '登録中…' : 'アカウントを作る'}
       </button>

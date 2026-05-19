@@ -117,7 +117,7 @@ export function RecordWithComments({
         className="w-full p-4 flex items-center gap-3 text-left hover:bg-surface-elevated/50 transition-colors"
       >
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-background font-bold text-xs shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xs shrink-0"
           style={{ backgroundColor: colorVar }}
         >
           {cat?.name_ja?.slice(0, 1) ?? '?'}
@@ -229,7 +229,7 @@ export function RecordWithComments({
                     <button
                       type="submit"
                       disabled={isPending || !content.trim()}
-                      className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-accent text-background text-sm font-semibold shadow-[0_0_16px_rgba(212,162,76,0.25)] hover:bg-accent-deep disabled:opacity-50 transition-colors"
+                      className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-accent text-white text-sm font-semibold shadow-[0_2px_12px_rgba(30,64,175,0.2)] hover:bg-accent-deep hover:shadow-[0_4px_16px_rgba(30,64,175,0.3)] disabled:opacity-50 disabled:shadow-none transition-all"
                     >
                       <Send className="w-3.5 h-3.5" />
                       {isPending ? '送信中…' : 'コメントする'}

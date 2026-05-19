@@ -24,7 +24,7 @@ export function TodayHero({
       {/* 背景の薄いグロー */}
       {hasRecord && (
         <div className="absolute inset-0 opacity-30 pointer-events-none" aria-hidden>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,162,76,0.25)_0%,transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,64,175,0.12)_0%,transparent_60%)]" />
         </div>
       )}
 

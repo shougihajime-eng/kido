@@ -6,9 +6,10 @@ export default function LandingPage() {
       <div className="w-full max-w-xl flex flex-col items-center text-center gap-10">
         {/* ロゴ的なタイトル */}
         <div className="flex flex-col items-center gap-3">
-          <div className="text-text-dim text-sm tracking-[0.4em] uppercase font-num">KIDO</div>
-          <h1 className="text-6xl font-bold gold-glow tracking-tight">棋道</h1>
-          <p className="text-text-muted text-base">
+          <div className="text-3xl">🌸</div>
+          <h1 className="text-7xl md:text-8xl font-bold gold-glow tracking-tight">棋道</h1>
+          <div className="text-text-dim text-xs tracking-[0.4em] uppercase font-num">KIDO</div>
+          <p className="text-text-muted text-lg mt-2">
             将棋プロ志望のための、日々の研鑽を記録するアプリ
           </p>
         </div>
@@ -35,13 +36,13 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <Link
             href="/signup"
-            className="h-12 px-8 inline-flex items-center justify-center rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep transition-colors"
+            className="h-14 px-10 inline-flex items-center justify-center rounded-full bg-accent text-white font-semibold text-lg shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all"
           >
             はじめる
           </Link>
           <Link
             href="/login"
-            className="h-12 px-8 inline-flex items-center justify-center rounded-full border border-border-strong text-text hover:bg-surface-elevated transition-colors"
+            className="h-14 px-10 inline-flex items-center justify-center rounded-full border-2 border-border-strong bg-surface text-text font-semibold text-lg hover:border-accent hover:text-accent transition-colors"
           >
             ログイン
           </Link>

@@ -52,7 +52,7 @@ export default async function ProfilePage() {
       </header>
 
       <section className="bg-surface border border-border rounded-2xl p-6 flex items-center gap-4">
-        <div className="h-14 w-14 rounded-2xl bg-accent text-background flex items-center justify-center font-num text-2xl font-bold">
+        <div className="h-14 w-14 rounded-2xl bg-accent text-white flex items-center justify-center font-num text-2xl font-bold">
           {profile?.display_name?.slice(0, 1) ?? '?'}
         </div>
         <div className="flex-1 min-w-0">

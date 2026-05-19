@@ -14,7 +14,7 @@ export function AdultBottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border safe-area-inset">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur border-t border-border safe-area-inset">
       <ul className="max-w-3xl mx-auto grid grid-cols-3">
         {ITEMS.map((item) => {
           const Icon = item.icon
@@ -27,11 +27,11 @@ export function AdultBottomNav() {
               <Link
                 href={item.href}
                 className={`flex flex-col items-center justify-center gap-1 py-3 transition-colors ${
-                  active ? 'text-accent' : 'text-text-dim hover:text-text-muted'
+                  active ? 'text-accent' : 'text-text-muted hover:text-text'
                 }`}
               >
-                <Icon className="w-5 h-5" strokeWidth={active ? 2.5 : 2} />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <Icon className="w-6 h-6" strokeWidth={active ? 2.5 : 2} />
+                <span className="text-xs font-medium">{item.label}</span>
               </Link>
             </li>
           )

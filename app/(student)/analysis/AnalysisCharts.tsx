@@ -21,8 +21,8 @@ interface Props {
   periodDays: number
 }
 
-const ACCENT = '#d4a24c'
-const ACCENT_GLOW = '#ffd87a'
+const ACCENT = '#1e40af'
+const ACCENT_GLOW = '#3b82f6'
 
 export function AnalysisCharts({ daily, categories, hourly, periodDays }: Props) {
   const peakHour = hourly.reduce(
@@ -61,7 +61,7 @@ export function AnalysisCharts({ daily, categories, hourly, periodDays }: Props)
                 tickLine={false}
                 width={36}
               />
-              <Tooltip content={<DarkTooltip suffix="分" />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+              <Tooltip content={<DarkTooltip suffix="分" />} cursor={{ fill: 'rgba(30,64,175,0.06)' }} />
               <Area
                 type="monotone"
                 dataKey="minutes"
@@ -100,7 +100,7 @@ export function AnalysisCharts({ daily, categories, hourly, periodDays }: Props)
                     animationDuration={1200}
                   >
                     {categories.map((c, i) => (
-                      <Cell key={i} fill={`var(--${c.color})`} stroke="var(--background)" strokeWidth={2} />
+                      <Cell key={i} fill={`var(--${c.color})`} stroke="var(--surface)" strokeWidth={2} />
                     ))}
                   </Pie>
                   <Tooltip content={<DarkTooltip suffix="分" />} />
@@ -151,7 +151,7 @@ export function AnalysisCharts({ daily, categories, hourly, periodDays }: Props)
                 interval={0}
               />
               <YAxis hide />
-              <Tooltip content={<DarkTooltip suffix="分" labelFormatter={(h) => `${h}時台`} />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+              <Tooltip content={<DarkTooltip suffix="分" labelFormatter={(h) => `${h}時台`} />} cursor={{ fill: 'rgba(30,64,175,0.06)' }} />
               <Bar
                 dataKey="minutes"
                 radius={[4, 4, 0, 0]}

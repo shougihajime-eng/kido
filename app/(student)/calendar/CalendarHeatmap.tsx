@@ -37,19 +37,19 @@ function intensityLevel(minutes: number): 0 | 1 | 2 | 3 | 4 {
 }
 
 const LEVEL_BG = [
-  'rgba(255, 255, 255, 0.04)', // 0
-  'rgba(212, 162, 76, 0.18)', // 1
-  'rgba(212, 162, 76, 0.35)', // 2
-  'rgba(212, 162, 76, 0.6)', // 3
-  'rgba(255, 216, 122, 0.95)' // 4
+  'rgba(235, 229, 214, 0.5)', // 0 ベージュうすめ
+  'rgba(30, 64, 175, 0.18)', // 1
+  'rgba(30, 64, 175, 0.38)', // 2
+  'rgba(30, 64, 175, 0.65)', // 3
+  'rgba(30, 64, 175, 0.95)' // 4
 ]
 
 const LEVEL_BORDER = [
   'var(--border)',
-  'rgba(212, 162, 76, 0.3)',
-  'rgba(212, 162, 76, 0.5)',
-  'rgba(212, 162, 76, 0.7)',
-  'rgba(255, 216, 122, 1)'
+  'rgba(30, 64, 175, 0.3)',
+  'rgba(30, 64, 175, 0.5)',
+  'rgba(30, 64, 175, 0.7)',
+  'rgba(30, 64, 175, 1)'
 ]
 
 export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate }: Props) {
@@ -128,7 +128,7 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
             <div key={ci} className="flex flex-col gap-1">
               {col.map((cell) => {
                 if (cell.outOfRange) {
-                  return <div key={cell.date} className="h-3 w-3" />
+                  return <div key={cell.date} className="h-4 w-4" />
                 }
                 const level = intensityLevel(cell.minutes)
                 const isSelected = selectedDate === cell.date
@@ -147,7 +147,7 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
                     whileHover={{ scale: 1.4 }}
                     onClick={() => setSelectedDate(cell.date)}
                     aria-label={`${cell.date}: ${cell.minutes}分`}
-                    className="h-3 w-3 rounded-[3px] border transition-all"
+                    className="h-4 w-4 rounded-[4px] border transition-all"
                     style={{
                       backgroundColor: LEVEL_BG[level],
                       borderColor: isSelected
@@ -156,7 +156,7 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
                           ? 'var(--accent)'
                           : LEVEL_BORDER[level],
                       borderWidth: isSelected || isToday ? '1.5px' : '1px',
-                      boxShadow: isSelected ? '0 0 8px rgba(212, 162, 76, 0.6)' : undefined
+                      boxShadow: isSelected ? '0 0 8px rgba(30, 64, 175, 0.5)' : undefined
                     }}
                   />
                 )
@@ -171,7 +171,7 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
           {[0, 1, 2, 3, 4].map((l) => (
             <span
               key={l}
-              className="h-3 w-3 rounded-[3px] border"
+              className="h-4 w-4 rounded-[4px] border"
               style={{
                 backgroundColor: LEVEL_BG[l],
                 borderColor: LEVEL_BORDER[l]

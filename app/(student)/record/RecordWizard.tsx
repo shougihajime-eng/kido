@@ -63,7 +63,7 @@ function fireConfetti(): void {
     gravity: 1.0,
     decay: 0.94,
     startVelocity: 32,
-    colors: ['#d4a24c', '#ffd87a', '#ffeab8', '#fff8e6', '#b8893a']
+    colors: ['#1e40af', '#3b82f6', '#b8893a', '#ec4899', '#f9a8d4']
   }
   // 中央
   confetti({ ...defaults, particleCount: 80, origin: { x: 0.5, y: 0.4 } })
@@ -226,7 +226,7 @@ export function RecordWizard({ categories }: Props) {
                         className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full"
                         style={{ backgroundColor: color }}
                       >
-                        <Check className="h-3 w-3 text-background" strokeWidth={3} />
+                        <Check className="h-3 w-3 text-white" strokeWidth={3} />
                       </motion.span>
                     )}
                   </motion.button>
@@ -311,7 +311,7 @@ export function RecordWizard({ categories }: Props) {
               <button
                 type="button"
                 onClick={() => setStep('confirm')}
-                className="flex-1 h-11 rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep transition-colors"
+                className="flex-1 h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all"
               >
                 次へ
               </button>
@@ -455,7 +455,7 @@ export function RecordWizard({ categories }: Props) {
                 whileTap={{ scale: 0.97 }}
                 onClick={onSave}
                 disabled={isPending}
-                className="flex-1 h-12 rounded-full bg-accent text-background font-semibold shadow-[0_0_32px_rgba(212,162,76,0.4)] hover:bg-accent-deep transition-colors disabled:opacity-50"
+                className="flex-1 h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.3)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.4)] transition-all disabled:opacity-50 disabled:shadow-none"
               >
                 {isPending ? '保存中…' : '記録する'}
               </motion.button>
@@ -479,7 +479,7 @@ export function RecordWizard({ categories }: Props) {
               className="flex h-24 w-24 items-center justify-center rounded-full"
               style={{ backgroundColor: 'var(--accent)' }}
             >
-              <Sparkles className="h-12 w-12 text-background" strokeWidth={2.4} />
+              <Sparkles className="h-12 w-12 text-white" strokeWidth={2.4} />
             </motion.div>
             <div className="flex flex-col items-center gap-1">
               <p className="text-2xl font-bold gold-glow">記録しました！</p>
@@ -492,7 +492,7 @@ export function RecordWizard({ categories }: Props) {
                 initial={{ opacity: 0, scale: 0.7, y: 12 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: 0.5, type: 'spring', stiffness: 280, damping: 18 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent-soft border border-accent text-accent shadow-[0_0_24px_rgba(212,162,76,0.3)]"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent-soft border border-accent text-accent shadow-[0_4px_20px_rgba(30,64,175,0.2)]"
               >
                 <span className="text-lg" aria-hidden>
                   🏆

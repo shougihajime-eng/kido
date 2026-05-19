@@ -1,54 +1,62 @@
 @import 'tailwindcss';
 
-/* 棋道 デザイントークン
- * ベース：ダーク基調（夜の静謐な空気）
- * アクセント：金色（駒の色）と藍色
- * 火：ストリーク用
+/* 棋道 デザイントークン（和モダン・明るく温かく）
+ * ベース：クリーム（紙の色）
+ * アクセント：藍色（将棋駒台・将棋会館）
+ * サブ：金色（駒の文字）
+ * お祝い：桜色（達成・特別な瞬間）
  */
 :root {
-  /* ベース */
-  --background: #0a0a0c;
-  --foreground: #f5f5f0;
+  /* ベース：クリーム */
+  --background: #faf7f0;
+  --foreground: #1f2937;
 
-  /* 面 */
-  --surface: #15151a;
-  --surface-elevated: #1f1f26;
-  --surface-overlay: #2a2a33;
+  /* 面：白カード + クリームに浮く */
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-overlay: #fefcf7;
 
-  /* 線・区切り */
-  --border: #2e2e38;
-  --border-strong: #44444f;
+  /* 線・区切り：温かみのある薄ベージュ */
+  --border: #ebe5d6;
+  --border-strong: #d6cdb5;
 
   /* 文字 */
-  --text: #f5f5f0;
-  --text-muted: #a0a0a8;
-  --text-dim: #6b6b75;
+  --text: #1f2937; /* メイン：ダークグレー（黒より柔らかい） */
+  --text-muted: #4b5563; /* やや薄め */
+  --text-dim: #9ca3af; /* キャプション */
 
-  /* アクセント：金色（駒の色）*/
-  --accent: #d4a24c;
-  --accent-deep: #b8893a;
-  --accent-soft: rgba(212, 162, 76, 0.15);
+  /* アクセント：藍色（将棋会館） */
+  --accent: #1e40af; /* メイン藍 */
+  --accent-deep: #1e3a8a;
+  --accent-soft: rgba(30, 64, 175, 0.08);
 
-  /* セカンダリ：藍色 */
-  --indigo: #6366f1;
-  --indigo-deep: #4f46e5;
+  /* サブ：金色（駒の文字） */
+  --gold: #b8893a;
+  --gold-deep: #946d27;
+  --gold-soft: rgba(184, 137, 58, 0.12);
 
-  /* 状態色 */
-  --fire: #ff6b35;
-  --fire-bright: #ff9248;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  /* 互換：旧コードで accent=金 を想定していた箇所のための別名 */
+  --indigo: #1e40af;
+  --indigo-deep: #1e3a8a;
 
-  /* カテゴリカラー（練習種別の差し色）*/
-  --cat-kifu: #d4a24c; /* 棋譜並べ：金 */
-  --cat-tsume: #8b5cf6; /* 詰将棋：紫 */
-  --cat-game: #ef4444; /* 実戦：赤 */
-  --cat-study: #6366f1; /* 研究会：藍 */
-  --cat-vs: #ec4899; /* VS：桃 */
-  --cat-ai: #06b6d4; /* AI研究：水 */
-  --cat-book: #84cc16; /* 定跡研究：緑 */
-  --cat-other: #94a3b8; /* その他：灰 */
+  /* 状態色（明るい背景に合うトーン） */
+  --fire: #f97316; /* 連続日数の炎 */
+  --fire-bright: #fb923c;
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --sakura: #ec4899; /* 達成・お祝い */
+  --sakura-soft: rgba(236, 72, 153, 0.1);
+
+  /* カテゴリカラー（明るい背景でも識別しやすい彩度・暗度に調整）*/
+  --cat-kifu: #b8893a; /* 棋譜並べ：金 */
+  --cat-tsume: #7c3aed; /* 詰将棋：紫 */
+  --cat-game: #dc2626; /* 実戦：赤 */
+  --cat-study: #1e40af; /* 研究会：藍 */
+  --cat-vs: #db2777; /* VS：桃 */
+  --cat-ai: #0891b2; /* AI研究：水 */
+  --cat-book: #65a30d; /* 定跡研究：緑 */
+  --cat-other: #64748b; /* その他：灰 */
 }
 
 @theme inline {
@@ -70,6 +78,10 @@
   --color-accent-deep: var(--accent-deep);
   --color-accent-soft: var(--accent-soft);
 
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-soft: var(--gold-soft);
+
   --color-indigo: var(--indigo);
   --color-indigo-deep: var(--indigo-deep);
 
@@ -78,6 +90,8 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  --color-sakura: var(--sakura);
+  --color-sakura-soft: var(--sakura-soft);
 
   --color-cat-kifu: var(--cat-kifu);
   --color-cat-tsume: var(--cat-tsume);
@@ -94,13 +108,13 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', monospace;
   --font-num: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', monospace;
 
-  /* タイポグラフィ */
-  --text-display: 4rem; /* 巨大な数字（今日の合計）*/
-  --text-huge: 3rem; /* セクションヘッダー */
-  --text-large: 1.5rem;
-  --text-base: 1rem;
-  --text-small: 0.875rem;
-  --text-tiny: 0.75rem;
+  /* タイポグラフィ：読みやすさ優先で大きめ（旧比 +20%） */
+  --text-display: 5rem; /* 巨大な数字（今日の合計）80px */
+  --text-huge: 3.5rem; /* セクションヘッダー 56px */
+  --text-large: 1.75rem; /* 28px */
+  --text-base: 1.125rem; /* 18px（旧16pxから拡大） */
+  --text-small: 1rem; /* 16px（旧14pxから拡大） */
+  --text-tiny: 0.875rem; /* 14px（旧12pxから拡大） */
 
   /* イージング・遷移 */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -116,21 +130,22 @@ body {
   background: var(--background);
   color: var(--text);
   font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 1.125rem; /* 18px ベース（読みやすさ最優先） */
   font-feature-settings: 'palt' 1; /* 日本語カーニング */
   -webkit-font-smoothing: antialiased;
 }
 
-/* スクロールバー（ダーク基調用）*/
+/* スクロールバー（明るい基調用）*/
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--surface);
+  background: var(--surface-overlay);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
-  border-radius: 4px;
+  border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-dim);
@@ -139,7 +154,7 @@ body {
 /* セレクション */
 ::selection {
   background: var(--accent);
-  color: var(--background);
+  color: #ffffff;
 }
 
 /* 数字を見せるためのユーティリティ */
@@ -151,12 +166,26 @@ body {
     'zero' 1;
 }
 
-/* 金色の光るテキスト */
+/* 藍色の光るテキスト（明るい背景用） */
 .gold-glow {
   color: var(--accent);
   text-shadow:
-    0 0 16px rgba(212, 162, 76, 0.45),
-    0 0 32px rgba(212, 162, 76, 0.25);
+    0 1px 0 rgba(30, 64, 175, 0.08),
+    0 0 24px rgba(30, 64, 175, 0.18);
+}
+
+/* 金色の光（残しておく — 一部要素用） */
+.text-glow-gold {
+  color: var(--gold-deep);
+  text-shadow: 0 1px 0 rgba(184, 137, 58, 0.15);
+}
+
+/* 桜色の光（お祝い演出用） */
+.sakura-glow {
+  color: var(--sakura);
+  text-shadow:
+    0 1px 0 rgba(236, 72, 153, 0.1),
+    0 0 24px rgba(236, 72, 153, 0.25);
 }
 
 /* 炎が揺れる（ストリーク用） */
@@ -164,19 +193,19 @@ body {
   0%,
   100% {
     transform: scale(1) rotate(-1deg);
-    filter: drop-shadow(0 0 8px var(--fire-bright));
+    filter: drop-shadow(0 0 6px var(--fire-bright));
   }
   25% {
     transform: scale(1.08) rotate(2deg);
-    filter: drop-shadow(0 0 12px var(--fire-bright));
+    filter: drop-shadow(0 0 10px var(--fire-bright));
   }
   50% {
     transform: scale(0.95) rotate(-2deg);
-    filter: drop-shadow(0 0 6px var(--fire));
+    filter: drop-shadow(0 0 4px var(--fire));
   }
   75% {
     transform: scale(1.04) rotate(1deg);
-    filter: drop-shadow(0 0 10px var(--fire-bright));
+    filter: drop-shadow(0 0 8px var(--fire-bright));
   }
 }
 .flame-flicker {
@@ -189,17 +218,24 @@ body {
   0%,
   100% {
     text-shadow:
-      0 0 8px rgba(212, 162, 76, 0.4),
-      0 0 24px rgba(212, 162, 76, 0.2);
+      0 0 8px rgba(30, 64, 175, 0.2),
+      0 0 24px rgba(30, 64, 175, 0.1);
   }
   50% {
     text-shadow:
-      0 0 24px rgba(212, 162, 76, 0.7),
-      0 0 48px rgba(212, 162, 76, 0.4);
+      0 0 24px rgba(30, 64, 175, 0.4),
+      0 0 48px rgba(30, 64, 175, 0.2);
   }
 }
 .pulse-glow {
   animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+/* カードのうっすら影（白カードがクリーム背景に浮く感じ） */
+.card-shadow {
+  box-shadow:
+    0 1px 2px rgba(31, 41, 55, 0.04),
+    0 4px 12px rgba(31, 41, 55, 0.05);
 }
 
 /* セーフエリア（iOS PWAホーム画面）*/

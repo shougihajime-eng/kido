@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BottomNav } from '@/components/nav/BottomNav'
+import { SideNav } from '@/components/nav/SideNav'
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -21,11 +22,12 @@ export default async function StudentLayout({ children }: { children: React.Reac
   }
 
   return (
-    <>
-      <main className="flex flex-1 flex-col w-full max-w-3xl mx-auto px-4 py-6 pb-24 safe-area-inset">
+    <div className="flex flex-1 min-h-screen w-full">
+      <SideNav />
+      <main className="flex flex-1 flex-col w-full max-w-3xl md:max-w-5xl mx-auto px-4 md:px-8 lg:px-12 py-6 md:py-10 pb-24 md:pb-10 safe-area-inset">
         {children}
       </main>
       <BottomNav />
-    </>
+    </div>
   )
 }

@@ -85,7 +85,7 @@ export function LinkForm() {
       <button
         type="submit"
         disabled={isPending || normalizeInviteCode(raw).length !== 8}
-        className="h-12 rounded-full bg-accent text-background font-semibold shadow-[0_0_24px_rgba(212,162,76,0.3)] hover:bg-accent-deep disabled:opacity-50 transition-colors"
+        className="h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all disabled:opacity-50 disabled:shadow-none"
       >
         {isPending ? '紐づけ中…' : '紐づける'}
       </button>

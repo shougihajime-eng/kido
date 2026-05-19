@@ -141,7 +141,7 @@ function PeriodSwitcher({ current }: { current: number }) {
             key={o.d}
             href={`/analysis?p=${o.d}`}
             className={`px-3 h-8 inline-flex items-center justify-center text-xs rounded-full font-num font-medium transition-colors ${
-              active ? 'bg-accent text-background' : 'text-text-muted hover:text-text'
+              active ? 'bg-accent text-white' : 'text-text-muted hover:text-text'
             }`}
           >
             {o.label}
