@@ -49,6 +49,7 @@
   --sakura-soft: rgba(236, 72, 153, 0.1);
 
   /* カテゴリカラー（明るい背景でも識別しやすい彩度・暗度に調整）*/
+  /* 将棋カテゴリ（あたたかめ・鮮やか）*/
   --cat-kifu: #b8893a; /* 棋譜並べ：金 */
   --cat-tsume: #7c3aed; /* 詰将棋：紫 */
   --cat-game: #dc2626; /* 実戦：赤 */
@@ -57,6 +58,14 @@
   --cat-ai: #0891b2; /* AI研究：水 */
   --cat-book: #65a30d; /* 定跡研究：緑 */
   --cat-other: #64748b; /* その他：灰 */
+
+  /* 生活カテゴリ（つめたく落ち着いた色＝将棋の補助色） */
+  --cat-life-school: #4d8080; /* 学校・勉強：くすみティール */
+  --cat-life-sleep: #5a6ba6; /* 睡眠：くすみ藍紫 */
+  --cat-life-meal: #4d8060; /* 食事：くすみグリーン */
+  --cat-life-play: #4d809a; /* 遊び・休憩：くすみブルー */
+  --cat-life-exercise: #4d8073; /* 運動・お風呂：くすみミント */
+  --cat-life-screen: #6a5a8b; /* スマホ・テレビ・ゲーム：くすみパープル */
 }
 
 @theme inline {
@@ -101,6 +110,13 @@
   --color-cat-ai: var(--cat-ai);
   --color-cat-book: var(--cat-book);
   --color-cat-other: var(--cat-other);
+
+  --color-cat-life-school: var(--cat-life-school);
+  --color-cat-life-sleep: var(--cat-life-sleep);
+  --color-cat-life-meal: var(--cat-life-meal);
+  --color-cat-life-play: var(--cat-life-play);
+  --color-cat-life-exercise: var(--cat-life-exercise);
+  --color-cat-life-screen: var(--cat-life-screen);
 
   /* フォント */
   --font-sans: var(--font-noto-sans-jp), var(--font-inter), system-ui, sans-serif;

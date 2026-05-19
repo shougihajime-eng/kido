@@ -34,22 +34,26 @@ export default async function GoalsPage() {
     .eq('user_id', user.id)
     .gte('date', earliestStart)
 
-  // カテゴリ一覧
+  // カテゴリ一覧（kind 込み）
   const { data: categories } = await supabase
     .from('categories')
-    .select('id, name_ja, color_token')
+    .select('id, name_ja, color_token, kind')
     .order('sort_order', { ascending: true })
 
   const catMap = new Map((categories ?? []).map((c) => [c.id, c]))
 
   // 各目標の進捗を計算
+  // category_id 未指定（全体）目標は将棋カテゴリのみを対象にする
   const goalsWithProgress = (goals ?? []).map((g) => {
     const inRange = (records ?? []).filter(
       (r) => r.date >= g.start_date && r.date <= g.end_date
     )
     const matching = g.category_id
       ? inRange.filter((r) => r.category_id === g.category_id)
-      : inRange
+      : inRange.filter((r) => {
+          const cat = catMap.get(r.category_id)
+          return cat?.kind === 'shogi'
+        })
     const currentMinutes = matching.reduce((s, r) => s + r.duration_minutes, 0)
     const categoryName = g.category_id ? catMap.get(g.category_id)?.name_ja ?? '不明' : null
     const colorToken = g.category_id ? catMap.get(g.category_id)?.color_token ?? 'cat-other' : null
@@ -82,7 +86,8 @@ export default async function GoalsPage() {
         categories={(categories ?? []).map((c) => ({
           id: c.id,
           name_ja: c.name_ja,
-          color_token: c.color_token
+          color_token: c.color_token,
+          kind: c.kind
         }))}
         today={today}
       />

@@ -81,6 +81,7 @@ export type Database = {
           id: string
           is_preset: boolean
           key: string | null
+          kind: string
           name_ja: string
           owner_id: string | null
           sort_order: number
@@ -92,6 +93,7 @@ export type Database = {
           id?: string
           is_preset?: boolean
           key?: string | null
+          kind?: string
           name_ja: string
           owner_id?: string | null
           sort_order?: number
@@ -103,6 +105,7 @@ export type Database = {
           id?: string
           is_preset?: boolean
           key?: string | null
+          kind?: string
           name_ja?: string
           owner_id?: string | null
           sort_order?: number

@@ -16,6 +16,7 @@ type CategoryRow = {
   color_token: string
   sort_order: number
   is_preset: boolean
+  kind: string
 }
 
 type GameResult = 'win' | 'loss' | 'draw' | 'jisho'
@@ -189,8 +190,10 @@ export function RecordWizard({ categories }: Props) {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           >
             <p className="mb-4 text-text-muted text-sm">なにに時間を使った？</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {categories.map((cat, i) => {
+            {(() => {
+              const shogiCats = categories.filter((c) => c.kind === 'shogi')
+              const lifeCats = categories.filter((c) => c.kind === 'life')
+              const renderCard = (cat: CategoryRow, i: number) => {
                 const Icon = getCategoryIcon(cat.icon_key)
                 const color = categoryColorVar(cat.color_token)
                 const isSelected = categoryId === cat.id
@@ -231,8 +234,32 @@ export function RecordWizard({ categories }: Props) {
                     )}
                   </motion.button>
                 )
-              })}
-            </div>
+              }
+              return (
+                <div className="flex flex-col gap-5">
+                  {shogiCats.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-xs text-text-dim uppercase tracking-widest font-num">
+                        将棋
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {shogiCats.map((cat, i) => renderCard(cat, i))}
+                      </div>
+                    </div>
+                  )}
+                  {lifeCats.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-xs text-text-dim uppercase tracking-widest font-num">
+                        生活（🔥には数えない）
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {lifeCats.map((cat, i) => renderCard(cat, shogiCats.length + i))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </motion.div>
         )}
 

@@ -21,6 +21,7 @@ interface CategoryRow {
   id: string
   name_ja: string
   color_token: string
+  kind: string
 }
 
 interface GoalWithProgress {
@@ -164,7 +165,7 @@ export function GoalsManager({ goals, categories, today }: GoalsManagerProps) {
 
             {/* カテゴリ */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs text-text-muted">カテゴリ（全体 or 特定）</span>
+              <span className="text-xs text-text-muted">カテゴリ（全体は将棋のみ集計）</span>
               <div className="flex flex-wrap gap-1.5">
                 <button
                   type="button"
@@ -175,9 +176,9 @@ export function GoalsManager({ goals, categories, today }: GoalsManagerProps) {
                       : 'border-border bg-surface-elevated text-text-muted hover:border-border-strong'
                   }`}
                 >
-                  全体
+                  全体（将棋）
                 </button>
-                {categories.map((c) => {
+                {categories.filter((c) => c.kind === 'shogi').map((c) => {
                   const color = categoryColorVar(c.color_token)
                   const active = categoryId === c.id
                   return (
@@ -197,6 +198,32 @@ export function GoalsManager({ goals, categories, today }: GoalsManagerProps) {
                   )
                 })}
               </div>
+              {categories.some((c) => c.kind === 'life') && (
+                <>
+                  <span className="text-xs text-text-dim mt-1">生活カテゴリの目標も立てられます</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {categories.filter((c) => c.kind === 'life').map((c) => {
+                      const color = categoryColorVar(c.color_token)
+                      const active = categoryId === c.id
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setCategoryId(c.id)}
+                          className={`text-xs h-8 px-3 rounded-full border transition-colors`}
+                          style={{
+                            borderColor: active ? color : 'var(--border)',
+                            backgroundColor: active ? color + '20' : 'var(--surface-elevated)',
+                            color: active ? color : 'var(--text-muted)'
+                          }}
+                        >
+                          {c.name_ja}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* 目標時間 */}

@@ -49,7 +49,7 @@ export default async function DashboardPage() {
     supabase
       .from('training_records')
       .select(
-        'id, date, duration_minutes, memo, recorded_at, category:categories(id, name_ja, icon_key, color_token)'
+        'id, date, duration_minutes, memo, recorded_at, category:categories(id, name_ja, icon_key, color_token, kind)'
       )
       .eq('user_id', user!.id)
       .gte('date', ymdAddDays(today, -29))
@@ -93,6 +93,7 @@ export default async function DashboardPage() {
       name_ja: string
       icon_key: string
       color_token: string
+      kind: string
     } | null
   }
   const records = (records30 ?? []) as unknown as RowWithCat[]
@@ -102,8 +103,10 @@ export default async function DashboardPage() {
   const todayMinutes = todayRecords.reduce((s, r) => s + r.duration_minutes, 0)
   const weekMinutes = weekRecords.reduce((s, r) => s + r.duration_minutes, 0)
 
-  const distinctDates = Array.from(new Set(records.map((r) => r.date)))
-  const { count: streak, needsToday } = computeStreak(distinctDates)
+  // 連続日数🔥 は将棋カテゴリのみで判定（生活だけ記録した日は streak をキープしない）
+  const shogiRecords = records.filter((r) => r.category?.kind === 'shogi')
+  const distinctShogiDates = Array.from(new Set(shogiRecords.map((r) => r.date)))
+  const { count: streak, needsToday } = computeStreak(distinctShogiDates)
 
   // 直近7日（古→新）の合計分
   const perDay = Array.from({ length: 7 }, (_, i) => {
@@ -136,11 +139,12 @@ export default async function DashboardPage() {
     .sort((a, b) => b.minutes - a.minutes)
 
   // 目標の進捗計算（直近30日の records から）
+  // category_id 未指定（全体）目標は将棋のみを対象にする（生活だけで達成できないように）
   const goalsWithProgress = (activeGoals ?? []).map((g) => {
     const inRange = records.filter((r) => r.date >= g.start_date && r.date <= g.end_date)
     const matching = g.category_id
       ? inRange.filter((r) => r.category?.id === g.category_id)
-      : inRange
+      : inRange.filter((r) => r.category?.kind === 'shogi')
     const currentMinutes = matching.reduce((s, r) => s + r.duration_minutes, 0)
     const ratio = Math.min(1, currentMinutes / g.target_minutes)
     return {

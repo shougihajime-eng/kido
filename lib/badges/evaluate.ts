@@ -22,12 +22,14 @@ export type BadgeDef = {
 type RecordRow = {
   date: string
   duration_minutes: number
-  category: { key: string | null } | null
+  category: { key: string | null; kind: string | null } | null
 }
 
 /**
  * 与えられたユーザーが現時点で資格を満たしているバッジ ID 一覧を返す。
  * 過去の獲得済みかどうかは見ない（呼び出し側で差分を取る）。
+ *
+ * バッジは将棋カテゴリの記録だけで判定する（生活カテゴリを記録しても進捗しない）。
  */
 export async function evaluateBadgesForUser(
   supabase: AnyClient,
@@ -38,13 +40,15 @@ export async function evaluateBadgesForUser(
   const badges = (badgesData ?? []) as BadgeDef[]
   if (badges.length === 0) return []
 
-  // 全期間のレコード
+  // 全期間のレコード（kind も取得）
   const { data: rows } = await supabase
     .from('training_records')
-    .select('date, duration_minutes, category:categories(key)')
+    .select('date, duration_minutes, category:categories(key, kind)')
     .eq('user_id', userId)
 
-  const records = (rows ?? []) as unknown as RecordRow[]
+  const allRecords = (rows ?? []) as unknown as RecordRow[]
+  // 将棋カテゴリのみに絞る
+  const records = allRecords.filter((r) => r.category?.kind === 'shogi')
   if (records.length === 0) return []
 
   // 集計

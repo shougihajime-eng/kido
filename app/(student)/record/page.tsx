@@ -17,7 +17,7 @@ export default async function RecordPage() {
 
   const { data: categories } = await supabase
     .from('categories')
-    .select('id, key, name_ja, icon_key, color_token, sort_order, is_preset')
+    .select('id, key, name_ja, icon_key, color_token, sort_order, is_preset, kind')
     .order('sort_order', { ascending: true })
 
   return (

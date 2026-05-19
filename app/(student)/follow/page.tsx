@@ -1,84 +1,92 @@
-import { Trophy, UsersRound, Sparkles, ChevronRight } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { startOfWeekISO, endOfWeekISO, todayLocalISO } from '@/lib/dates'
+import { Leaderboard, type LeaderRow } from './Leaderboard'
 
 export const metadata = {
   title: '仲間'
 }
 
-export default function FollowPage() {
+// 自動で最新化（誰かが記録するたびに反映）
+export const revalidate = 30
+
+export default async function FollowPage() {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return null
+  }
+
+  const today = todayLocalISO()
+  const weekStart = startOfWeekISO(today)
+  const weekEnd = endOfWeekISO(today)
+
+  // 新規テーブル / RPC は Database 型未再生成のため untyped でアクセス
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const untyped = supabase as any
+
+  // weekly_leaderboard RPC で全員の今週合計を取得
+  const { data: rawLeaders } = await untyped.rpc('weekly_leaderboard', {
+    start_date: weekStart,
+    end_date: weekEnd
+  })
+
+  type LeaderboardRPCRow = {
+    user_id: string
+    display_name: string | null
+    role: string
+    total_minutes: number | string
+    shogi_minutes: number | string
+    active_days: number | string
+  }
+
+  const leaders = (rawLeaders ?? []) as LeaderboardRPCRow[]
+
+  // 自分のライバル一覧
+  const { data: myRivals } = await untyped
+    .from('rivals')
+    .select('rival_id')
+    .eq('user_id', user.id)
+
+  const rivalIds = new Set<string>(
+    ((myRivals ?? []) as { rival_id: string }[]).map((r) => r.rival_id)
+  )
+
+  // 自分の表示名（ハイライト用）
+  const me = leaders.find((l) => l.user_id === user.id)
+
+  // 将棋時間で降順ソート（同点は active_days で）
+  const sortedLeaders: LeaderRow[] = leaders
+    .map((l) => ({
+      userId: l.user_id,
+      displayName: l.display_name ?? '名前なし',
+      shogiMinutes: Number(l.shogi_minutes),
+      totalMinutes: Number(l.total_minutes),
+      activeDays: Number(l.active_days),
+      isMe: l.user_id === user.id,
+      isRival: rivalIds.has(l.user_id)
+    }))
+    .sort((a, b) => {
+      if (b.shogiMinutes !== a.shogiMinutes) return b.shogiMinutes - a.shogiMinutes
+      return b.activeDays - a.activeDays
+    })
+
+  const myShogi = me ? Number(me.shogi_minutes) : 0
+  const maxShogi = sortedLeaders.length > 0 ? sortedLeaders[0].shogiMinutes : 0
+  const myRank = sortedLeaders.findIndex((l) => l.isMe) + 1
+  const totalStudents = sortedLeaders.length
+
   return (
-    <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-3xl font-bold">仲間・ライバル</h1>
-        <p className="text-base text-text-muted mt-1">
-          一緒にがんばっている人や、目標の人を見つけよう
-        </p>
-      </header>
-
-      {/* 近日公開バナー */}
-      <section className="bg-surface border-2 border-accent/30 rounded-3xl p-8 flex flex-col items-center gap-4 text-center card-shadow">
-        <div className="h-16 w-16 rounded-2xl bg-accent-soft flex items-center justify-center text-accent">
-          <Sparkles className="h-8 w-8" strokeWidth={2} />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="text-xl font-bold text-accent">近日公開</p>
-          <p className="text-base text-text-muted leading-relaxed">
-            ここに「仲間」と「ライバル」が並ぶ予定です。<br />
-            お楽しみに！
-          </p>
-        </div>
-      </section>
-
-      {/* ここに何が来るかのプレビュー */}
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-bold text-text-muted">ここでできるようになること</h2>
-
-        <div className="bg-surface border border-border rounded-2xl p-5 flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-accent-soft text-accent flex items-center justify-center shrink-0">
-            <UsersRound className="h-6 w-6" strokeWidth={2} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-base">仲間の今週の練習時間が見える</div>
-            <div className="text-sm text-text-muted mt-1 leading-relaxed">
-              フォローした仲間が今週どれくらい練習したか、棒グラフで横並びに見える。
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-surface border border-border rounded-2xl p-5 flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-sakura-soft text-sakura flex items-center justify-center shrink-0">
-            <Trophy className="h-6 w-6" strokeWidth={2} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-base">ライバルを設定して追いかけられる</div>
-            <div className="text-sm text-text-muted mt-1 leading-relaxed">
-              「この人に追いつきたい」という目標の相手を登録。
-              <br />
-              ライバルとのペース差が一目で分かる。
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-surface border border-border rounded-2xl p-5 flex items-start gap-4">
-          <div
-            className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0"
-            style={{ backgroundColor: 'var(--gold-soft)', color: 'var(--gold-deep)' }}
-          >
-            <ChevronRight className="h-6 w-6" strokeWidth={2.5} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-base">匿名でみんなの平均と比べられる</div>
-            <div className="text-sm text-text-muted mt-1 leading-relaxed">
-              「同じ目標レベルの人たちは、平均でどれくらい練習してる？」が
-              <br />
-              プレッシャーなく見られる、匿名の全体ビュー。
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <p className="text-center text-sm text-text-dim">
-        まず1人を「仲間」として招待できるようにするところから順に作っていきます
-      </p>
-    </div>
+    <Leaderboard
+      rows={sortedLeaders}
+      myShogiMinutes={myShogi}
+      maxShogiMinutes={maxShogi}
+      myRank={myRank}
+      totalStudents={totalStudents}
+      weekStart={weekStart}
+      weekEnd={weekEnd}
+    />
   )
 }
