@@ -100,14 +100,18 @@ export function MeigenList() {
         {filtered.length === 0 && '（条件に合う名言がありません）'}
       </div>
 
-      {/* 一覧：PC は 2 カラム、スマホは 1 カラム */}
-      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 一覧：PC は 2 カラム、スマホは 1 カラム
+       *  カードを色紙(しきし)風に。一枚一枚、わずかに傾けて積み重なる感じ */}
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filtered.map((m, i) => {
           const badge = SOURCE_BADGE[m.source]
+          // 偶数番のカードは右にちょい傾き、奇数番は左にちょい傾き
+          const tilt = i % 2 === 0 ? '0.6deg' : '-0.6deg'
           return (
             <li
               key={`${m.author}-${i}`}
-              className="washi-paper rounded-2xl p-5 sm:p-6 flex flex-col gap-3"
+              className="shikishi-card washi-paper rounded-2xl p-5 sm:p-6 flex flex-col gap-3"
+              style={{ ['--tilt' as string]: tilt }}
             >
               <div className="flex flex-wrap items-center gap-1.5">
                 <span
