@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { KeyRound, LogOut, UserRound } from 'lucide-react'
+import { KeyRound, LogOut, Pencil } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { BadgeShelf, type BadgeView } from '@/components/BadgeShelf'
 import { awardBadgesForUser } from '@/lib/badges/award'
+import { formatLevel } from '@/lib/level'
 
 export const metadata = {
   title: '自分'
@@ -20,14 +21,17 @@ export default async function ProfilePage() {
   await awardBadgesForUser(user.id)
 
   const [{ data: profile }, { data: allBadges }, { data: ownedBadges }] = await Promise.all([
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase
       .from('profiles')
-      .select('display_name, role, level_text, ai_tone')
+      .select('display_name, role, level_kind, level_text, ai_tone')
       .eq('id', user.id)
-      .maybeSingle(),
+      .maybeSingle() as any),
     supabase.from('badges').select('id, name, description, icon_key'),
     supabase.from('user_badges').select('badge_id, earned_at').eq('user_id', user.id)
   ])
+
+  const levelDisplay = formatLevel(profile?.level_kind, profile?.level_text)
 
   const ownedMap = new Map(
     (ownedBadges ?? []).map((b) => [b.badge_id, b.earned_at as string])
@@ -57,9 +61,8 @@ export default async function ProfilePage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-semibold truncate">{profile?.display_name ?? '—'}</div>
-          <div className="text-xs text-text-muted">{user.email}</div>
-          {profile?.level_text && (
-            <div className="text-xs text-text-dim mt-1">{profile.level_text}</div>
+          {levelDisplay && (
+            <div className="text-sm text-accent font-semibold mt-0.5">{levelDisplay}</div>
           )}
         </div>
         <div className="flex flex-col items-end">
@@ -75,6 +78,15 @@ export default async function ProfilePage() {
       {badges.length > 0 && <BadgeShelf badges={badges} />}
 
       <nav className="flex flex-col gap-2">
+        <Link
+          href="/profile/edit"
+          className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3 hover:bg-surface-elevated transition-colors"
+        >
+          <Pencil className="h-5 w-5 text-accent" strokeWidth={2} />
+          <span className="flex-1 font-medium">なまえ・段級を編集</span>
+          <span className="text-xs text-text-dim">→</span>
+        </Link>
+
         <Link
           href="/code"
           className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3 hover:bg-surface-elevated transition-colors"
@@ -94,15 +106,6 @@ export default async function ProfilePage() {
           </button>
         </form>
       </nav>
-
-      <section className="bg-surface-elevated/40 border border-border rounded-2xl p-5 flex flex-col items-center gap-2 text-center">
-        <UserRound className="h-5 w-5 text-text-dim" strokeWidth={2} />
-        <p className="text-xs text-text-muted">
-          プロフィール編集（ニックネーム・棋力）は
-          <br />
-          このあと作っていきます。
-        </p>
-      </section>
     </div>
   )
 }

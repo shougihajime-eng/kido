@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { startOfWeekISO, endOfWeekISO, todayLocalISO } from '@/lib/dates'
+import { formatLevel } from '@/lib/level'
 import { Leaderboard, type LeaderRow } from './Leaderboard'
 
 export const metadata = {
@@ -37,6 +38,8 @@ export default async function FollowPage() {
     user_id: string
     display_name: string | null
     role: string
+    level_kind: string | null
+    level_text: string | null
     total_minutes: number | string
     shogi_minutes: number | string
     active_days: number | string
@@ -62,6 +65,7 @@ export default async function FollowPage() {
     .map((l) => ({
       userId: l.user_id,
       displayName: l.display_name ?? '名前なし',
+      levelLabel: formatLevel(l.level_kind, l.level_text),
       shogiMinutes: Number(l.shogi_minutes),
       totalMinutes: Number(l.total_minutes),
       activeDays: Number(l.active_days),

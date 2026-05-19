@@ -9,6 +9,7 @@ import { toggleRivalAction } from './actions'
 export interface LeaderRow {
   userId: string
   displayName: string
+  levelLabel: string
   shogiMinutes: number
   totalMinutes: number
   activeDays: number
@@ -227,6 +228,11 @@ function LeaderRowCard({
               </span>
             )}
           </div>
+          {row.levelLabel && (
+            <div className="text-xs font-semibold text-accent mt-0.5">
+              {row.levelLabel}
+            </div>
+          )}
         </div>
 
         {/* 時間表示 */}

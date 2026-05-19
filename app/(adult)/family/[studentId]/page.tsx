@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { ChevronLeft, Calendar, MessageCircle, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { todayLocalISO, ymdAddDays } from '@/lib/dates'
+import { formatLevel } from '@/lib/level'
 import { RecordWithComments, type CommentItem } from './RecordWithComments'
 
 export const metadata = {
@@ -22,7 +23,16 @@ export default async function StudentDetailPage({ params }: PageProps) {
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  // 紐づけ確認
+  // 自分のプロフィール（スーパー先生か判定）
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: myProfile } = await (supabase
+    .from('profiles')
+    .select('is_super_teacher')
+    .eq('id', user.id)
+    .maybeSingle() as any)
+  const isSuperTeacher = Boolean(myProfile?.is_super_teacher)
+
+  // 紐づけ確認（スーパー先生は招待なしでも閲覧可）
   const { data: rel } = await supabase
     .from('relationships')
     .select('id, kind')
@@ -30,20 +40,23 @@ export default async function StudentDetailPage({ params }: PageProps) {
     .eq('student_id', studentId)
     .maybeSingle()
 
-  if (!rel) {
+  if (!rel && !isSuperTeacher) {
     notFound()
   }
 
   // 生徒情報
-  const { data: student } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: student } = await (supabase
     .from('profiles')
-    .select('display_name, level_text, avatar_url')
+    .select('display_name, level_kind, level_text, avatar_url')
     .eq('id', studentId)
-    .maybeSingle()
+    .maybeSingle() as any)
 
   if (!student) {
     notFound()
   }
+
+  const studentLevelLabel = formatLevel(student.level_kind, student.level_text)
 
   // 直近 14 日の記録
   const fourteenDaysAgo = ymdAddDays(todayLocalISO(), -13)
@@ -124,11 +137,13 @@ export default async function StudentDetailPage({ params }: PageProps) {
           </div>
           <div>
             <h1 className="text-2xl font-bold">{student.display_name}</h1>
-            {student.level_text && (
-              <p className="text-sm text-text-muted mt-0.5">{student.level_text}</p>
+            {studentLevelLabel && (
+              <p className="text-sm font-semibold text-accent mt-0.5">{studentLevelLabel}</p>
             )}
             <p className="text-xs text-text-dim mt-0.5">
-              {rel.kind === 'parent' ? '親' : '先生'} として見守り中
+              {rel
+                ? `${rel.kind === 'parent' ? '親' : '先生'} として見守り中`
+                : '全員見守り先生として閲覧中'}
             </p>
           </div>
         </div>
