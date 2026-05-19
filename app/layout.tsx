@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_JP, Inter, JetBrains_Mono } from 'next/font/google'
+import { Noto_Sans_JP, Inter, JetBrains_Mono, Yuji_Mai, Shippori_Mincho } from 'next/font/google'
 import './globals.css'
 
 const notoSansJP = Noto_Sans_JP({
@@ -19,6 +19,22 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
   subsets: ['latin'],
   weight: ['400', '500', '700'],
+  display: 'swap'
+})
+
+// 筆文字（毛筆）— 名言カードで使用
+const yujiMai = Yuji_Mai({
+  variable: '--font-fude',
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap'
+})
+
+// 明朝（出典名やサブテキストで雰囲気を出す）— 名言カードで使用
+const shipporiMincho = Shippori_Mincho({
+  variable: '--font-mincho',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap'
 })
 
@@ -59,7 +75,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="ja"
-      className={`${notoSansJP.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${notoSansJP.variable} ${inter.variable} ${jetbrainsMono.variable} ${yujiMai.variable} ${shipporiMincho.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-text">{children}</body>

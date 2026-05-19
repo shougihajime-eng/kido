@@ -21,8 +21,10 @@ import {
 import { WeeklyBars } from '@/components/dashboard/WeeklyBars'
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown'
 import { MoodQuickLog } from '@/components/dashboard/MoodQuickLog'
+import { MeigenCard } from '@/components/dashboard/MeigenCard'
 import { StudentRecordCard } from '@/components/records/StudentRecordCard'
 import { fetchCommentsForRecords } from '@/lib/comments-fetch'
+import { todayMeigenIndex } from '@/lib/meigen'
 
 export const metadata = {
   title: 'ホーム'
@@ -178,6 +180,9 @@ export default async function DashboardPage() {
     .filter((r) => r.date !== today && (commentsByRecord.get(r.id)?.length ?? 0) > 0)
     .slice(0, 5)
 
+  // 今日の名言：日付シードで初期値を決定（同日中は同じ／日が変われば変わる）
+  const meigenInitial = todayMeigenIndex(today)
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-baseline justify-between">
@@ -193,6 +198,9 @@ export default async function DashboardPage() {
           </button>
         </form>
       </header>
+
+      {/* 名言の間（常に最上段。「次の名言」で無限に切替できる） */}
+      <MeigenCard initialIndex={meigenInitial} />
 
       {/* 今日の合計 */}
       <section className="bg-surface border border-border rounded-3xl p-8 flex flex-col items-center gap-2">

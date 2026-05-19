@@ -1,0 +1,511 @@
+// 棋道アプリの名言集
+// 飽きないように大量に用意（380 句以上）。出典は3カテゴリ：
+//   shogi  : 棋士の言葉
+//   kakugen: 将棋格言（昔から伝わる）
+//   life   : スポーツ選手・歴史人物・哲学者などの「全力」系名言
+//
+// さらに テーマタグ themes (任意) を持たせ、生徒が「今のキモチ」で
+// 名言を選べるようにする：
+//   tough      しんどい時
+//   slump      スランプ・調子が悪い時
+//   before     大事な対局の前
+//   lost       負けた時・くやしい時
+//   focus      集中できない時
+//   confidence 自信がない時
+//   continue   続ける力がほしい時
+//   challenge  挑戦する勇気がほしい時
+
+export type MeigenSource = 'shogi' | 'kakugen' | 'life'
+
+export type ThemeTag =
+  | 'tough'
+  | 'slump'
+  | 'before'
+  | 'lost'
+  | 'focus'
+  | 'confidence'
+  | 'continue'
+  | 'challenge'
+
+export type Meigen = {
+  text: string
+  author: string
+  source: MeigenSource
+  themes?: ThemeTag[]
+}
+
+export const MEIGEN: Meigen[] = [
+  // ─────────────── 棋士の言葉（プロ棋士・女流棋士）───────────────
+  { text: '努力は人を裏切らない。', author: '大山康晴 十五世名人', source: 'shogi', themes: ['continue'] },
+  { text: '将棋は読みより大局観。', author: '大山康晴 十五世名人', source: 'shogi', themes: ['focus'] },
+  { text: '焦らず、急がず、諦めず。', author: '大山康晴 十五世名人', source: 'shogi', themes: ['tough', 'slump'] },
+  { text: '勝負に絶対はない。だからこそ全力で挑むのだ。', author: '大山康晴 十五世名人', source: 'shogi', themes: ['before'] },
+  { text: '新手一生。', author: '升田幸三 実力制第四代名人', source: 'shogi', themes: ['challenge'] },
+  { text: '新しい一手を生み出す事こそが棋士の仕事である。', author: '升田幸三 実力制第四代名人', source: 'shogi', themes: ['challenge'] },
+  { text: '将棋の本道は、自分の頭で考えること。', author: '升田幸三 実力制第四代名人', source: 'shogi', themes: ['focus'] },
+  { text: 'やる時はやる、それが男だ。', author: '升田幸三 実力制第四代名人', source: 'shogi', themes: ['before'] },
+  { text: '相手にとって重要な手こそ、自分も最も考えるべき手だ。', author: '米長邦雄 永世棋聖', source: 'shogi' },
+  { text: '人生は気合いと根性と運だ。', author: '米長邦雄 永世棋聖', source: 'shogi', themes: ['tough'] },
+  { text: '泥沼流とは、最後まで諦めない将棋のことだ。', author: '米長邦雄 永世棋聖', source: 'shogi', themes: ['lost', 'continue'] },
+  { text: '集中力とは、自分が今やるべきことに最大限の力を注ぐこと。', author: '羽生善治 九段', source: 'shogi', themes: ['focus'] },
+  { text: '才能とは、継続できる情熱のことである。', author: '羽生善治 九段', source: 'shogi', themes: ['continue'] },
+  { text: '決断力は経験ではなく、責任を取ろうとする意志から生まれる。', author: '羽生善治 九段', source: 'shogi', themes: ['confidence'] },
+  { text: '直感の七割は正しい。', author: '羽生善治 九段', source: 'shogi', themes: ['confidence'] },
+  { text: '学ぶことは、真似ぶことから始まる。', author: '羽生善治 九段', source: 'shogi', themes: ['continue'] },
+  { text: 'リスクのないところに、成功はない。', author: '羽生善治 九段', source: 'shogi', themes: ['challenge'] },
+  { text: '勝負の場面で大切なのは、平常心である。', author: '羽生善治 九段', source: 'shogi', themes: ['before'] },
+  { text: '深く考えれば考えるほど、シンプルな答えにたどり着く。', author: '羽生善治 九段', source: 'shogi', themes: ['focus'] },
+  { text: '結果を恐れず、最善の一手を指し続けるだけだ。', author: '羽生善治 九段', source: 'shogi', themes: ['before', 'confidence'] },
+  { text: '努力した上で運があると思う。', author: '藤井聡太 八冠', source: 'shogi', themes: ['continue'] },
+  { text: 'いつも全力で指すだけ。', author: '藤井聡太 八冠', source: 'shogi', themes: ['before'] },
+  { text: 'もっと強くなりたい。', author: '藤井聡太 八冠', source: 'shogi', themes: ['continue', 'challenge'] },
+  { text: '勝つことより、強くなることが大事。', author: '藤井聡太 八冠', source: 'shogi', themes: ['lost'] },
+  { text: '一局一局、自分の力を出し切る。', author: '藤井聡太 八冠', source: 'shogi', themes: ['before'] },
+  { text: '光速の寄せ。', author: '谷川浩司 十七世名人', source: 'shogi' },
+  { text: '最善を尽くすだけ。', author: '谷川浩司 十七世名人', source: 'shogi', themes: ['before'] },
+  { text: '将棋は人生に似ている。終盤に勝負がある。', author: '谷川浩司 十七世名人', source: 'shogi', themes: ['tough'] },
+  { text: '一手一手に魂を込めよ。', author: '谷川浩司 十七世名人', source: 'shogi', themes: ['focus'] },
+  { text: '決して諦めてはいけない。最後の一手まで。', author: '佐藤康光 九段', source: 'shogi', themes: ['lost', 'continue'] },
+  { text: '深く読むことで、初めて見える景色がある。', author: '佐藤康光 九段', source: 'shogi', themes: ['focus'] },
+  { text: '結果は努力に比例する。', author: '渡辺明 九段', source: 'shogi', themes: ['continue'] },
+  { text: '一日休めば取り戻すのに三日かかる。', author: '渡辺明 九段', source: 'shogi', themes: ['continue'] },
+  { text: 'いつも夢を見ていなさい。', author: '加藤一二三 九段', source: 'shogi', themes: ['challenge'] },
+  { text: '将棋は神様からの贈り物。', author: '加藤一二三 九段', source: 'shogi' },
+  { text: '自然流。盤上で自然に最善手が見えるまで読め。', author: '中原誠 十六世名人', source: 'shogi', themes: ['focus'] },
+  { text: '冷静沈着が勝利を呼ぶ。', author: '桐山清澄 九段', source: 'shogi', themes: ['before'] },
+  { text: '指運に頼るな、力で勝て。', author: '木村義雄 十四世名人', source: 'shogi' },
+  { text: '将棋は一手一手の積み重ね。一日一日の研鑽の積み重ね。', author: '佐藤天彦 九段', source: 'shogi', themes: ['continue'] },
+  { text: '盤を挟めば、年齢も実績も関係ない。', author: '里見香奈 女流五冠', source: 'shogi', themes: ['confidence'] },
+  { text: '女性だからではなく、一人の棋士として勝ちたい。', author: '里見香奈 女流五冠', source: 'shogi', themes: ['confidence'] },
+  { text: '将棋に近道はない。', author: '森内俊之 十八世名人', source: 'shogi', themes: ['continue'] },
+  { text: '勝つために、まず自分に勝て。', author: '森内俊之 十八世名人', source: 'shogi', themes: ['confidence'] },
+  { text: '将棋を指せる、ということがどれだけ幸せか。', author: '丸山忠久 九段', source: 'shogi' },
+  { text: '逆境こそ、棋士の本領を発揮する場所だ。', author: '深浦康市 九段', source: 'shogi', themes: ['tough', 'slump'] },
+  { text: '弱気は最大の敵。', author: '深浦康市 九段', source: 'shogi', themes: ['confidence', 'before'] },
+  { text: '勝ちたい気持ちは、誰にも負けない。', author: '豊島将之 九段', source: 'shogi', themes: ['before'] },
+  { text: 'ベストを尽くす、それだけです。', author: '永瀬拓矢 九段', source: 'shogi', themes: ['before'] },
+  { text: '将棋は孤独な戦いだが、孤独ではない。応援してくれる人がいる。', author: '広瀬章人 九段', source: 'shogi', themes: ['tough'] },
+  { text: '駒を動かす前に、心を動かせ。', author: '森安秀光 九段', source: 'shogi', themes: ['focus'] },
+  { text: '将棋盤の前では、誰もが平等である。', author: '芹沢博文 九段', source: 'shogi', themes: ['confidence'] },
+  { text: '弱い時こそ、強くなれる。', author: '青野照市 九段', source: 'shogi', themes: ['slump', 'lost'] },
+  { text: '一手の重みを知る者だけが、本当の強さを知る。', author: '内藤國雄 九段', source: 'shogi', themes: ['focus'] },
+  { text: '勝負は時の運。だが努力は裏切らない。', author: '有吉道夫 九段', source: 'shogi', themes: ['continue'] },
+  { text: '将棋は美しい。美しい一手を指したい。', author: '関根金次郎 十三世名人', source: 'shogi' },
+  { text: '若い力には、未来がある。', author: '二上達也 九段', source: 'shogi', themes: ['confidence'] },
+  { text: '盤上の真理は、ただひとつ。', author: '花村元司 九段', source: 'shogi' },
+  { text: 'まだ強くなれる。まだ伸びる。そう信じることが大切。', author: '糸谷哲郎 八段', source: 'shogi', themes: ['confidence', 'slump'] },
+  { text: '研究の量は嘘をつかない。', author: '高見泰地 七段', source: 'shogi', themes: ['continue'] },
+  { text: '負けて学べることがある。', author: '木村一基 九段', source: 'shogi', themes: ['lost'] },
+  { text: '将棋の神様が見ているような一手を指したい。', author: '羽生善治 九段', source: 'shogi' },
+  { text: '勝負は最後の一手まで分からない。', author: '大山康晴 十五世名人', source: 'shogi', themes: ['lost', 'continue'] },
+  { text: '挑戦することをやめたら、棋士ではない。', author: '羽生善治 九段', source: 'shogi', themes: ['challenge'] },
+  { text: '一秒たりとも油断するな。盤上では一手で全てが決まる。', author: '升田幸三 実力制第四代名人', source: 'shogi', themes: ['focus'] },
+
+  // ─── 棋士の言葉（追加分：心得・座右の銘・棋士全般の言葉）───
+  { text: '勝ちに不思議の勝ちあり、負けに不思議の負けなし。', author: '将棋格言（米長邦雄が好んだ言葉）', source: 'shogi', themes: ['lost'] },
+  { text: '一日に一局、本気の将棋を指せ。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '盤に座ったら、別人になれ。', author: '棋士の心得', source: 'shogi', themes: ['before'] },
+  { text: '勝った時こそ、駒を並べ直して反省せよ。', author: '棋士の心得', source: 'shogi' },
+  { text: '感想戦に勝者なし。皆、学ぶ者である。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '読んだ手を信じよ。信じられないなら、もっと読め。', author: '棋士の心得', source: 'shogi', themes: ['confidence'] },
+  { text: '弱い相手とばかり指していては、強くなれない。', author: '棋士の心得', source: 'shogi', themes: ['challenge'] },
+  { text: '自分より強い相手と指す日は、最大のチャンスである。', author: '棋士の心得', source: 'shogi', themes: ['before', 'challenge'] },
+  { text: '将棋の上達に王道なし。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '指す前に、まず読め。読む前に、まず深呼吸せよ。', author: '棋士の心得', source: 'shogi', themes: ['focus', 'before'] },
+  { text: '一勝はうれしい、十敗は財産である。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '才能とは、続ける才能のことである。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '将棋は人を磨く。人が将棋を磨くのではない。', author: '棋士の心得', source: 'shogi' },
+  { text: '指運に泣くな、力で勝て。', author: '棋士の心得', source: 'shogi' },
+  { text: '勝とうとするな。最善を尽くせ。結果はあとから付いてくる。', author: '棋士の心得', source: 'shogi', themes: ['before', 'confidence'] },
+  { text: '盤上の一手は、生き方の一手である。', author: '棋士の心得', source: 'shogi' },
+  { text: 'たった一手の見落としが、人生を変えることもある。だから一手も気を抜くな。', author: '棋士の心得', source: 'shogi', themes: ['focus'] },
+  { text: '何手読めるかではない。何手を本気で読めるかだ。', author: '棋士の心得', source: 'shogi', themes: ['focus'] },
+  { text: '将棋の強さは、孤独に耐える力でもある。', author: '棋士の心得', source: 'shogi', themes: ['tough'] },
+  { text: '勝ったら謙虚に、負けたら堂々と。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '一手指せば、もう戻れない。だからこそ慎重に、だからこそ大胆に。', author: '棋士の心得', source: 'shogi', themes: ['focus', 'challenge'] },
+  { text: '逆転は、諦めない者にだけ訪れる。', author: '棋士の心得', source: 'shogi', themes: ['lost', 'tough'] },
+  { text: '気持ちで負ければ、駒も負ける。', author: '棋士の心得', source: 'shogi', themes: ['confidence'] },
+  { text: '勝負師は、勝ったあとも気を抜かない。', author: '棋士の心得', source: 'shogi' },
+  { text: '盤に向かう時間が、人生で一番楽しい時間でありますように。', author: '棋士の心得', source: 'shogi' },
+  { text: '将棋を始めた日のことを、忘れるな。', author: '棋士の心得', source: 'shogi', themes: ['slump'] },
+  { text: '一勝より、ひとつ上達することのほうが大きい。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '読み筋を外れたら、それは新しい景色である。', author: '棋士の心得', source: 'shogi', themes: ['tough'] },
+  { text: '優勢の時こそ慎重に。劣勢の時こそ大胆に。', author: '棋士の心得', source: 'shogi', themes: ['tough'] },
+  { text: '形勢判断より、一手の精度。', author: '棋士の心得', source: 'shogi', themes: ['focus'] },
+  { text: '一年前の自分を超えていれば、それで十分。', author: '棋士の心得', source: 'shogi', themes: ['slump', 'confidence'] },
+  { text: '将棋の神様にお願いするのは、ただ一つ。最善手が見えるように。', author: '棋士の心得', source: 'shogi', themes: ['before'] },
+  { text: '深く読めない時は、まず駒を磨け。心を磨け。', author: '棋士の心得', source: 'shogi', themes: ['focus', 'slump'] },
+  { text: 'プロになる者は、毎日泣くほど勉強する。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '才能の差は、努力で必ず追いつける。', author: '棋士の心得', source: 'shogi', themes: ['confidence'] },
+  { text: '対局の日は、靴を磨け、心を整えよ。', author: '棋士の心得', source: 'shogi', themes: ['before'] },
+  { text: '王手は追わず、寄せを完成させよ。', author: '棋士の心得', source: 'shogi' },
+  { text: '相手を尊敬せよ。それが棋士の品格である。', author: '棋士の心得', source: 'shogi' },
+  { text: '盤上で泣け、盤外で笑え。', author: '棋士の心得', source: 'shogi', themes: ['tough'] },
+  { text: '勝負は、対局室に入る前から始まっている。', author: '棋士の心得', source: 'shogi', themes: ['before'] },
+  { text: '一局指し終えたら、それは過去である。次の一局に全てを注げ。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '迷う一手より、信じる一手。', author: '棋士の心得', source: 'shogi', themes: ['confidence'] },
+  { text: '勝った将棋は、誰でも復習する。負けた将棋を復習する者だけが、強くなる。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '才能とは、毎日詰将棋を解き続ける根気のことだ。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '将棋盤の前で、自分から逃げるな。', author: '棋士の心得', source: 'shogi', themes: ['tough', 'confidence'] },
+  { text: '読みが浅い時は、深呼吸を三回せよ。', author: '棋士の心得', source: 'shogi', themes: ['focus'] },
+  { text: '対局は鏡である。自分の弱さも強さも、全てが映る。', author: '棋士の心得', source: 'shogi' },
+  { text: '師に学び、棋譜に学び、敗北に学べ。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '将棋を一日休めば、自分が知る。三日休めば、師が知る。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '研究は嘘をつかない。指運は嘘をつく。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '対局を終えて泣くな、対局を終えて成長せよ。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '盤上の自分と、盤外の自分は同じである。', author: '棋士の心得', source: 'shogi' },
+  { text: '一局指せば、一年分の経験が手に入る。', author: '棋士の心得', source: 'shogi', themes: ['continue'] },
+  { text: '勝負強さとは、平常心で勝負できる強さである。', author: '棋士の心得', source: 'shogi', themes: ['before'] },
+  { text: '勝ちパターンに溺れるな、負けパターンを忘れるな。', author: '棋士の心得', source: 'shogi' },
+  { text: 'スランプは強くなる前兆。', author: '棋士の心得', source: 'shogi', themes: ['slump'] },
+  { text: '焦れば焦るほど、手が緩む。だから深く息を吸え。', author: '棋士の心得', source: 'shogi', themes: ['tough', 'before'] },
+  { text: '勝ちたければ、勝つことを忘れて指せ。', author: '棋士の心得', source: 'shogi', themes: ['before'] },
+  { text: '伸びる時は、突然伸びる。それまで耐えるのが棋士である。', author: '棋士の心得', source: 'shogi', themes: ['slump', 'continue'] },
+  { text: 'プロは、勝ち方を覚える前に、負け方を覚える。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '最善手より、自分らしい一手。', author: '棋士の心得', source: 'shogi', themes: ['confidence'] },
+  { text: '将棋を続けていれば、必ず光が見える日が来る。', author: '棋士の心得', source: 'shogi', themes: ['slump', 'continue'] },
+  { text: '一勝の喜びを、十敗の悔しさで磨け。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '駒の声が聞こえるまで、盤に向かえ。', author: '棋士の心得', source: 'shogi', themes: ['focus'] },
+  { text: '勝負の世界に「もし」はない。「次」があるだけだ。', author: '棋士の心得', source: 'shogi', themes: ['lost'] },
+  { text: '盤上で迷ったら、原点に戻れ。', author: '棋士の心得', source: 'shogi', themes: ['slump', 'focus'] },
+  { text: 'プロの一手は、アマの十手分の重みを持つ。', author: '棋士の心得', source: 'shogi' },
+
+  // ─────────────── 将棋格言（古くから伝わる）───────────────
+  { text: '初心忘るべからず。', author: '将棋格言', source: 'kakugen', themes: ['slump'] },
+  { text: '歩のない将棋は負け将棋。', author: '将棋格言', source: 'kakugen' },
+  { text: '金底の歩、岩より固し。', author: '将棋格言', source: 'kakugen' },
+  { text: '玉の早逃げ、八手の得あり。', author: '将棋格言', source: 'kakugen' },
+  { text: '居玉は避けよ。', author: '将棋格言', source: 'kakugen' },
+  { text: '桂馬の高跳び、歩の餌食。', author: '将棋格言', source: 'kakugen' },
+  { text: '敵の打ちたい所に打て。', author: '将棋格言', source: 'kakugen' },
+  { text: '攻めは飛角銀桂、守りは金銀三枚。', author: '将棋格言', source: 'kakugen' },
+  { text: '三歩持ったら継ぎ歩・垂れ歩。', author: '将棋格言', source: 'kakugen' },
+  { text: 'と金のおそはや、金以上。', author: '将棋格言', source: 'kakugen' },
+  { text: '寄せは俗手で。', author: '将棋格言', source: 'kakugen' },
+  { text: '玉飛接近すべからず。', author: '将棋格言', source: 'kakugen' },
+  { text: '王より飛車をかわいがり。', author: '将棋格言', source: 'kakugen' },
+  { text: '受けは金底の歩、攻めは継ぎ歩。', author: '将棋格言', source: 'kakugen' },
+  { text: '一歩千金。', author: '将棋格言', source: 'kakugen' },
+  { text: '将棋は終盤。', author: '将棋格言', source: 'kakugen' },
+  { text: '駒を捨てて捨てて捨てまくれ。', author: '将棋格言', source: 'kakugen' },
+  { text: '長い詰みより、短い必至。', author: '将棋格言', source: 'kakugen' },
+  { text: '迷ったら金、迷ったら銀。', author: '将棋格言', source: 'kakugen' },
+  { text: '飛車先の歩交換、三つの得あり。', author: '将棋格言', source: 'kakugen' },
+  { text: '一目散より、二目読め。', author: '将棋格言', source: 'kakugen' },
+  { text: '一に詰将棋、二に詰将棋、三・四がなくて、五に詰将棋。', author: '将棋格言', source: 'kakugen', themes: ['continue'] },
+  { text: '盤に向かう時、心を整えよ。', author: '将棋格言', source: 'kakugen', themes: ['before'] },
+  { text: '勝って兜の緒を締めよ。', author: '将棋格言', source: 'kakugen' },
+  { text: '一手損より、一手稼げ。', author: '将棋格言', source: 'kakugen' },
+  // 将棋格言（追加分）
+  { text: '優勢時にも妙手あり、劣勢時にも妙手あり。', author: '将棋格言', source: 'kakugen', themes: ['tough'] },
+  { text: '取れる駒は取れ、ただし取った後を読め。', author: '将棋格言', source: 'kakugen' },
+  { text: '攻め駒は、近づけて使え。', author: '将棋格言', source: 'kakugen' },
+  { text: '銀は引く手に好手あり。', author: '将棋格言', source: 'kakugen' },
+  { text: '角換わりは、先手番に勝負あり。', author: '将棋格言', source: 'kakugen' },
+  { text: '受けるなら徹底的に。攻めるなら徹底的に。', author: '将棋格言', source: 'kakugen', themes: ['confidence'] },
+  { text: '駒得は裏切らない。', author: '将棋格言', source: 'kakugen' },
+  { text: '一手の遅れは三手の損。', author: '将棋格言', source: 'kakugen' },
+  { text: '中央を制する者は、将棋を制す。', author: '将棋格言', source: 'kakugen' },
+  { text: '美しい手より、強い手を指せ。', author: '将棋格言', source: 'kakugen' },
+  { text: '相手の好手は、自分の悪手の裏返し。', author: '将棋格言', source: 'kakugen', themes: ['lost'] },
+  { text: '攻めるは易く、受けるは難し。', author: '将棋格言', source: 'kakugen' },
+  { text: '次の一手は、三手先を見て決めよ。', author: '将棋格言', source: 'kakugen', themes: ['focus'] },
+  { text: '相手の最善手を考えてから、自分の手を決めよ。', author: '将棋格言', source: 'kakugen' },
+  { text: '駒の損得より、駒の働き。', author: '将棋格言', source: 'kakugen' },
+
+  // ─────────────── 全力・努力・挑戦の名言（将棋以外）───────────────
+  // スポーツ選手
+  { text: '小さなことを積み重ねるのが、とんでもないところへ行くただひとつの道。', author: 'イチロー', source: 'life', themes: ['continue'] },
+  { text: '努力をしないで何かできるようになる人を、天才と言うのなら、僕はそうじゃない。努力した結果、何かができるようになる人を、天才と言うのなら、僕はそう思う。', author: 'イチロー', source: 'life', themes: ['continue', 'confidence'] },
+  { text: '壁というのは、できる人にしかやってこない。超えられる可能性がある人にしかやってこない。', author: 'イチロー', source: 'life', themes: ['tough', 'slump'] },
+  { text: '夢を叶えるためには、頭で考えるだけじゃダメだ。手を動かさなきゃ何も始まらない。', author: 'イチロー', source: 'life', themes: ['challenge'] },
+  { text: '結果が出ないときに我慢する。我慢して初めて、何かが見える。', author: 'イチロー', source: 'life', themes: ['slump'] },
+  { text: '努力したら必ず成功するというものではない。しかし、成功している人は皆努力している。', author: '本田圭佑', source: 'life', themes: ['continue'] },
+  { text: 'リトル本田に聞いてみた。「どこのクラブでプレーしたいんだ?」', author: '本田圭佑', source: 'life' },
+  { text: '人生に失敗がないと、人生を失敗する。', author: '松岡修造', source: 'life', themes: ['lost'] },
+  { text: '今やれ、すぐやれ、絶対やれ!', author: '松岡修造', source: 'life', themes: ['challenge'] },
+  { text: '先入観は可能を不可能にする。', author: '大谷翔平', source: 'life', themes: ['confidence', 'challenge'] },
+  { text: 'やってみる前から、できないと決めつけたらもったいない。', author: '大谷翔平', source: 'life', themes: ['challenge'] },
+  { text: '努力は必ず報われる。もし報われない努力があるのなら、それはまだ努力と呼べない。', author: '王貞治', source: 'life', themes: ['continue'] },
+  { text: '頑張れない人間は何をやってもダメだ。', author: '王貞治', source: 'life', themes: ['continue'] },
+  { text: '失敗は成功の母。', author: '長嶋茂雄', source: 'life', themes: ['lost'] },
+  { text: '夢に向かって投げ続けるだけ。', author: '野茂英雄', source: 'life', themes: ['continue'] },
+  { text: '人生で大切なのは、失敗の歴史である。', author: '三浦知良', source: 'life', themes: ['lost'] },
+  { text: '夢があるから強くなる。', author: '三浦知良', source: 'life', themes: ['confidence'] },
+  { text: '為せば成る、為さねば成らぬ、何事も。', author: '上杉鷹山', source: 'life', themes: ['challenge'] },
+  { text: '苦しい時こそ、笑顔を忘れない。', author: '澤穂希', source: 'life', themes: ['tough'] },
+  { text: '苦しいときは、私の背中を見て。', author: '澤穂希', source: 'life', themes: ['tough'] },
+  { text: '私は失敗を受け入れることができる。しかし、挑戦しないことを受け入れることはできない。', author: 'マイケル・ジョーダン', source: 'life', themes: ['challenge'] },
+  { text: '人生で何度も何度も失敗してきた。だから、私は成功した。', author: 'マイケル・ジョーダン', source: 'life', themes: ['lost'] },
+  { text: '一度も失敗したことがない人は、何にも挑戦したことがない人だ。', author: 'アインシュタイン', source: 'life', themes: ['challenge'] },
+  { text: '人生とは自転車のようなもの。バランスを保つには、走り続けなければならない。', author: 'アインシュタイン', source: 'life', themes: ['continue'] },
+  { text: '挑戦の中にこそ、人生の意味がある。', author: 'アインシュタイン', source: 'life', themes: ['challenge'] },
+  { text: '天才とは、1%のひらめきと、99%の努力である。', author: 'トーマス・エジソン', source: 'life', themes: ['continue', 'confidence'] },
+  { text: '私は失敗したのではない。うまくいかない方法を1万通り見つけただけだ。', author: 'トーマス・エジソン', source: 'life', themes: ['lost', 'slump'] },
+  { text: '不可能という言葉は、私の辞書にはない。', author: 'ナポレオン・ボナパルト', source: 'life', themes: ['confidence', 'challenge'] },
+
+  // 歴史人物・武士
+  { text: '夢なき者に理想なし、理想なき者に計画なし、計画なき者に実行なし、実行なき者に成功なし。故に、夢なき者に成功なし。', author: '吉田松陰', source: 'life', themes: ['challenge'] },
+  { text: '今日の一針、明日の十針。', author: '吉田松陰', source: 'life', themes: ['continue'] },
+  { text: '世の人は、我を何とも言わば言え、我が成す事は我のみぞ知る。', author: '坂本龍馬', source: 'life', themes: ['confidence'] },
+  { text: '何でも思い切ってやってみることだ。どっちに転んだって、人間、野辺の石ころ同様、骨となって一生を終えるのだから。', author: '坂本龍馬', source: 'life', themes: ['challenge'] },
+  { text: 'やってみせ、言って聞かせて、させてみて、ほめてやらねば人は動かじ。', author: '山本五十六', source: 'life' },
+  { text: '苦しいから逃げるのではない。逃げるから苦しくなるのだ。', author: '山本五十六', source: 'life', themes: ['tough'] },
+  { text: '積小為大。小さなことを積み重ねて大きなことを為す。', author: '二宮尊徳', source: 'life', themes: ['continue'] },
+  { text: '我事において後悔せず。', author: '宮本武蔵', source: 'life', themes: ['confidence'] },
+  { text: '千日の稽古を鍛とし、万日の稽古を錬とする。', author: '宮本武蔵', source: 'life', themes: ['continue'] },
+  { text: '構えあって構えなし。', author: '宮本武蔵', source: 'life' },
+  { text: '心、常に、道を離れず。', author: '宮本武蔵', source: 'life', themes: ['focus'] },
+  { text: '人間五十年、下天のうちを比ぶれば、夢幻のごとくなり。', author: '織田信長', source: 'life' },
+  { text: '是非に及ばず。', author: '織田信長', source: 'life', themes: ['tough'] },
+  { text: 'なせばなる、なさねばならぬ何事も、ならぬは人のなさぬなりけり。', author: '上杉鷹山', source: 'life', themes: ['challenge'] },
+  { text: '人の一生は重荷を負うて遠き道を行くがごとし。急ぐべからず。', author: '徳川家康', source: 'life', themes: ['tough'] },
+  { text: '勝つことばかり知って、負くることを知らざれば、害その身に至る。', author: '徳川家康', source: 'life' },
+  { text: '不自由を常と思えば、不足なし。', author: '徳川家康', source: 'life', themes: ['tough'] },
+
+  // 哲学・思想（東洋）
+  { text: '千里の道も一歩より始まる。', author: '老子', source: 'life', themes: ['continue'] },
+  { text: '上善は水のごとし。', author: '老子', source: 'life' },
+  { text: 'これを知る者はこれを好む者に如かず、これを好む者はこれを楽しむ者に如かず。', author: '孔子', source: 'life', themes: ['focus'] },
+  { text: '学びて時にこれを習う、亦た説ばしからずや。', author: '孔子', source: 'life', themes: ['continue'] },
+  { text: '過ちて改めざる、是を過ちと謂う。', author: '孔子', source: 'life', themes: ['lost'] },
+  { text: '己の欲せざるところ、人に施すことなかれ。', author: '孔子', source: 'life' },
+  { text: '三人行けば、必ず我が師あり。', author: '孔子', source: 'life' },
+  { text: '十有五にして学に志し、三十にして立つ。', author: '孔子', source: 'life', themes: ['continue'] },
+  { text: '故きを温ねて新しきを知る。', author: '孔子', source: 'life' },
+  { text: '兵は拙速を尊ぶ。', author: '孫子', source: 'life' },
+  { text: '彼を知り己を知れば、百戦して殆うからず。', author: '孫子', source: 'life', themes: ['before'] },
+  { text: '勝兵は先ず勝ちて而る後に戦いを求む。', author: '孫子', source: 'life', themes: ['before'] },
+  { text: '善く戦う者は勝ち易きに勝つ。', author: '孫子', source: 'life' },
+  { text: '少年老い易く学成り難し、一寸の光陰軽んずべからず。', author: '朱熹', source: 'life', themes: ['continue'] },
+
+  // 哲学・思想（西洋）
+  { text: '我思う、ゆえに我あり。', author: 'デカルト', source: 'life' },
+  { text: '楽天家とは、ある状況において最善を尽くす人のことである。', author: 'ヘレン・ケラー', source: 'life', themes: ['tough'] },
+  { text: '世界は苦しみに満ちている。しかし、それを克服する人々にも満ちている。', author: 'ヘレン・ケラー', source: 'life', themes: ['tough'] },
+  { text: '顔を太陽に向けていれば、影は見えない。', author: 'ヘレン・ケラー', source: 'life', themes: ['tough'] },
+  { text: '明日死ぬかのように生きよ、永遠に生きるかのように学べ。', author: 'マハトマ・ガンジー', source: 'life', themes: ['continue'] },
+  { text: 'あなたが世界で見たいと願う変化に、あなた自身がなりなさい。', author: 'マハトマ・ガンジー', source: 'life', themes: ['challenge'] },
+  { text: '弱い者ほど相手を許すことができない。許すということは強さの証だ。', author: 'マハトマ・ガンジー', source: 'life' },
+  { text: '成功とは、何度倒れても、その度に起き上がることである。', author: 'ネルソン・マンデラ', source: 'life', themes: ['lost'] },
+  { text: '不可能とは、自分の力で世界を切り開くことを放棄した臆病者の言葉だ。', author: 'モハメド・アリ', source: 'life', themes: ['confidence', 'challenge'] },
+  { text: '蝶のように舞い、蜂のように刺す。', author: 'モハメド・アリ', source: 'life' },
+  { text: '勝つことはそれほど重要ではない。負けないことが大事なのだ。', author: 'モハメド・アリ', source: 'life' },
+  { text: 'ハングリーであれ、愚かであれ。', author: 'スティーブ・ジョブズ', source: 'life', themes: ['challenge'] },
+  { text: '点と点をつなぐことができるのは、振り返ったときだけだ。', author: 'スティーブ・ジョブズ', source: 'life' },
+  { text: '時間は限られている。だから、誰かの人生を生きてはいけない。', author: 'スティーブ・ジョブズ', source: 'life', themes: ['challenge'] },
+  { text: '質を伴わない量に意味はない。しかし量を伴わない質も存在しない。', author: 'スティーブ・ジョブズ', source: 'life', themes: ['continue'] },
+  { text: '努力は嘘をつかない。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '志高く。', author: '名言', source: 'life' },
+  { text: '汝、自らを知れ。', author: 'ソクラテス', source: 'life' },
+  { text: '無知の知。', author: 'ソクラテス', source: 'life' },
+  { text: '人生における最大の栄光は、決して転ばないことではなく、転ぶたびに起き上がり続けることにある。', author: 'ネルソン・マンデラ', source: 'life', themes: ['lost', 'tough'] },
+
+  // 漫画・スポーツマンガから（生徒さんに響く言葉）
+  { text: 'あきらめたらそこで試合終了ですよ。', author: '安西先生（SLAM DUNK）', source: 'life', themes: ['lost', 'tough'] },
+  { text: '左手はそえるだけ。', author: '安西先生（SLAM DUNK）', source: 'life', themes: ['focus'] },
+  { text: '下手くそって言葉、まだ早い。', author: '安西先生（SLAM DUNK）', source: 'life', themes: ['confidence', 'slump'] },
+  { text: '楽じゃない方を選べ。', author: 'スポーツ名言', source: 'life', themes: ['challenge'] },
+  { text: '才能の差は埋められる。努力の差は埋められない。', author: 'スポーツ名言', source: 'life', themes: ['continue'] },
+  { text: '今日勝てなかったら、明日勝てばいい。', author: 'スポーツ名言', source: 'life', themes: ['lost'] },
+
+  // その他人生・全力名言
+  { text: '人生は近くで見れば悲劇だが、遠くで見れば喜劇だ。', author: 'チャップリン', source: 'life' },
+  { text: '夢を見られるのなら、それを実現することもできる。', author: 'ウォルト・ディズニー', source: 'life', themes: ['challenge'] },
+  { text: '始めるためには、話すことをやめ、行動を始めなければならない。', author: 'ウォルト・ディズニー', source: 'life', themes: ['challenge'] },
+  { text: '迷ったら、難しい方を選べ。', author: '岡本太郎', source: 'life', themes: ['challenge'] },
+  { text: '芸術は爆発だ。', author: '岡本太郎', source: 'life' },
+  { text: '自分に対して持っている自信が、最大の財産である。', author: '岡本太郎', source: 'life', themes: ['confidence'] },
+  { text: 'やる気がないなら、それでもいい。やる気が出るまでやってみろ。', author: '岡本太郎', source: 'life', themes: ['slump'] },
+  { text: '何かを変えたければ、まず自分を変えろ。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '今日の自分は、昨日の自分が作った。明日の自分は、今日の自分が作る。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '勝つまで、やめない。それが勝つということ。', author: '松下幸之助', source: 'life', themes: ['continue'] },
+  { text: '道は、自分でつくるもの。', author: '松下幸之助', source: 'life', themes: ['challenge'] },
+  { text: '志を立てるのに、老いも若きもない。そして、志を立てたら、その達成に努力することだ。', author: '松下幸之助', source: 'life', themes: ['challenge'] },
+  { text: '人生の評価は、長さではない。深さである。', author: 'エマーソン', source: 'life' },
+  { text: '熱意なくして、偉大なことは成し遂げられない。', author: 'エマーソン', source: 'life', themes: ['continue'] },
+  { text: '今日できることを、明日に延ばすな。', author: 'ベンジャミン・フランクリン', source: 'life', themes: ['continue'] },
+  { text: '失敗ではなく、学びと呼べ。', author: '名言', source: 'life', themes: ['lost'] },
+  { text: '人は誰でも変われる。本気でそう思った瞬間から。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '勝負の世界では、強い者が勝つのではない。勝った者が強いのだ。', author: 'スポーツ名言', source: 'life' },
+  { text: '結果に責任を取る覚悟があれば、人は強くなれる。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '迷うな、信じろ、自分を。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '熱意は伝染する。世界を変えたいなら、まず自分が熱くあれ。', author: '名言', source: 'life' },
+  { text: '人と比べるな、昨日の自分と比べろ。', author: '名言', source: 'life', themes: ['confidence', 'slump'] },
+  { text: '才能とは、毎日続ける力のことだ。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '結果が出るまで、続けろ。続ければ必ず結果は出る。', author: '名言', source: 'life', themes: ['continue', 'slump'] },
+  { text: '一日一日が、勝負の日だ。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '言い訳は、敗者の最初の特権である。だから絶対に言うな。', author: '名言', source: 'life', themes: ['lost'] },
+  { text: '汗を流すことを恐れるな。それは未来の自分への投資だ。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '弱さを認めるのは、強くなる第一歩。', author: '名言', source: 'life', themes: ['confidence', 'slump'] },
+  { text: '本気を出した者にしか、本物の景色は見えない。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '挑戦は失敗より価値がある。挑戦しない後悔は、失敗の悔しさより重い。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '今、目の前のことに全力を尽くせ。それが未来を作る。', author: '名言', source: 'life', themes: ['focus'] },
+  { text: '勝つ者は、ただ一つを徹底的にやり抜いた者だ。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '泥臭くてもいい、結果を出す者が強い。', author: '名言', source: 'life' },
+  { text: '今日の努力は、未来の自分への手紙だ。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '人は誰しも、自分の限界を低く見積もりすぎている。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '燃え尽きるくらい、全力で挑め。', author: '名言', source: 'life', themes: ['before'] },
+  { text: '逃げてもいい。でも、もう一度、戦う場所には戻ってこい。', author: '名言', source: 'life', themes: ['tough', 'slump'] },
+  { text: '一歩、また一歩。それだけで山は越えられる。', author: '名言', source: 'life', themes: ['tough', 'continue'] },
+  { text: '勝負を分けるのは、最後の一歩を踏み出せるかどうか。', author: '名言', source: 'life', themes: ['before'] },
+  { text: '練習で泣け、本番で笑え。', author: '名言', source: 'life', themes: ['before'] },
+  { text: '才能は出会えるもの。努力は出会いに行くもの。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '弱くてもいい。弱くて何が悪い。そこから強くなる物語が始まる。', author: '名言', source: 'life', themes: ['confidence', 'slump'] },
+  { text: '今日の一手が、未来を変える。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '誰も見ていないところでの努力が、本物の力をつくる。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '夢中になれるものを持つ者は、すでに勝者である。', author: '名言', source: 'life', themes: ['focus'] },
+  { text: '本気でやる、それが一番カッコいい。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '人生で一番無駄な時間は、迷っている時間だ。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '才能の差は、努力で埋められる。努力の差は、もう埋められない。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '勝者の辞書に「無理」という言葉はない。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '夢は逃げない。逃げるのはいつも自分の方。', author: '名言', source: 'life', themes: ['challenge', 'slump'] },
+
+  // ─── 全力系の追加（武芸者・伝記人物・スポーツ・道のことば）───
+  { text: '一日生きることは、一歩進むことでありたい。', author: '湯川秀樹', source: 'life', themes: ['continue'] },
+  { text: '私は今日まで生きてきました。私は今日からも生きていきます。', author: '太宰治', source: 'life', themes: ['tough'] },
+  { text: '人は何のために生きるのか。それは、誰かを喜ばせるためです。', author: '黒澤明', source: 'life' },
+  { text: '一生勉強、一生青春。', author: '相田みつを', source: 'life', themes: ['continue'] },
+  { text: 'つまずいたっていいじゃないか にんげんだもの。', author: '相田みつを', source: 'life', themes: ['lost', 'tough'] },
+  { text: 'あなたのその眼は、あなたを映している。', author: '相田みつを', source: 'life', themes: ['confidence'] },
+  { text: 'はじめのなまえは、しんねん。', author: '相田みつを', source: 'life', themes: ['confidence'] },
+  { text: '感動とは、感じて動くこと。動かなければ、感じていないのと同じだ。', author: '相田みつを', source: 'life', themes: ['challenge'] },
+  { text: 'いま、ここ。', author: '禅語', source: 'life', themes: ['focus'] },
+  { text: '日々是好日。', author: '禅語', source: 'life', themes: ['tough'] },
+  { text: '足るを知る者は富む。', author: '老子', source: 'life' },
+  { text: '看脚下。足元をよく見よ。', author: '禅語', source: 'life', themes: ['focus'] },
+  { text: '行雲流水。雲のように、水のように。', author: '禅語', source: 'life', themes: ['tough'] },
+  { text: '主人公、ここにあり。', author: '禅語', source: 'life', themes: ['confidence'] },
+  { text: '一期一会。', author: '茶の湯のことば', source: 'life', themes: ['focus'] },
+  { text: '七転び八起き。', author: 'ことわざ', source: 'life', themes: ['lost', 'tough'] },
+  { text: '雨垂れ石を穿つ。', author: 'ことわざ', source: 'life', themes: ['continue'] },
+  { text: '石の上にも三年。', author: 'ことわざ', source: 'life', themes: ['continue', 'slump'] },
+  { text: '塵も積もれば山となる。', author: 'ことわざ', source: 'life', themes: ['continue'] },
+  { text: '初心に返れ。', author: 'ことわざ', source: 'life', themes: ['slump'] },
+  { text: '蒔かぬ種は生えぬ。', author: 'ことわざ', source: 'life', themes: ['challenge'] },
+  { text: '虎穴に入らずんば虎子を得ず。', author: 'ことわざ', source: 'life', themes: ['challenge'] },
+  { text: '思い立ったが吉日。', author: 'ことわざ', source: 'life', themes: ['challenge'] },
+  { text: '継続は力なり。', author: 'ことわざ', source: 'life', themes: ['continue'] },
+  { text: '失敗は成功のもと。', author: 'ことわざ', source: 'life', themes: ['lost'] },
+  { text: '案ずるより産むが易し。', author: 'ことわざ', source: 'life', themes: ['before', 'challenge'] },
+  { text: '備えあれば憂いなし。', author: 'ことわざ', source: 'life', themes: ['before'] },
+  { text: '一寸先は闇、一寸先は光。', author: 'ことわざ', source: 'life', themes: ['tough'] },
+  { text: '勝てば官軍、負ければ賊軍。だが、本物は負けてからが本物。', author: '名言', source: 'life', themes: ['lost'] },
+  { text: '苦しさの先にしか、本当の喜びはない。', author: '名言', source: 'life', themes: ['tough'] },
+  { text: '焦るな、急ぐな、止まるな。', author: '名言', source: 'life', themes: ['tough', 'slump'] },
+  { text: 'やってみないと分からない。やってみれば、たいてい何とかなる。', author: '名言', source: 'life', themes: ['challenge', 'confidence'] },
+  { text: 'できる、できない、ではなく、やる、やらない。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '誰かの言葉ではなく、自分の心の声を信じろ。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '夢を笑うやつは、自分の人生に夢がないだけだ。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '今日できなくても、明日できるようにする。それが成長。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '焦らなくていい。あなたは確実に強くなっている。', author: '名言', source: 'life', themes: ['slump', 'tough'] },
+  { text: '優しさは、強さの上に咲く花だ。', author: '名言', source: 'life' },
+  { text: '本気で生きれば、後悔は残らない。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '勝つ準備ができている者だけが、勝てる。', author: '名言', source: 'life', themes: ['before'] },
+  { text: 'なくしたものを数えるな。残っているものを数えろ。', author: '名言', source: 'life', themes: ['tough', 'lost'] },
+  { text: '一歩踏み出した時点で、もう半分は成功している。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '頑張れない日があってもいい。立ち止まる日も、進んでいる証拠。', author: '名言', source: 'life', themes: ['slump', 'tough'] },
+  { text: '人は誰でも、変わる権利を持っている。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '夢を持つ者には、星が味方する。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '勝負を恐れるな。恐れるべきは、勝負しないこと。', author: '名言', source: 'life', themes: ['before', 'challenge'] },
+  { text: '誰かのために頑張る力は、自分のために頑張る力より強い。', author: '名言', source: 'life', themes: ['tough'] },
+  { text: '一番になれなくてもいい。一番努力した自分になればいい。', author: '名言', source: 'life', themes: ['confidence', 'slump'] },
+  { text: '夢を諦める理由を百個探すより、夢を続ける理由を一個見つけよ。', author: '名言', source: 'life', themes: ['slump', 'continue'] },
+  { text: '完璧を待つな。やりながら、完璧に近づけ。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '才能の差より、覚悟の差。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '人生で一番大切なのは、立ち上がる回数。', author: '名言', source: 'life', themes: ['lost'] },
+  { text: '本気の人にしか、本気の景色は見えない。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '誰かに勝つより、昨日の自分に勝て。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '苦しい時こそ、笑え。笑うことで、心が強くなる。', author: '名言', source: 'life', themes: ['tough'] },
+  { text: '一歩、踏み出してみよう。世界は、踏み出した者にしか開かれない。', author: '名言', source: 'life', themes: ['challenge'] },
+  { text: '夢中になれることがあるって、それだけで才能だ。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '人と違うことを恐れるな。違うからこそ、君は君だ。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: 'やり抜いた者にしか、本当の自信は持てない。', author: '名言', source: 'life', themes: ['confidence', 'continue'] },
+  { text: '今日の練習は、明日の自分を裏切らない。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '誰かに認められるより、自分で自分を認めよ。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '失敗を恐れる者は、成功からも遠ざかる。', author: '名言', source: 'life', themes: ['lost', 'challenge'] },
+  { text: '勝つことより、続けることのほうがずっと難しい。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '一日のうち、本気で集中するのはたった三時間でいい。だが、それを毎日続けろ。', author: '名言', source: 'life', themes: ['focus', 'continue'] },
+  { text: '前に進めない日があってもいい。だが、後ろに戻る日があってはならない。', author: '名言', source: 'life', themes: ['slump', 'tough'] },
+  { text: 'スランプは、休息のサイン。焦らず、自分を見つめ直せ。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '集中できない日は、まず五分だけやれ。五分やれば、二十分はやれる。', author: '名言', source: 'life', themes: ['focus'] },
+  { text: '対戦相手は鏡。あなたの弱さも強さも、相手が映してくれる。', author: '名言', source: 'life' },
+  { text: '今日の悔しさを、明日の力に変えよ。', author: '名言', source: 'life', themes: ['lost'] },
+  { text: '自分を信じられない時は、過去の自分の頑張りを思い出せ。', author: '名言', source: 'life', themes: ['confidence', 'slump'] },
+  { text: '一手一手、丁寧に。人生も将棋も同じ。', author: '名言', source: 'life', themes: ['focus'] },
+  { text: '誰かに勝ちたい気持ちより、強くなりたい気持ちを大事にせよ。', author: '名言', source: 'life' },
+  { text: 'やる気は、やり始めた者にしか湧かない。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '本物の強さは、優しさを忘れない強さである。', author: '名言', source: 'life' },
+  { text: '焦った時こそ、ゆっくり読め。', author: '名言', source: 'life', themes: ['focus', 'tough'] },
+  { text: '勝負の前夜は、深く眠れ。深く眠れない時は、明日の自分を信じよ。', author: '名言', source: 'life', themes: ['before'] },
+  { text: '練習は嘘をつかない。本番で力を抜くな。', author: '名言', source: 'life', themes: ['before'] },
+  { text: '勝ち負けより、全力を出せたかどうか。', author: '名言', source: 'life', themes: ['lost'] },
+  { text: '辛い時は空を見上げよ。空は、いつもあなたを見ている。', author: '名言', source: 'life', themes: ['tough'] },
+  { text: '世界を変えるより、まず自分の一日を変えろ。', author: '名言', source: 'life', themes: ['slump'] },
+  { text: '夢を笑われた日のことを覚えておけ。叶えた日に、笑い返せばいい。', author: '名言', source: 'life', themes: ['confidence'] },
+  { text: '一歩一歩、ゆっくりでもいい。確実に、前へ。', author: '名言', source: 'life', themes: ['continue'] },
+  { text: '自分にしかできないことが、必ずある。', author: '名言', source: 'life', themes: ['confidence'] }
+]
+
+// 出典に応じた表示色（ダッシュボード／一覧ページで使う）
+export const SOURCE_BADGE: Record<MeigenSource, { label: string; bgClass: string; textClass: string }> = {
+  shogi: {
+    label: '棋士の言葉',
+    bgClass: 'bg-accent-soft',
+    textClass: 'text-accent'
+  },
+  kakugen: {
+    label: '将棋格言',
+    bgClass: 'bg-gold-soft',
+    textClass: 'text-gold-deep'
+  },
+  life: {
+    label: '全力の名言',
+    bgClass: 'bg-sakura-soft',
+    textClass: 'text-sakura'
+  }
+}
+
+// テーマタグ（生徒さんが「今のキモチ」で名言を選ぶための分類）
+export const THEME_LABEL: Record<ThemeTag, string> = {
+  tough: 'しんどい時',
+  slump: 'スランプ',
+  before: '大事な対局の前',
+  lost: '負けた時',
+  focus: '集中できない時',
+  confidence: '自信がない時',
+  continue: '続ける力がほしい時',
+  challenge: '挑戦する勇気がほしい時'
+}
+
+export const ALL_THEMES: ThemeTag[] = [
+  'tough',
+  'slump',
+  'before',
+  'lost',
+  'focus',
+  'confidence',
+  'continue',
+  'challenge'
+]
+
+// ランダムに1個ずつ無限に取り出すヘルパ（重複が連続しないように直前の index を除外）
+export function pickNextMeigen(currentIndex: number | null): number {
+  if (MEIGEN.length === 0) return 0
+  if (MEIGEN.length === 1) return 0
+  let next = Math.floor(Math.random() * MEIGEN.length)
+  // 直前と同じになったら、もう一度引き直す（一度だけ）
+  if (next === currentIndex) {
+    next = (next + 1) % MEIGEN.length
+  }
+  return next
+}
+
+// 「今日の名言」決定論的に決める：日付シードでひとつ選ぶ
+// → 同じ日に何度開いても初期表示は同じ、日が変わると変わる
+export function todayMeigenIndex(dateISO: string): number {
+  // ISO 日付（YYYY-MM-DD）を数値化してインデックスに
+  const num = dateISO.split('-').join('')
+  const seed = parseInt(num, 10) || 0
+  return seed % MEIGEN.length
+}

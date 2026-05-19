@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { KeyRound, User, UsersRound } from 'lucide-react'
+import { KeyRound, User, UsersRound, Quote } from 'lucide-react'
 
 const ITEMS = [
   { href: '/family', label: '見守り', icon: UsersRound },
   { href: '/family/link', label: '紐づけ', icon: KeyRound },
+  { href: '/meigen', label: '名言の間', icon: Quote },
   { href: '/profile', label: '自分', icon: User }
 ]
 
