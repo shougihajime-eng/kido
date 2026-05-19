@@ -204,10 +204,9 @@ export function RecordWizard({ categories }: Props) {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.04 * i, ease: [0.16, 1, 0.3, 1] }}
-                    whileHover={{ y: -2, scale: 1.02 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => onSelectCategory(cat.id)}
-                    className="group relative flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border bg-surface p-3 transition-colors"
+                    className="hover-lift group relative flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border bg-surface p-3 transition-colors"
                     style={{
                       borderColor: isSelected ? color : 'var(--border)',
                       boxShadow: isSelected ? `0 0 24px ${color}55` : undefined
@@ -281,10 +280,10 @@ export function RecordWizard({ categories }: Props) {
                 <button
                   type="button"
                   onClick={() => setMinutes((m) => Math.max(1, m - 5))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-text-muted hover:bg-surface-elevated active:scale-95"
+                  className="flex h-12 w-12 items-center justify-center rounded-full border border-border text-text-muted hover:bg-surface-elevated active:scale-95 transition-transform"
                   aria-label="5分減らす"
                 >
-                  <Minus className="h-4 w-4" />
+                  <Minus className="h-5 w-5" />
                 </button>
                 <span className="font-num text-display gold-glow tabular-nums" style={{ minWidth: '4ch', textAlign: 'center' }}>
                   {minutes}
@@ -292,10 +291,10 @@ export function RecordWizard({ categories }: Props) {
                 <button
                   type="button"
                   onClick={() => setMinutes((m) => Math.min(1440, m + 5))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-text-muted hover:bg-surface-elevated active:scale-95"
+                  className="flex h-12 w-12 items-center justify-center rounded-full border border-border text-text-muted hover:bg-surface-elevated active:scale-95 transition-transform"
                   aria-label="5分増やす"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </button>
               </div>
               <span className="text-sm text-text-muted">分</span>
@@ -330,7 +329,7 @@ export function RecordWizard({ categories }: Props) {
               <button
                 type="button"
                 onClick={() => setStep('category')}
-                className="h-11 px-5 inline-flex items-center justify-center gap-1 rounded-full border border-border text-text-muted hover:bg-surface-elevated"
+                className="h-14 px-5 inline-flex items-center justify-center gap-1 rounded-full border border-border text-text-muted hover:bg-surface-elevated active:scale-95 transition-transform"
               >
                 <ChevronLeft className="h-4 w-4" />
                 戻る
@@ -338,7 +337,7 @@ export function RecordWizard({ categories }: Props) {
               <button
                 type="button"
                 onClick={() => setStep('confirm')}
-                className="flex-1 h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] transition-all"
+                className="flex-1 h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] active:scale-[0.98] transition-all"
               >
                 次へ
               </button>
@@ -420,7 +419,7 @@ export function RecordWizard({ categories }: Props) {
                             key={tag}
                             type="button"
                             onClick={() => setOpeningTag(active ? null : tag)}
-                            className="h-7 px-3 rounded-full text-xs border transition-colors"
+                            className="h-10 px-4 rounded-full text-sm border transition-colors active:scale-95"
                             style={{
                               borderColor: active ? 'var(--accent)' : 'var(--border)',
                               backgroundColor: active ? 'var(--accent-soft)' : 'var(--surface-elevated)',
@@ -471,7 +470,7 @@ export function RecordWizard({ categories }: Props) {
               <button
                 type="button"
                 onClick={() => setStep('minutes')}
-                className="h-12 px-5 inline-flex items-center justify-center gap-1 rounded-full border border-border text-text-muted hover:bg-surface-elevated"
+                className="h-14 px-5 inline-flex items-center justify-center gap-1 rounded-full border border-border text-text-muted hover:bg-surface-elevated active:scale-95 transition-transform"
                 disabled={isPending}
               >
                 <ChevronLeft className="h-4 w-4" />

@@ -26,12 +26,12 @@ export function BottomNav() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`flex flex-col items-center justify-center gap-1 py-3 transition-colors ${
+                className={`flex flex-col items-center justify-center gap-1 py-3 min-h-[60px] active:bg-accent-soft transition-colors ${
                   active ? 'text-accent' : 'text-text-muted hover:text-text'
                 }`}
               >
-                <Icon className="w-5 h-5" strokeWidth={active ? 2.5 : 2} />
-                <span className="text-[11px] font-medium">{item.label}</span>
+                <Icon className="w-6 h-6" strokeWidth={active ? 2.5 : 2} />
+                <span className="text-[10px] font-medium leading-none">{item.label}</span>
               </Link>
             </li>
           )

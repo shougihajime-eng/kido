@@ -26,7 +26,7 @@ export function AdultBottomNav() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`flex flex-col items-center justify-center gap-1 py-3 transition-colors ${
+                className={`flex flex-col items-center justify-center gap-1 py-3 min-h-[60px] active:bg-accent-soft transition-colors ${
                   active ? 'text-accent' : 'text-text-muted hover:text-text'
                 }`}
               >

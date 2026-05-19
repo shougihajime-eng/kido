@@ -150,6 +150,38 @@ body {
   font-size: 1.125rem; /* 18px ベース（読みやすさ最優先） */
   font-feature-settings: 'palt' 1; /* 日本語カーニング */
   -webkit-font-smoothing: antialiased;
+  /* iOS タップ時の青フラッシュを消す（操作性のため） */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* タップ可能要素のiOS最適化：
+ * - 青フラッシュを消す
+ * - 300ms ダブルタップ遅延を消す
+ * - 長押し選択メニューを抑える（ボタン上のみ）
+ */
+button,
+a,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* タッチデバイスでhover残留を抑える：
+ * `.hover-lift` を使った要素は、PCでのみ持ち上げる効果が出る。
+ * iOS では .hover-lift は何も起きない（=「sticky hover」問題を回避）
+ */
+.hover-lift {
+  transition:
+    transform 180ms var(--ease-smooth),
+    box-shadow 180ms var(--ease-smooth);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+.hover-lift:active {
+  transform: scale(0.97);
 }
 
 /* スクロールバー（明るい基調用）*/

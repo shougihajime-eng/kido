@@ -144,7 +144,7 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
                       delay: 0.0015 * (ci * 7 + col.indexOf(cell)),
                       ease: [0.16, 1, 0.3, 1]
                     }}
-                    whileHover={{ scale: 1.4 }}
+                    whileTap={{ scale: 1.3 }}
                     onClick={() => setSelectedDate(cell.date)}
                     aria-label={`${cell.date}: ${cell.minutes}分`}
                     className="h-4 w-4 rounded-[4px] border transition-all"

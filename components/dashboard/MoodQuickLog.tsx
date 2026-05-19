@@ -51,13 +51,12 @@ export function MoodQuickLog({ todayScore, recent }: Props) {
             <motion.button
               key={m.score}
               type="button"
-              whileHover={{ y: -2, scale: 1.05 }}
               whileTap={{ scale: 0.92 }}
               animate={isActive ? { scale: [1, 1.15, 1] } : { scale: 1 }}
               transition={{ duration: 0.4 }}
               onClick={() => onPick(m.score)}
               disabled={isPending}
-              className="flex flex-col items-center gap-1 rounded-xl border py-2.5 transition-colors disabled:opacity-60"
+              className="hover-lift flex flex-col items-center gap-1 rounded-xl border py-3 min-h-[52px] transition-colors disabled:opacity-60"
               style={{
                 borderColor: isActive ? 'var(--accent)' : 'var(--border)',
                 backgroundColor: isActive ? 'var(--accent-soft)' : 'var(--surface-elevated)'
