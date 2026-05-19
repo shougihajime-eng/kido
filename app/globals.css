@@ -106,7 +106,8 @@
   --font-sans: var(--font-noto-sans-jp), var(--font-inter), system-ui, sans-serif;
   --font-display: var(--font-noto-sans-jp), var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', monospace;
-  --font-num: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', monospace;
+  /* 数字は Inter（丸い 0、斜線なし）で揃える。Noto Sans JP もフォールバック。 */
+  --font-num: var(--font-inter), var(--font-noto-sans-jp), system-ui, sans-serif;
 
   /* タイポグラフィ：読みやすさ優先で大きめ（旧比 +20%） */
   --text-display: 5rem; /* 巨大な数字（今日の合計）80px */
@@ -157,13 +158,14 @@ body {
   color: #ffffff;
 }
 
-/* 数字を見せるためのユーティリティ */
+/* 数字を見せるためのユーティリティ
+ * tabular-nums は維持（桁が揃って見やすい）
+ * 'zero' は外す（0 の斜線は読みづらい）
+ */
 .font-num {
   font-family: var(--font-num);
   font-variant-numeric: tabular-nums;
-  font-feature-settings:
-    'tnum' 1,
-    'zero' 1;
+  font-feature-settings: 'tnum' 1;
 }
 
 /* 藍色の光るテキスト（明るい背景用） */

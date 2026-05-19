@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Calendar, BarChart3, User, Target } from 'lucide-react'
+import { Home, Calendar, BarChart3, User, Target, UsersRound } from 'lucide-react'
 
 const ITEMS = [
   { href: '/dashboard', label: 'ホーム', icon: Home },
   { href: '/goals', label: '目標', icon: Target },
   { href: '/calendar', label: 'カレンダー', icon: Calendar },
   { href: '/analysis', label: '分析', icon: BarChart3 },
+  { href: '/follow', label: '仲間', icon: UsersRound },
   { href: '/profile', label: '自分', icon: User }
 ]
 
