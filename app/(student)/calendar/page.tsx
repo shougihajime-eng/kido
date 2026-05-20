@@ -67,11 +67,27 @@ export default async function CalendarPage() {
     recordsByDate[date] = v.records
   }
 
+  // カウントダウン（予定）を取得（過去〜未来 全期間）
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: countdownsRaw } = await (supabase as any)
+    .from('countdowns')
+    .select('id, title, target_date, emoji')
+    .eq('user_id', user.id)
+    .order('target_date', { ascending: true })
+
+  type CountdownRow = { id: string; title: string; target_date: string; emoji: string }
+  const eventsByDate: Record<string, Array<{ title: string; emoji: string }>> = {}
+  for (const c of ((countdownsRaw ?? []) as CountdownRow[])) {
+    const list = eventsByDate[c.target_date] ?? []
+    list.push({ title: c.title, emoji: c.emoji ?? '📅' })
+    eventsByDate[c.target_date] = list
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold">カレンダー</h1>
-        <p className="text-sm text-text-muted">直近 {WEEKS} 週間の積み上げ</p>
+        <p className="text-sm text-text-muted">直近 {WEEKS} 週間の積み上げ＋予定</p>
       </header>
 
       {/* サマリー */}
@@ -87,6 +103,7 @@ export default async function CalendarPage() {
         weeks={WEEKS}
         minutesByDate={minutesByDate}
         recordsByDate={recordsByDate}
+        eventsByDate={eventsByDate}
       />
     </div>
   )

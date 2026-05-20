@@ -98,16 +98,12 @@ export function Timer({ categories }: Props) {
     if (s) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRunning(s)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCategoryId(s.categoryId)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMode(s.mode)
       if (s.mode === 'timer' && s.targetMs) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTargetMin(Math.round(s.targetMs / 60000))
       }
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(true)
   }, [])
 
@@ -125,11 +121,11 @@ export function Timer({ categories }: Props) {
   }, [running])
 
   // タイマーが満了した瞬間に一度だけ通知（外部のタイマー進行に同期して紙吹雪を出す）
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!running || running.mode !== 'timer' || !running.targetMs) return
     const elapsed = now - running.startedAtMs
     if (elapsed >= running.targetMs && !completedNotified) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCompletedNotified(true)
       // 控えめな完了演出: confetti
       try {

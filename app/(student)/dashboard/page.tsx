@@ -234,6 +234,38 @@ export default async function DashboardPage() {
         </form>
       </header>
 
+      {/* 緊急バナー（今日 or 明日に予定がある場合） */}
+      {(() => {
+        const urgent = upcomingCountdowns.filter((c) => c.days <= 1)
+        if (urgent.length === 0) return null
+        return (
+          <Link
+            href="/countdowns"
+            className="block bg-fire/10 border-2 border-fire rounded-2xl p-5 hover:bg-fire/15 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-3xl shrink-0">⚠️</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-fire uppercase tracking-wider mb-1">
+                  {urgent.some((c) => c.days === 0) ? '今日です！' : '明日です！'}
+                </div>
+                <ul className="space-y-1">
+                  {urgent.map((c) => (
+                    <li key={c.id} className="flex items-center gap-2">
+                      <span className="text-xl">{c.emoji}</span>
+                      <span className="font-bold text-lg truncate">{c.title}</span>
+                      <span className="text-xs font-num text-fire shrink-0">
+                        {c.days === 0 ? '今日' : '明日'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Link>
+        )
+      })()}
+
       {/* 名言の間（常に最上段。「次の名言」で無限に切替できる） */}
       <MeigenCard initialIndex={meigenInitial} />
 

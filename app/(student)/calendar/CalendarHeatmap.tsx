@@ -14,12 +14,15 @@ type RecordPreview = {
   category: { name_ja: string; icon_key: string; color_token: string } | null
 }
 
+type EventPreview = { title: string; emoji: string }
+
 interface Props {
   startDate: string
   endDate: string
   weeks: number
   minutesByDate: Record<string, number>
   recordsByDate: Record<string, RecordPreview[]>
+  eventsByDate?: Record<string, EventPreview[]>
 }
 
 const WEEKDAY_LABELS = ['日', '月', '火', '水', '木', '金', '土']
@@ -52,33 +55,51 @@ const LEVEL_BORDER = [
   'rgba(30, 64, 175, 1)'
 ]
 
-export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate }: Props) {
+export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate, eventsByDate }: Props) {
   const today = todayLocalISO()
   const [selectedDate, setSelectedDate] = useState<string | null>(today)
 
   // grid: 7行（曜日）× weeks列（週）
   // start は週の頭（startDate の曜日からオフセット）に合わせる
+  // 予定（イベント）は過去〜未来含む全期間表示するため、最大未来日まで grid を拡張
+  const futureEventDates = useMemo(() => {
+    if (!eventsByDate) return [] as string[]
+    return Object.keys(eventsByDate).filter((d) => d > today).sort()
+  }, [eventsByDate, today])
+  const maxFutureDate = futureEventDates.length > 0 ? futureEventDates[futureEventDates.length - 1] : today
+
   const grid = useMemo(() => {
     const start = parseYmd(startDate)
     const startDow = start.getDay() // 0=Sun
     // startDate を含む週の日曜から始める
     const firstCellDate = ymdAddDays(startDate, -startDow)
-    const cols: { date: string; minutes: number; outOfRange: boolean }[][] = []
-    for (let w = 0; w < weeks + 1; w++) {
-      const colDates: { date: string; minutes: number; outOfRange: boolean }[] = []
+    // future 予定日まで含むよう週数を拡張
+    let extraWeeks = 0
+    if (maxFutureDate > today) {
+      const diffDays = Math.ceil(
+        (parseYmd(maxFutureDate).getTime() - parseYmd(today).getTime()) / (1000 * 60 * 60 * 24)
+      )
+      extraWeeks = Math.ceil(diffDays / 7)
+    }
+    const totalWeeks = weeks + 1 + extraWeeks
+    const cols: { date: string; minutes: number; outOfRange: boolean; isFuture: boolean }[][] = []
+    for (let w = 0; w < totalWeeks; w++) {
+      const colDates: { date: string; minutes: number; outOfRange: boolean; isFuture: boolean }[] = []
       for (let d = 0; d < 7; d++) {
         const date = ymdAddDays(firstCellDate, w * 7 + d)
-        const outOfRange = date < startDate || date > today
+        const outOfRange = date < startDate || (date > today && !(eventsByDate?.[date]?.length))
+        const isFuture = date > today
         colDates.push({
           date,
           minutes: minutesByDate[date] ?? 0,
-          outOfRange
+          outOfRange,
+          isFuture
         })
       }
       cols.push(colDates)
     }
     return cols
-  }, [startDate, weeks, minutesByDate, today])
+  }, [startDate, weeks, minutesByDate, today, maxFutureDate, eventsByDate])
 
   // 月ラベル：各列の最初の日（日曜）の月が前と変わったらラベル
   const monthLabels = useMemo(() => {
@@ -97,6 +118,8 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
 
   const selectedRecords = selectedDate ? recordsByDate[selectedDate] ?? [] : []
   const selectedMinutes = selectedDate ? minutesByDate[selectedDate] ?? 0 : 0
+  const selectedEvents = selectedDate ? eventsByDate?.[selectedDate] ?? [] : []
+  const selectedIsFuture = selectedDate ? selectedDate > today : false
 
   return (
     <div className="flex flex-col gap-4">
@@ -133,6 +156,8 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
                 const level = intensityLevel(cell.minutes)
                 const isSelected = selectedDate === cell.date
                 const isToday = cell.date === today
+                const events = eventsByDate?.[cell.date] ?? []
+                const hasEvent = events.length > 0
                 return (
                   <motion.button
                     key={cell.date}
@@ -146,19 +171,30 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
                     }}
                     whileTap={{ scale: 1.3 }}
                     onClick={() => setSelectedDate(cell.date)}
-                    aria-label={`${cell.date}: ${cell.minutes}分`}
-                    className="h-4 w-4 rounded-[4px] border transition-all"
+                    aria-label={`${cell.date}: ${cell.minutes}分${hasEvent ? ` 予定:${events.map((e) => e.title).join('、')}` : ''}`}
+                    className="relative h-4 w-4 rounded-[4px] border transition-all"
                     style={{
-                      backgroundColor: LEVEL_BG[level],
+                      backgroundColor: cell.isFuture ? 'transparent' : LEVEL_BG[level],
                       borderColor: isSelected
                         ? 'var(--accent)'
                         : isToday
                           ? 'var(--accent)'
-                          : LEVEL_BORDER[level],
-                      borderWidth: isSelected || isToday ? '1.5px' : '1px',
-                      boxShadow: isSelected ? '0 0 8px rgba(30, 64, 175, 0.5)' : undefined
+                          : hasEvent
+                            ? 'var(--fire)'
+                            : cell.isFuture
+                              ? 'var(--border)'
+                              : LEVEL_BORDER[level],
+                      borderWidth: isSelected || isToday || hasEvent ? '1.5px' : '1px',
+                      borderStyle: cell.isFuture && !hasEvent ? 'dashed' : 'solid',
+                      boxShadow: isSelected ? '0 0 8px rgba(30, 64, 175, 0.5)' : hasEvent ? '0 0 6px rgba(216, 75, 78, 0.5)' : undefined
                     }}
-                  />
+                  >
+                    {hasEvent && (
+                      <span className="absolute -top-1.5 -right-1.5 text-[10px] leading-none">
+                        {events[0].emoji}
+                      </span>
+                    )}
+                  </motion.button>
                 )
               })}
             </div>
@@ -206,7 +242,29 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
             </div>
           </div>
 
-          {selectedRecords.length === 0 ? (
+          {/* 予定（イベント） */}
+          {selectedEvents.length > 0 && (
+            <div className="bg-fire/10 border border-fire/30 rounded-xl p-3 flex flex-col gap-1.5">
+              <div className="text-[10px] font-bold text-fire uppercase tracking-wider">予定</div>
+              {selectedEvents.map((e, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <span className="text-base">{e.emoji}</span>
+                  <span className="font-semibold">{e.title}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedIsFuture ? (
+            selectedEvents.length === 0 ? (
+              <a
+                href="/countdowns"
+                className="block text-center py-3 text-xs text-accent hover:underline"
+              >
+                + この日の予定を追加する
+              </a>
+            ) : null
+          ) : selectedRecords.length === 0 ? (
             <p className="text-xs text-text-dim text-center py-3">この日の記録はまだありません</p>
           ) : (
             <ul className="flex flex-col gap-2">
