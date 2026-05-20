@@ -96,6 +96,12 @@ export default async function FamilyPage() {
               </span>
             )}
           </p>
+          <Link
+            href="/profile/edit"
+            className="mt-1 text-xs text-text-muted hover:text-accent inline-flex items-center gap-1 w-fit"
+          >
+            ✏ なまえを変える
+          </Link>
         </div>
         <form action="/auth/sign-out" method="post">
           <button type="submit" className="text-text-dim text-sm hover:text-text-muted underline">
