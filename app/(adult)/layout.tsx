@@ -27,7 +27,7 @@ export default async function AdultLayout({ children }: { children: React.ReactN
   return (
     <div className="flex flex-1 min-h-screen w-full">
       <AdultSideNav />
-      <main className="flex flex-1 flex-col w-full max-w-3xl md:max-w-5xl mx-auto px-4 md:px-8 lg:px-12 py-6 md:py-10 pb-24 md:pb-10 safe-area-inset">
+      <main className="flex flex-1 flex-col w-full max-w-3xl md:max-w-5xl mx-auto px-4 md:px-8 lg:px-12 py-6 md:py-10 pb-bottom-nav md:pb-10 safe-area-inset">
         {children}
       </main>
       <AdultBottomNav />

@@ -300,6 +300,12 @@ a,
   padding-right: env(safe-area-inset-right);
 }
 
+/* スマホ：下のボトムナビ（60px）＋ ホームインジケータ用セーフエリア（〜34px）＋ 余白（24px）
+ * を確保。これがないと iPhone の最終カード/ボタンがナビに隠れて押せない。 */
+.pb-bottom-nav {
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 1.5rem);
+}
+
 /* 筆文字（毛筆）— 名言で使用
  * Yuji Syuku は単一ウェイトなので、テキストストローク＋極軽い文字シャドウで
  * 「墨をたっぷり含んだ太い筆字」に見えるように疑似ボールド化する。
