@@ -9,7 +9,12 @@
 
 ## 進捗（いまここ）
 
-- ✅ **直近で済んだこと**（2026-05-20 夜・生徒運用前の品質磨き）:
+- ✅ **直近で済んだこと**（2026-05-20 夜・Studyplus風 3機能を追加）:
+  - **📅 カウントダウン（/countdowns）**: 奨励会試験・大会までの残り日数。7日以内は赤・30日以内は金。ダッシュボード上部に直近2件を表示。migration 0012 適用済み
+  - **⏱ タイマー＆ストップウォッチ（/timer）**: 0から経過時間を計測 or 「あと◯分」タイマー、localStorageで離脱しても継続、停止時に自動記録。Studyplusのタイマー機能を将棋向けに転用
+  - **📚 棋書本棚（/books）**: 使っている棋書を絵文字＋タイトルで登録、読書中/読了/休憩中で分類、記録時に「使った本」を紐づけて累積時間を表示。migration 0013 適用済み
+  - 3機能とも生徒ダッシュボードからワンタップでアクセス可
+- ✅ **その前**（2026-05-20 夜・生徒運用前の品質磨き）:
   - **lint エラーをゼロに**: `react-hooks/static-components` バグ修正（記録カードの状態がリセットされる可能性を解消）、`any` 型を排除（13個 → 0個）、未使用変数を削除
   - **Supabase の型定義を実スキーマと一致させた**: `profiles.level_kind / is_super_teacher / private_mode`、`training_records.self_memo`、`comments.updated_at` を types.ts に追記
   - **ダッシュボード末尾に内部メアド（uuid@kido.local）を晒していたのを修正**: 「ようこそ ◯◯ さん」に置き換え
@@ -125,7 +130,7 @@
   - ロール別自動振り分け（生徒 → `/dashboard`、親・先生 → `/family`）
   - 学生用 BottomNav + 大人用 AdultBottomNav
 - 🟡 **進行中**: なし
-- 🔜 **次の一歩（候補）**: 1) iPhone と PC で実機確認して生徒に開放、2) AIコメント（Phase G）の実装、3) PWA Service Worker（Serwist）の本格導入
+- 🔜 **次の一歩（候補）**: 1) カウントダウン・タイマー・本棚を iPhone と PC で実機確認、2) AIコメント（Phase G）の実装、3) PWA Service Worker（Serwist）の本格導入
 
 ---
 
