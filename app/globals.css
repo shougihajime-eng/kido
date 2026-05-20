@@ -615,7 +615,12 @@ a,
   z-index: 1;
   max-width: 720px;
   width: 100%;
-  max-height: 100%;
+  /* 上下の金軸帯（::before/::after）の分（各6+6=12px×2）を引いておく
+   * オーバーレイ自身の padding 分も含めて 90vh までに収め、
+   * 長い名言は内部でスクロールできるようにする */
+  max-height: calc(100vh - 5rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 2rem 1.5rem 1.75rem;
   border-radius: 16px;
   background-color: #fdf6e3;

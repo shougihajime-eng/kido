@@ -309,6 +309,10 @@ export function RecordWizard({ categories, books = [] }: Props) {
                     if (Number.isNaN(v)) return
                     setMinutes(Math.min(1440, Math.max(0, v)))
                   }}
+                  onFocus={(e) => {
+                    // タップした時に数字を全選択し、そのまま打てば置き換わるように
+                    e.currentTarget.select()
+                  }}
                   onBlur={() => {
                     // 入力欄から離れた時、0や空のままだったら1に直す
                     setMinutes((m) => (m < 1 ? 1 : m))

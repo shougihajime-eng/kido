@@ -104,14 +104,12 @@ export function MeigenScrollModal({ item, index, total, onClose, onPrev, onNext 
       </button>
 
       {/* 掛け軸本体 */}
-      <div
-        className="meigen-scroll"
-        onClick={(e) => e.stopPropagation()}
-        // 中身を切り替えるたびに再アニメ
-        key={`${index}-${item.text}`}
-      >
-        {/* バッジ群 */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
+      <div className="meigen-scroll" onClick={(e) => e.stopPropagation()}>
+        {/* バッジ群（次の名言に変わるたびに再描画） */}
+        <div
+          className="flex flex-wrap items-center justify-center gap-1.5"
+          key={`badges-${index}`}
+        >
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium font-mincho ${badge.bgClass} ${badge.textClass}`}
           >
@@ -127,13 +125,19 @@ export function MeigenScrollModal({ item, index, total, onClose, onPrev, onNext 
           ))}
         </div>
 
-        {/* 大筆の本文 */}
-        <div className="meigen-scroll-inner flex-1 flex items-center justify-center py-4">
+        {/* 大筆の本文 — index 変更時に key が変わって ink-bloom 演出が再生される */}
+        <div
+          className="meigen-scroll-inner flex-1 flex items-center justify-center py-4"
+          key={`text-${index}`}
+        >
           <p className="meigen-scroll-text">{item.text}</p>
         </div>
 
         {/* 出典 */}
-        <p className="text-center font-mincho text-sm sm:text-base text-text-muted">
+        <p
+          className="text-center font-mincho text-sm sm:text-base text-text-muted"
+          key={`author-${index}`}
+        >
           ― {item.author}
         </p>
 
