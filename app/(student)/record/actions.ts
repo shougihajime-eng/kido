@@ -20,6 +20,7 @@ export async function saveRecordAction(input: {
   durationMinutes: number
   date: string
   memo?: string
+  bookId?: string | null
   gameResult?: GameResultInput
 }): Promise<SaveRecordResult> {
   if (!input.categoryId) return { ok: false, error: 'カテゴリを選んでください' }
@@ -36,14 +37,18 @@ export async function saveRecordAction(input: {
   } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: 'ログインが必要です' }
 
-  const { data, error } = await supabase
+  // book_id は Database 型未再生成のため untyped でアクセス
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const untyped = supabase as any
+  const { data, error } = await untyped
     .from('training_records')
     .insert({
       user_id: user.id,
       date: input.date,
       category_id: input.categoryId,
       duration_minutes: Math.floor(input.durationMinutes),
-      memo: input.memo?.trim() || null
+      memo: input.memo?.trim() || null,
+      book_id: input.bookId ?? null
     })
     .select('id')
     .single()

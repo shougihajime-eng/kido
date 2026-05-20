@@ -534,6 +534,23 @@ export default async function DashboardPage() {
         <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-gold transition-colors" />
       </Link>
 
+      {/* 本棚 */}
+      <Link
+        href="/books"
+        className="group flex items-center gap-3 bg-surface border border-border hover:border-accent rounded-2xl p-4 transition-colors"
+      >
+        <div className="w-10 h-10 rounded-xl bg-accent-soft text-accent flex items-center justify-center text-xl">
+          📚
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm">本棚（棋書・教材）</div>
+          <div className="text-xs text-text-dim mt-0.5">
+            使っている棋書を登録、記録時に紐づけて累積時間を見える化
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors" />
+      </Link>
+
       {/* タイマーで記録 */}
       <Link
         href="/timer"

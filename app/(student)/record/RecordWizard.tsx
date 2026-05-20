@@ -41,8 +41,11 @@ const OPENING_TAGS = [
   'その他'
 ]
 
+type BookLite = { id: string; title: string; emoji: string }
+
 interface Props {
   categories: CategoryRow[]
+  books?: BookLite[]
 }
 
 const PRESET_MINUTES = [10, 15, 20, 30, 45, 60, 90, 120, 180]
@@ -78,7 +81,7 @@ function fireConfetti(): void {
   }, 300)
 }
 
-export function RecordWizard({ categories }: Props) {
+export function RecordWizard({ categories, books = [] }: Props) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('category')
   const [categoryId, setCategoryId] = useState<string | null>(null)
@@ -89,6 +92,7 @@ export function RecordWizard({ categories }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [gameResult, setGameResult] = useState<GameResult | null>(null)
   const [openingTag, setOpeningTag] = useState<string | null>(null)
+  const [bookId, setBookId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [newBadgeCount, setNewBadgeCount] = useState(0)
 
@@ -115,6 +119,7 @@ export function RecordWizard({ categories }: Props) {
         durationMinutes: minutes,
         date,
         memo: memo || undefined,
+        bookId: bookId ?? undefined,
         gameResult:
           isJissen && gameResult
             ? { result: gameResult, openingTag: openingTag ?? undefined }
@@ -464,6 +469,41 @@ export function RecordWizard({ categories }: Props) {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* 使った本（任意・将棋カテゴリのみ・本が登録されている場合のみ） */}
+            {selectedCategory?.kind === 'shogi' && books.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm text-text-muted">使った本（任意）</span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBookId(null)}
+                    className={`h-9 px-3 rounded-full text-xs font-semibold border transition-colors ${
+                      bookId === null
+                        ? 'bg-surface-elevated border-border text-text'
+                        : 'bg-surface border-border text-text-muted hover:border-text-muted'
+                    }`}
+                  >
+                    使ってない
+                  </button>
+                  {books.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setBookId(b.id)}
+                      className={`h-9 px-3 rounded-full text-xs font-semibold border inline-flex items-center gap-1.5 transition-colors ${
+                        bookId === b.id
+                          ? 'bg-accent text-white border-accent'
+                          : 'bg-surface border-border text-text hover:border-accent'
+                      }`}
+                    >
+                      <span>{b.emoji}</span>
+                      <span className="max-w-[10rem] truncate">{b.title}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

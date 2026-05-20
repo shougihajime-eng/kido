@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { createElement, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Pause, Play, Square, Timer as TimerIcon, Watch, Sparkles } from 'lucide-react'
+import { Play, Square, Timer as TimerIcon, Watch } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { categoryColorVar, getCategoryIcon } from '@/lib/category-icon'
 import { saveRecordAction } from '../record/actions'
@@ -92,17 +92,22 @@ export function Timer({ categories }: Props) {
   const [error, setError] = useState<string | null>(null)
   const tickRef = useRef<number | null>(null)
 
-  // hydrate
+  // hydrate（localStorage は SSR で使えないのでマウント後に読み込み → state を復元）
   useEffect(() => {
     const s = loadState()
     if (s) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRunning(s)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCategoryId(s.categoryId)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMode(s.mode)
       if (s.mode === 'timer' && s.targetMs) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTargetMin(Math.round(s.targetMs / 60000))
       }
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(true)
   }, [])
 
@@ -119,7 +124,8 @@ export function Timer({ categories }: Props) {
     }
   }, [running])
 
-  // タイマーが満了したら一度だけ通知
+  // タイマーが満了した瞬間に一度だけ通知（外部のタイマー進行に同期して紙吹雪を出す）
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!running || running.mode !== 'timer' || !running.targetMs) return
     const elapsed = now - running.startedAtMs
@@ -157,7 +163,6 @@ export function Timer({ categories }: Props) {
     const ratio = isTimer && target > 0 ? Math.min(1, elapsedMs / target) : 0
 
     const cat = categories.find((c) => c.id === running.categoryId)
-    const CatIcon = cat ? getCategoryIcon(cat.icon_key) : null
     const catColor = cat ? categoryColorVar(cat.color_token) : 'var(--accent)'
 
     const isCompleted = isTimer && elapsedMs >= target
@@ -213,7 +218,7 @@ export function Timer({ categories }: Props) {
               className="w-12 h-12 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: `${catColor}1A`, color: catColor }}
             >
-              {CatIcon && <CatIcon className="w-6 h-6" />}
+              {cat && createElement(getCategoryIcon(cat.icon_key), { className: 'w-6 h-6' })}
             </div>
             <div className="flex-1">
               <div className="text-xs text-text-muted">
