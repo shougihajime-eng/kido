@@ -9,7 +9,18 @@
 
 ## 進捗（いまここ）
 
-- ✅ **直近で済んだこと**（2026-05-20 夜・LINE で「下までスクロールできない」苦情を解消）:
+- ✅ **直近で済んだこと**（2026-05-20 夜・予定通知 3段階）:
+  - **A. ダッシュボードに「今日／明日」警告バナー**: countdowns で残り0〜1日のものがある時、赤色の大きい警告を最上段に表示
+  - **B. カレンダー（/calendar）に予定マーカー**: 26週ヒートマップに絵文字＋赤枠で予定を重ねて表示、未来日も含めて grid 拡張、日付タップで予定詳細＋追加リンク
+  - **C. 本物のWebプッシュ通知**: 公開鍵方式（VAPID）でブラウザ通知を実装
+    - public/sw.js: Service Worker（push 受信 + クリックで該当URLを開く）
+    - /api/push/subscribe, /api/push/unsubscribe: 購読管理
+    - components/PushNotificationToggle.tsx: /profile に通知ON/OFFスイッチ
+    - /api/cron/push-daily: Vercel Cron で毎朝JST 7時に「今日／明日」の予定を全購読者へ通知
+    - vercel.json: cron 設定追加（UTC 22時 = JST 朝7時）
+    - DB: `supabase/migrations/0014_push_subscriptions.sql` 適用済み
+    - VAPID鍵は生成済み・.env.local に書込済み・**本番は Vercel に環境変数登録要（はじめさん作業）**
+- ✅ **その前**（2026-05-20 夜・LINE で「下までスクロールできない」苦情を解消）:
   - **生徒さんから「招待コードを送りたいけど一番下までスクロールできない」と連絡があった**
   - 原因: iPhone の下メニュー（60px ＋ ホームインジケータの 34px ＝ 約94px）に対して、本文の余白が pb-24（96px）でカツカツ。/code ページの最後の「LINEで送る」ボタンや「コードを削除」が押せなかった
   - 修正: 新ユーティリティ `pb-bottom-nav` を追加し、`calc(60px + env(safe-area-inset-bottom) + 1.5rem)` に拡張。確実に届くように
@@ -271,6 +282,15 @@ npx supabase db push
 4. **Vercel ダッシュボード**（Phase A 終盤）
    - GitHub repo `kido` を Vercel に連携
    - 環境変数 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` を登録
+5. **Vercel に Web Push 通知の環境変数を登録**（2026-05-20 追加・通知機能のため）
+   - https://vercel.com/shougihajime-3368s-projects/kido/settings/environment-variables
+   - 以下3つを「Production / Preview / Development」全部にチェックして登録
+     - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` = `BI1DoNHPJsfyPdAbO_vEpBFfiw8KruBIOkqLKtzvpdUcHhv3YlXa-AzouTzVQ2rUMBQGzzcfQAH-u1XAo7Bmpgo`
+     - `VAPID_PRIVATE_KEY` = `gwZoAWntu32mKd7Ch-PBfP-1WSxLh_hz4roterOetb4`
+     - `VAPID_SUBJECT` = `mailto:shougi.hajime@gmail.com`
+   - 登録したら一度デプロイをリトライ（Deployments → 最新の "..." → Redeploy）
+   - これをやらないと「通知をONにする」を押しても本番では動きません
+   - 登録後、iPhone は「ホーム画面に追加」してから棋道を開いて通知ONにする（iOS の制約）
 
 ---
 

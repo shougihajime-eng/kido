@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { BadgeShelf, type BadgeView } from '@/components/BadgeShelf'
 import { awardBadgesForUser } from '@/lib/badges/award'
 import { formatLevel } from '@/lib/level'
+import { PushNotificationToggle } from '@/components/PushNotificationToggle'
 
 export const metadata = {
   title: '自分'
@@ -75,6 +76,9 @@ export default async function ProfilePage() {
 
       {/* バッジ陳列棚 */}
       {badges.length > 0 && <BadgeShelf badges={badges} />}
+
+      {/* プッシュ通知 */}
+      <PushNotificationToggle />
 
       <nav className="flex flex-col gap-2">
         <Link
