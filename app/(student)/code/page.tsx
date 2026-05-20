@@ -18,6 +18,13 @@ export default async function CodePage() {
 
   const now = new Date().toISOString()
 
+  // 自分の表示名（招待文に「○○ さんからの招待」と入れるため）
+  const { data: myProfile } = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .maybeSingle()
+
   // 有効な招待コードを取得（未使用かつ未失効）
   const { data: activeCodes } = await supabase
     .from('invite_codes')
@@ -72,6 +79,7 @@ export default async function CodePage() {
           createdAt: c.created_at
         }))}
         linkedAdults={linkedAdults}
+        studentName={myProfile?.display_name ?? null}
       />
     </div>
   )
