@@ -27,6 +27,7 @@ import { StudentRecordCard } from '@/components/records/StudentRecordCard'
 import { ShareAppButton } from '@/components/ShareAppButton'
 import { fetchCommentsForRecords } from '@/lib/comments-fetch'
 import { todayMeigenIndex } from '@/lib/meigen'
+import { FuchiBubble } from '@/components/mascot/Fuchi'
 
 export const metadata = {
   title: 'ホーム'
@@ -333,6 +334,28 @@ export default async function DashboardPage() {
         <PlusCircle className="h-6 w-6 md:h-7 md:w-7 transition-transform group-hover:rotate-90" />
         今日何してましたか？
       </Link>
+
+      {/* マスコット「ふっち」— 今日まだ記録がない時だけ、優しくつついてくる */}
+      {todayMinutes === 0 && (
+        <div className="px-1">
+          {needsToday && streak > 0 ? (
+            <FuchiBubble
+              mood="worry"
+              text={`連続${streak}日、もったいないよ〜。1分でもいいから記録しよう。`}
+            />
+          ) : streak === 0 ? (
+            <FuchiBubble
+              mood="cheer"
+              text="今日から一緒に始めよう！駒の準備はできてるよ。"
+            />
+          ) : (
+            <FuchiBubble
+              mood="normal"
+              text="今日もお疲れさま。記録が増えると、わたしも嬉しい。"
+            />
+          )}
+        </div>
+      )}
 
       {/* 今日の気分 */}
       <MoodQuickLog todayScore={todayMood} recent={recentMoods} />

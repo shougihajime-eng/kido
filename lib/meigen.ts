@@ -14,6 +14,7 @@
 //   confidence 自信がない時
 //   continue   続ける力がほしい時
 //   challenge  挑戦する勇気がほしい時
+//   humor      ちょっと笑いたい時（クスッと枠）
 
 export type MeigenSource = 'shogi' | 'kakugen' | 'life'
 
@@ -26,6 +27,7 @@ export type ThemeTag =
   | 'confidence'
   | 'continue'
   | 'challenge'
+  | 'humor'
 
 export type Meigen = {
   text: string
@@ -444,7 +446,40 @@ export const MEIGEN: Meigen[] = [
   { text: '世界を変えるより、まず自分の一日を変えろ。', author: '名言', source: 'life', themes: ['slump'] },
   { text: '夢を笑われた日のことを覚えておけ。叶えた日に、笑い返せばいい。', author: '名言', source: 'life', themes: ['confidence'] },
   { text: '一歩一歩、ゆっくりでもいい。確実に、前へ。', author: '名言', source: 'life', themes: ['continue'] },
-  { text: '自分にしかできないことが、必ずある。', author: '名言', source: 'life', themes: ['confidence'] }
+  { text: '自分にしかできないことが、必ずある。', author: '名言', source: 'life', themes: ['confidence'] },
+
+  // ─────────────── クスッと枠（ちょっと笑いたい時）───────────────
+  // ※ 実在の棋士発言・有名なエピソード／格言の冗談バージョン／将棋好きあるある
+  { text: '兄たちは頭が悪いから東大に行った。', author: '米長邦雄 永世棋聖（自伝より）', source: 'shogi', themes: ['humor'] },
+  { text: '対局中、相手の駒を勝手に動かさないでください。', author: '加藤一二三 九段（ひふみん）', source: 'shogi', themes: ['humor'] },
+  { text: '名人に香車を引いて勝つ。それが私の夢だった。', author: '升田幸三 実力制第四代名人', source: 'shogi', themes: ['humor', 'challenge'] },
+  { text: 'ひふみんアイ。立って見れば、盤がよく見える。', author: '加藤一二三 九段', source: 'shogi', themes: ['humor'] },
+  { text: '私は若い。気持ちは20代である。', author: '加藤一二三 九段', source: 'shogi', themes: ['humor', 'confidence'] },
+  { text: '将棋を指せば歌も歌える。', author: '内藤國雄 九段（棋士であり演歌歌手）', source: 'shogi', themes: ['humor'] },
+  { text: '対局中の長考で景色を眺めていたら、いい一手が浮かんだ。', author: '加藤一二三 九段（伝聞）', source: 'shogi', themes: ['humor', 'focus'] },
+  { text: '勝ったら寿司、負けても寿司。', author: '将棋好きあるある', source: 'shogi', themes: ['humor'] },
+  { text: '詰将棋を解いてたら、夜が明けていた。', author: '将棋好きあるある', source: 'shogi', themes: ['humor'] },
+  { text: 'お母さんの声が聞こえても、もう一手だけ読みたい。', author: '将棋少年あるある', source: 'shogi', themes: ['humor'] },
+  { text: '将棋を指せる場所が、世界で一番落ち着く。', author: '将棋好きあるある', source: 'shogi', themes: ['humor'] },
+  { text: '対局中のおやつは、勝敗を左右する。', author: '棋士のあるある', source: 'shogi', themes: ['humor'] },
+  { text: '寝不足の日は、王様も寝てしまう。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor'] },
+  { text: '駒を磨くと、心が磨かれる。気のせいではない。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor'] },
+  { text: '居眠りしている時に限って、相手が長考に入る。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor'] },
+  { text: '初手７六歩は、迷ったらこれ。', author: '将棋格言', source: 'kakugen', themes: ['humor'] },
+  { text: '勝負メシは、いつも同じものを頼め。それで運が安定する。', author: '棋士のジンクス', source: 'shogi', themes: ['humor', 'before'] },
+  { text: '相手が長考に入ったら、深呼吸して、自分も読め。', author: '棋士の心得', source: 'shogi', themes: ['humor', 'focus'] },
+  { text: '相手が水を飲んだら、こちらも水を飲んでいい。', author: '対局マナー（冗談）', source: 'shogi', themes: ['humor'] },
+  { text: '長考は美徳だが、寝てしまうと反則になる。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor', 'focus'] },
+  { text: '一手後悔したら、二手目で取り返せ。気持ちで。', author: '棋士の心得', source: 'shogi', themes: ['humor', 'lost'] },
+  { text: '盤上で迷ったら、扇子を開いて、また閉じよ。', author: '棋士の所作', source: 'shogi', themes: ['humor', 'focus'] },
+  { text: '弱い将棋指しほど、駒を派手に並べる。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor'] },
+  { text: '対局中の咳払いは、相手より早く三回まで。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor'] },
+  { text: '勝てば官軍、負けても将棋。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor', 'lost'] },
+  { text: '将棋を指す者に、悪い人はいない。', author: '棋士の心得', source: 'shogi', themes: ['humor'] },
+  { text: '王手と言われてから考え始めても、もう遅い。', author: '将棋格言（冗談）', source: 'kakugen', themes: ['humor'] },
+  { text: '記録係に「変なこと言わないでね」と言われたら、変なことを言いたくなる。', author: '対局室あるある', source: 'shogi', themes: ['humor'] },
+  { text: '勝負服は、対局の朝に決めよ。前夜だと迷う。', author: '棋士のあるある', source: 'shogi', themes: ['humor', 'before'] },
+  { text: 'やる時はやる、それが棋士だ。', author: '升田幸三 実力制第四代名人（升田語録より）', source: 'shogi', themes: ['humor', 'before'] }
 ]
 
 // 出典に応じた表示色（ダッシュボード／一覧ページで使う）
@@ -475,7 +510,8 @@ export const THEME_LABEL: Record<ThemeTag, string> = {
   focus: '集中できない時',
   confidence: '自信がない時',
   continue: '続ける力がほしい時',
-  challenge: '挑戦する勇気がほしい時'
+  challenge: '挑戦する勇気がほしい時',
+  humor: 'ちょっと笑いたい時'
 }
 
 export const ALL_THEMES: ThemeTag[] = [
@@ -486,7 +522,8 @@ export const ALL_THEMES: ThemeTag[] = [
   'focus',
   'confidence',
   'continue',
-  'challenge'
+  'challenge',
+  'humor'
 ]
 
 // ランダムに1個ずつ無限に取り出すヘルパ（重複が連続しないように直前の index を除外）

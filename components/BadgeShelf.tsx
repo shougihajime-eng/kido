@@ -1,16 +1,49 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Flame, Star, Crown, Check, type LucideIcon } from 'lucide-react'
+import {
+  Flame,
+  Star,
+  Crown,
+  Check,
+  Sun,
+  Moon,
+  Heart,
+  Sprout,
+  Sparkles,
+  Users,
+  TrendingUp,
+  type LucideIcon
+} from 'lucide-react'
 import { getCategoryIcon } from '@/lib/category-icon'
+import { badgeNickname } from '@/lib/badge-nicknames'
 
-type IconMapKey = 'flame' | 'star' | 'crown' | 'check' | string
+type IconMapKey =
+  | 'flame'
+  | 'star'
+  | 'crown'
+  | 'check'
+  | 'sun'
+  | 'moon'
+  | 'heart'
+  | 'sprout'
+  | 'sparkles'
+  | 'users'
+  | 'trending-up'
+  | string
 
 const BUILTIN: Record<string, LucideIcon> = {
   flame: Flame,
   star: Star,
   crown: Crown,
   check: Check,
+  sun: Sun,
+  moon: Moon,
+  heart: Heart,
+  sprout: Sprout,
+  sparkles: Sparkles,
+  users: Users,
+  'trending-up': TrendingUp
 }
 
 export type BadgeView = {
@@ -37,28 +70,42 @@ export function BadgeShelf({ badges }: { badges: BadgeView[] }) {
       <ul className="grid grid-cols-3 sm:grid-cols-4 gap-3">
         {badges.map((b, i) => {
           const Icon = BUILTIN[b.icon_key] ?? getCategoryIcon(b.icon_key)
+          const nickname = badgeNickname(b.id)
           return (
             <motion.li
               key={b.id}
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative aspect-square rounded-2xl border-2 flex flex-col items-center justify-center gap-1 p-2 ${
+              className={`relative aspect-square rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5 p-2 ${
                 b.earned
                   ? 'bg-accent-soft border-accent shadow-[0_2px_12px_rgba(30,64,175,0.18)]'
                   : 'bg-surface-elevated border-border opacity-50'
               }`}
-              title={b.description}
+              title={`${b.name}${nickname ? `（${nickname}）` : ''} — ${b.description}`}
             >
               {/* ロックグレースケール */}
               <Icon
-                className={`w-8 h-8 ${b.earned ? 'text-accent' : 'text-text-dim'}`}
+                className={`w-7 h-7 ${b.earned ? 'text-accent' : 'text-text-dim'}`}
                 strokeWidth={b.earned ? 2.4 : 1.6}
-                fill={b.earned && b.icon_key === 'flame' ? 'currentColor' : 'none'}
+                fill={
+                  b.earned && (b.icon_key === 'flame' || b.icon_key === 'heart')
+                    ? 'currentColor'
+                    : 'none'
+                }
               />
+              {nickname && (
+                <span
+                  className={`text-[11px] font-bold text-center leading-tight ${
+                    b.earned ? 'text-text' : 'text-text-dim'
+                  }`}
+                >
+                  {nickname}
+                </span>
+              )}
               <span
-                className={`text-[10px] font-medium text-center leading-tight ${
-                  b.earned ? 'text-text' : 'text-text-dim'
+                className={`text-[9px] text-center leading-tight ${
+                  b.earned ? 'text-text-muted' : 'text-text-dim'
                 }`}
               >
                 {b.name}

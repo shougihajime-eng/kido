@@ -86,6 +86,7 @@ export function MeigenList({ initialIndex = 0 }: Props) {
       return
     }
     if (filtered.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHistory([])
     } else {
       setHistory([pickRandomDifferent(filtered.length, undefined)])
