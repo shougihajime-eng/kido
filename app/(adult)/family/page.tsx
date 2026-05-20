@@ -21,12 +21,11 @@ export default async function FamilyPage() {
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: myProfile } = await (supabase
+  const { data: myProfile } = await supabase
     .from('profiles')
     .select('display_name, role, is_super_teacher')
     .eq('id', user.id)
-    .maybeSingle() as any)
+    .maybeSingle()
 
   const isSuperTeacher = Boolean(myProfile?.is_super_teacher)
 
@@ -40,16 +39,14 @@ export default async function FamilyPage() {
   const studentIds = (rels ?? []).map((r) => r.student_id)
   const studentProfiles =
     studentIds.length > 0
-      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ((
-          await (supabase
+      ? (
+          await supabase
             .from('profiles')
             .select('id, display_name, level_kind, level_text')
-            .in('id', studentIds) as any)
-        ).data ?? [])
+            .in('id', studentIds)
+        ).data ?? []
       : []
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const studentMap = new Map((studentProfiles as any[]).map((p: any) => [p.id, p]))
+  const studentMap = new Map(studentProfiles.map((p) => [p.id, p]))
 
   const linkedStudents = (rels ?? []).map((r) => ({
     id: r.id,
@@ -67,14 +64,12 @@ export default async function FamilyPage() {
   type AllStudent = { id: string; displayName: string; levelLabel: string }
   let allStudents: AllStudent[] = []
   if (isSuperTeacher) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: students } = await (supabase
+    const { data: students } = await supabase
       .from('profiles')
       .select('id, display_name, level_kind, level_text, role')
       .eq('role', 'student')
-      .order('display_name') as any)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    allStudents = ((students ?? []) as any[]).map((s: any) => ({
+      .order('display_name')
+    allStudents = (students ?? []).map((s) => ({
       id: s.id,
       displayName: s.display_name ?? '（不明）',
       levelLabel: formatLevel(s.level_kind, s.level_text)
@@ -226,7 +221,7 @@ export default async function FamilyPage() {
       )}
 
       <p className="text-xs text-text-dim leading-relaxed">
-        生徒の練習記録は「読み取り専用」で見られます。コメント機能は今後追加予定です。
+        生徒の練習記録に「みたよ」コメントを残せます。
         紐づきを解除すると、その生徒のデータは見られなくなります。
       </p>
 

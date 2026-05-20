@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, type FormEvent } from 'react'
+import { createElement, useState, useTransition, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Lock, MessageCircle, Pencil, Save } from 'lucide-react'
@@ -26,9 +26,11 @@ interface Props {
   record: RecordViewModel
   comments: CommentItemView[]
   defaultOpen?: boolean
+  /** 日付ラベルを表示する（今日以外の記録のとき便利） */
+  dateLabel?: string
 }
 
-export function StudentRecordCard({ record, comments, defaultOpen }: Props) {
+export function StudentRecordCard({ record, comments, defaultOpen, dateLabel }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(defaultOpen ?? comments.length > 0)
   const [memoEditing, setMemoEditing] = useState(false)
@@ -37,7 +39,6 @@ export function StudentRecordCard({ record, comments, defaultOpen }: Props) {
   const [isPending, startTransition] = useTransition()
 
   const cat = record.category
-  const Icon = getCategoryIcon(cat?.icon_key ?? 'plus')
   const color = categoryColorVar(cat?.color_token ?? 'cat-other')
   const commentCount = comments.length
 
@@ -69,10 +70,18 @@ export function StudentRecordCard({ record, comments, defaultOpen }: Props) {
           className="flex h-10 w-10 items-center justify-center rounded-xl shrink-0"
           style={{ backgroundColor: color + '22', color }}
         >
-          <Icon className="h-5 w-5" strokeWidth={2.2} />
+          {createElement(getCategoryIcon(cat?.icon_key ?? 'plus'), {
+            className: 'h-5 w-5',
+            strokeWidth: 2.2
+          })}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-text truncate">{cat?.name_ja ?? '—'}</div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-medium text-text truncate">{cat?.name_ja ?? '—'}</span>
+            {dateLabel && (
+              <span className="text-[10px] text-text-dim shrink-0 font-num">{dateLabel}</span>
+            )}
+          </div>
           {record.memo && (
             <div className="text-xs text-text-muted truncate">{record.memo}</div>
           )}

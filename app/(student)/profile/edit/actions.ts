@@ -27,12 +27,11 @@ export async function updateProfileAction(input: {
   if (!nameCheck.ok) return nameCheck
 
   // 現在のプロフィールを取得（role 確認用）
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current } = await (supabase
+  const { data: current } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .maybeSingle() as any)
+    .maybeSingle()
 
   const role = (current?.role ?? 'student') as 'student' | 'parent' | 'teacher'
 
@@ -57,27 +56,25 @@ export async function updateProfileAction(input: {
   }
 
   // 名前重複チェック（自分以外）
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: dup } = await (supabase
+  const { data: dup } = await supabase
     .from('profiles')
     .select('id')
     .eq('display_name', nameCheck.name)
     .neq('id', user.id)
-    .maybeSingle() as any)
+    .maybeSingle()
   if (dup) {
     return { ok: false, error: 'そのなまえは既に使われています。違うなまえにしてください' }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: updateErr } = await (supabase
+  const { error: updateErr } = await supabase
     .from('profiles')
     .update({
       display_name: nameCheck.name,
       level_kind: safeLevelKind,
       level_text: safeLevelText,
       private_mode: role === 'student' ? Boolean(input.privateMode) : false
-    } as any)
-    .eq('id', user.id))
+    })
+    .eq('id', user.id)
 
   if (updateErr) {
     return { ok: false, error: updateErr.message }

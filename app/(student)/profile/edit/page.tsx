@@ -16,12 +16,11 @@ export default async function ProfileEditPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: profile } = await (supabase
+  const { data: profile } = await supabase
     .from('profiles')
     .select('display_name, role, level_kind, level_text, private_mode')
     .eq('id', user.id)
-    .maybeSingle() as any)
+    .maybeSingle()
 
   if (!profile) {
     redirect('/profile')
@@ -44,9 +43,9 @@ export default async function ProfileEditPage() {
       </header>
 
       <ProfileEditForm
-        initialName={profile.display_name as string}
+        initialName={profile.display_name}
         initialLevelKind={(profile.level_kind ?? '') as LevelKind | ''}
-        initialLevelText={(profile.level_text ?? '') as string}
+        initialLevelText={profile.level_text ?? ''}
         initialPrivateMode={Boolean(profile.private_mode)}
         role={profile.role as 'student' | 'parent' | 'teacher'}
       />

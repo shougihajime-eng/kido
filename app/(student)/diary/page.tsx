@@ -28,7 +28,6 @@ export default async function DiaryPage() {
 
   const { data: memoRows } = await supabase
     .from('training_records')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .select(
       'id, date, self_memo, category:categories(name_ja)'
     )

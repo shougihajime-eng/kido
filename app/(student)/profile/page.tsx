@@ -21,12 +21,11 @@ export default async function ProfilePage() {
   await awardBadgesForUser(user.id)
 
   const [{ data: profile }, { data: allBadges }, { data: ownedBadges }] = await Promise.all([
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase
+    supabase
       .from('profiles')
       .select('display_name, role, level_kind, level_text, ai_tone')
       .eq('id', user.id)
-      .maybeSingle() as any),
+      .maybeSingle(),
     supabase.from('badges').select('id, name, description, icon_key'),
     supabase.from('user_badges').select('badge_id, earned_at').eq('user_id', user.id)
   ])

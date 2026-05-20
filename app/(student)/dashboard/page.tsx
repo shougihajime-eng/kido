@@ -15,6 +15,7 @@ import {
   computeStreak,
   daysRemaining,
   formatMinutes,
+  formatRelativeDate,
   todayLocalISO,
   ymdAddDays
 } from '@/lib/dates'
@@ -47,12 +48,12 @@ export default async function DashboardPage() {
     { count: linkedCount },
     { count: activeCodes },
     { data: activeGoals },
-    { data: moodLogs }
+    { data: moodLogs },
+    { data: countdownsRaw }
   ] = await Promise.all([
     supabase.from('profiles').select('display_name, role').eq('id', user!.id).maybeSingle(),
     supabase
       .from('training_records')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .select(
         'id, date, duration_minutes, memo, self_memo, recorded_at, category:categories(id, name_ja, icon_key, color_token, kind)'
       )
@@ -81,7 +82,16 @@ export default async function DashboardPage() {
       .select('date, score')
       .eq('user_id', user!.id)
       .gte('date', ymdAddDays(today, -6))
-      .order('date', { ascending: true })
+      .order('date', { ascending: true }),
+    // countdowns テーブルは Database 型未再生成のため untyped でアクセス
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ((supabase as any)
+      .from('countdowns')
+      .select('id, title, target_date, emoji')
+      .eq('user_id', user!.id)
+      .gte('target_date', today)
+      .order('target_date', { ascending: true })
+      .limit(2))
   ])
 
   const todayMood = (moodLogs ?? []).find((m) => m.date === today)?.score ?? null
@@ -188,6 +198,20 @@ export default async function DashboardPage() {
   // 今日の名言：日付シードで初期値を決定（同日中は同じ／日が変われば変わる）
   const meigenInitial = todayMeigenIndex(today)
 
+  // カウントダウン（直近2件）
+  type CountdownRow = { id: string; title: string; target_date: string; emoji: string }
+  const upcomingCountdowns = ((countdownsRaw ?? []) as CountdownRow[]).map((c) => {
+    const tDate = new Date(c.target_date + 'T00:00:00')
+    const nDate = new Date(today + 'T00:00:00')
+    const days = Math.round((tDate.getTime() - nDate.getTime()) / (1000 * 60 * 60 * 24))
+    return {
+      id: c.id,
+      title: c.title,
+      emoji: c.emoji ?? '📅',
+      days
+    }
+  })
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-baseline justify-between">
@@ -212,6 +236,46 @@ export default async function DashboardPage() {
 
       {/* 名言の間（常に最上段。「次の名言」で無限に切替できる） */}
       <MeigenCard initialIndex={meigenInitial} />
+
+      {/* カウントダウン（直近2件まで） */}
+      {upcomingCountdowns.length > 0 && (
+        <Link
+          href="/countdowns"
+          className="bg-surface border-2 border-border hover:border-accent rounded-2xl p-4 transition-colors block"
+        >
+          <div className="text-[11px] text-text-muted mb-2 font-semibold">
+            次の目標まで
+          </div>
+          <div className={`grid gap-2 ${upcomingCountdowns.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {upcomingCountdowns.map((c) => {
+              const dayColor =
+                c.days <= 7
+                  ? 'text-fire'
+                  : c.days <= 30
+                    ? 'text-gold-deep'
+                    : 'text-accent'
+              return (
+                <div key={c.id} className="flex items-center gap-2 bg-surface-elevated/50 rounded-xl p-3">
+                  <div className="text-2xl shrink-0">{c.emoji}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold truncate">{c.title}</div>
+                    <div className={`font-num font-bold ${dayColor}`}>
+                      {c.days === 0 ? (
+                        <span className="text-lg">今日！</span>
+                      ) : (
+                        <>
+                          <span className="text-2xl tabular-nums">{c.days}</span>
+                          <span className="text-xs ml-1">日後</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </Link>
+      )}
 
       {/* 今日の合計 */}
       <section className="bg-surface border border-border rounded-3xl p-8 flex flex-col items-center gap-2">
@@ -443,6 +507,7 @@ export default async function DashboardPage() {
                     : null
                 }}
                 comments={commentsByRecord.get(r.id) ?? []}
+                dateLabel={formatRelativeDate(r.date, today)}
               />
             ))}
           </ul>
@@ -467,6 +532,27 @@ export default async function DashboardPage() {
           </div>
         </div>
         <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-gold transition-colors" />
+      </Link>
+
+      {/* カウントダウン管理 */}
+      <Link
+        href="/countdowns"
+        className="group flex items-center gap-3 bg-surface border border-border hover:border-accent rounded-2xl p-4 transition-colors"
+      >
+        <div className="w-10 h-10 rounded-xl bg-accent-soft text-accent flex items-center justify-center text-xl">
+          📅
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm">
+            {upcomingCountdowns.length > 0
+              ? `カウントダウン（${upcomingCountdowns.length}件）`
+              : 'カウントダウンを設定する'}
+          </div>
+          <div className="text-xs text-text-dim mt-0.5">
+            奨励会試験・大会・進級試験などまでの残り日数
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-accent transition-colors" />
       </Link>
 
       {/* 親・先生を招待 */}
@@ -503,7 +589,7 @@ export default async function DashboardPage() {
       </div>
 
       <p className="text-center text-xs text-text-dim">
-        ログイン中: <span className="font-num text-accent">{user?.email}</span>
+        ようこそ <span className="text-text-muted">{profile?.display_name ?? 'はじめましての方'}</span> さん
       </p>
     </div>
   )

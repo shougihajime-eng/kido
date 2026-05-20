@@ -345,7 +345,7 @@ async function GamesView({ userId }: { userId: string }) {
     .map(([month, v]) => {
       const decisive = v.wins + v.losses
       const winRate = decisive > 0 ? Math.round((v.wins / decisive) * 100) : 0
-      const [y, m] = month.split('-')
+      const [, m] = month.split('-')
       return {
         month,
         label: `${parseInt(m, 10)}月`,
@@ -388,8 +388,8 @@ async function GamesView({ userId }: { userId: string }) {
   const start60 = ymdAddDays(today, -59)
   const end60 = ymdAddDays(today, -30)
 
-  let recent30 = { wins: 0, losses: 0 }
-  let prev30 = { wins: 0, losses: 0 }
+  const recent30 = { wins: 0, losses: 0 }
+  const prev30 = { wins: 0, losses: 0 }
   for (const g of games) {
     const date = g.training_record?.date
     if (!date) continue

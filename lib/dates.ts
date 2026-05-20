@@ -101,3 +101,20 @@ export function daysRemaining(endDate: string, today: string = todayLocalISO()):
   const end = parseYmd(endDate).getTime()
   return Math.max(0, Math.ceil((end - start) / (24 * 60 * 60 * 1000)) + 1)
 }
+
+const WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土']
+
+/**
+ * 「今日」「昨日」「◯日前」「M月D日(曜)」のような、生徒が読みやすい相対日付表記。
+ * 7日以内は「◯日前」、それより前は「M月D日(曜)」。
+ */
+export function formatRelativeDate(date: string, today: string = todayLocalISO()): string {
+  if (date === today) return '今日'
+  const yesterday = ymdAddDays(today, -1)
+  if (date === yesterday) return '昨日'
+  const diffMs = parseYmd(today).getTime() - parseYmd(date).getTime()
+  const diffDays = Math.round(diffMs / (24 * 60 * 60 * 1000))
+  if (diffDays > 0 && diffDays <= 7) return `${diffDays}日前`
+  const d = parseYmd(date)
+  return `${d.getMonth() + 1}月${d.getDate()}日(${WEEKDAY_JA[d.getDay()]})`
+}

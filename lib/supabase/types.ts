@@ -128,6 +128,7 @@ export type Database = {
           created_at: string
           id: string
           record_id: string
+          updated_at: string
         }
         Insert: {
           author_id?: string | null
@@ -136,6 +137,7 @@ export type Database = {
           created_at?: string
           id?: string
           record_id: string
+          updated_at?: string
         }
         Update: {
           author_id?: string | null
@@ -144,6 +146,7 @@ export type Database = {
           created_at?: string
           id?: string
           record_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -467,7 +470,10 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          is_super_teacher: boolean
+          level_kind: string | null
           level_text: string | null
+          private_mode: boolean
           role: string
           synthetic_email: string | null
           updated_at: string
@@ -478,7 +484,10 @@ export type Database = {
           created_at?: string
           display_name: string
           id: string
+          is_super_teacher?: boolean
+          level_kind?: string | null
           level_text?: string | null
+          private_mode?: boolean
           role: string
           synthetic_email?: string | null
           updated_at?: string
@@ -489,7 +498,10 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          is_super_teacher?: boolean
+          level_kind?: string | null
           level_text?: string | null
+          private_mode?: boolean
           role?: string
           synthetic_email?: string | null
           updated_at?: string
@@ -583,6 +595,7 @@ export type Database = {
           kifu_url: string | null
           memo: string | null
           recorded_at: string
+          self_memo: string | null
           updated_at: string
           user_id: string
         }
@@ -595,6 +608,7 @@ export type Database = {
           kifu_url?: string | null
           memo?: string | null
           recorded_at?: string
+          self_memo?: string | null
           updated_at?: string
           user_id: string
         }
@@ -607,6 +621,7 @@ export type Database = {
           kifu_url?: string | null
           memo?: string | null
           recorded_at?: string
+          self_memo?: string | null
           updated_at?: string
           user_id?: string
         }

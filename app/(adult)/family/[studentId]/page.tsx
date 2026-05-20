@@ -43,12 +43,11 @@ export default async function StudentDetailPage({ params }: PageProps) {
   if (!user) return null
 
   // 自分のプロフィール（スーパー先生か判定）
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: myProfile } = await (supabase
+  const { data: myProfile } = await supabase
     .from('profiles')
     .select('is_super_teacher')
     .eq('id', user.id)
-    .maybeSingle() as any)
+    .maybeSingle()
   const isSuperTeacher = Boolean(myProfile?.is_super_teacher)
 
   // 紐づけ確認（スーパー先生は招待なしでも閲覧可）
@@ -64,12 +63,11 @@ export default async function StudentDetailPage({ params }: PageProps) {
   }
 
   // 生徒情報
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: student } = await (supabase
+  const { data: student } = await supabase
     .from('profiles')
     .select('display_name, level_kind, level_text, avatar_url, private_mode')
     .eq('id', studentId)
-    .maybeSingle() as any)
+    .maybeSingle()
 
   if (!student) {
     notFound()
@@ -86,7 +84,6 @@ export default async function StudentDetailPage({ params }: PageProps) {
   // 26週分の練習記録
   const { data: longRecords } = await supabase
     .from('training_records')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .select(
       'id, date, duration_minutes, memo, recorded_at, category:categories(id, name_ja, icon_key, color_token, kind)'
     )
@@ -121,7 +118,6 @@ export default async function StudentDetailPage({ params }: PageProps) {
   const { count: streak } = computeStreak(shogiDates)
 
   // サマリー
-  const total14 = records14.reduce((s, r) => s + r.duration_minutes, 0)
   const activeDays14 = new Set(records14.map((r) => r.date)).size
   const totalWeek = recordsWeek.reduce((s, r) => s + r.duration_minutes, 0)
 

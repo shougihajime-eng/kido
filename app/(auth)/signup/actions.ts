@@ -100,8 +100,7 @@ export async function signupWithPinAction(input: {
   }
 
   // トリガーが入れているはずだが、未対応の DB だったとき用に念のため上書き
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin
+  await admin
     .from('profiles')
     .update({
       synthetic_email: syntheticEmail,
@@ -109,8 +108,8 @@ export async function signupWithPinAction(input: {
       role,
       level_kind: safeLevelKind,
       level_text: safeLevelText || null
-    } as any)
-    .eq('id', created.user.id))
+    })
+    .eq('id', created.user.id)
 
   // Cookie をセットしてログイン完了状態に
   const supabase = await createClient()
