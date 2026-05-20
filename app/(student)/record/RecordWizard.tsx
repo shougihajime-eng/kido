@@ -285,9 +285,33 @@ export function RecordWizard({ categories }: Props) {
                 >
                   <Minus className="h-5 w-5" />
                 </button>
-                <span className="font-num text-display gold-glow tabular-nums" style={{ minWidth: '4ch', textAlign: 'center' }}>
-                  {minutes}
-                </span>
+                {/* 数字を直接打ち込めるテキスト欄。タップでキーボードが開く。 */}
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  min={1}
+                  max={1440}
+                  value={minutes}
+                  onChange={(e) => {
+                    // 空欄なら 0 扱い、確定時に1分以上に丸める
+                    const raw = e.target.value
+                    if (raw === '') {
+                      setMinutes(0)
+                      return
+                    }
+                    const v = parseInt(raw, 10)
+                    if (Number.isNaN(v)) return
+                    setMinutes(Math.min(1440, Math.max(0, v)))
+                  }}
+                  onBlur={() => {
+                    // 入力欄から離れた時、0や空のままだったら1に直す
+                    setMinutes((m) => (m < 1 ? 1 : m))
+                  }}
+                  aria-label="分を直接入力"
+                  className="font-num text-display gold-glow tabular-nums bg-transparent border-b-2 border-dashed border-border focus:border-accent focus:outline-none text-center"
+                  style={{ width: '4ch', minWidth: '4ch' }}
+                />
                 <button
                   type="button"
                   onClick={() => setMinutes((m) => Math.min(1440, m + 5))}
@@ -297,7 +321,9 @@ export function RecordWizard({ categories }: Props) {
                   <Plus className="h-5 w-5" />
                 </button>
               </div>
-              <span className="text-sm text-text-muted">分</span>
+              <span className="text-sm text-text-muted">
+                分 ・ <span className="text-xs text-text-dim">数字をタップで直接打てる</span>
+              </span>
             </div>
 
             <div>
@@ -336,8 +362,13 @@ export function RecordWizard({ categories }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => setStep('confirm')}
-                className="flex-1 h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] active:scale-[0.98] transition-all"
+                onClick={() => {
+                  // 空欄や0のまま「次へ」を押されたら1分に丸めて進む
+                  if (minutes < 1) setMinutes(1)
+                  setStep('confirm')
+                }}
+                disabled={minutes < 1}
+                className="flex-1 h-14 rounded-full bg-accent text-white text-lg font-semibold shadow-[0_4px_20px_rgba(30,64,175,0.25)] hover:bg-accent-deep hover:shadow-[0_8px_28px_rgba(30,64,175,0.35)] active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 次へ
               </button>

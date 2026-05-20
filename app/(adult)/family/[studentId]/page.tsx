@@ -125,13 +125,17 @@ export default async function StudentDetailPage({ params }: PageProps) {
   const activeDays14 = new Set(records14.map((r) => r.date)).size
   const totalWeek = recordsWeek.reduce((s, r) => s + r.duration_minutes, 0)
 
-  // 週間棒グラフ（直近7日）
+  // 週間棒グラフ（直近7日）— 将棋・生活で分けて積み上げ表示
   const perDayWeek = Array.from({ length: 7 }, (_, i) => {
     const d = ymdAddDays(weekStart, i)
-    const minutes = recordsWeek
-      .filter((r) => r.date === d)
+    const dayRecs = recordsWeek.filter((r) => r.date === d)
+    const shogi = dayRecs
+      .filter((r) => r.category?.kind === 'shogi')
       .reduce((s, r) => s + r.duration_minutes, 0)
-    return { date: d, minutes }
+    const life = dayRecs
+      .filter((r) => r.category?.kind !== 'shogi')
+      .reduce((s, r) => s + r.duration_minutes, 0)
+    return { date: d, shogi, life }
   })
 
   // 今週カテゴリ別

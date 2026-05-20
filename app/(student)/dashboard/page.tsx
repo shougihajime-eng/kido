@@ -114,13 +114,17 @@ export default async function DashboardPage() {
   const distinctShogiDates = Array.from(new Set(shogiRecords.map((r) => r.date)))
   const { count: streak, needsToday } = computeStreak(distinctShogiDates)
 
-  // 直近7日（古→新）の合計分
+  // 直近7日（古→新）の将棋・生活 別の合計分
   const perDay = Array.from({ length: 7 }, (_, i) => {
     const d = ymdAddDays(weekStart, i)
-    const minutes = weekRecords
-      .filter((r) => r.date === d)
+    const dayRecs = weekRecords.filter((r) => r.date === d)
+    const shogi = dayRecs
+      .filter((r) => r.category?.kind === 'shogi')
       .reduce((s, r) => s + r.duration_minutes, 0)
-    return { date: d, minutes }
+    const life = dayRecs
+      .filter((r) => r.category?.kind !== 'shogi')
+      .reduce((s, r) => s + r.duration_minutes, 0)
+    return { date: d, shogi, life }
   })
 
   // カテゴリ別の今週合計
@@ -192,6 +196,12 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold">
             {profile?.display_name ? `${profile.display_name} さん` : 'ホーム'}
           </h1>
+          <Link
+            href="/profile/edit"
+            className="mt-1 text-xs text-text-muted hover:text-accent inline-flex items-center gap-1 w-fit"
+          >
+            ✏ なまえ・段級を変える
+          </Link>
         </div>
         <form action="/auth/sign-out" method="post">
           <button type="submit" className="text-text-dim text-xs hover:text-text-muted underline">
