@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { todayLocalISO, ymdAddDays } from '@/lib/dates'
 import { CalendarHeatmap } from './CalendarHeatmap'
+import { fetchDayCommentsForStudent } from '@/lib/day-comments-fetch'
+import type { DayCommentItemView } from '@/lib/day-comments'
 
 export const metadata = {
   title: 'カレンダー'
@@ -83,6 +85,19 @@ export default async function CalendarPage() {
     eventsByDate[c.target_date] = list
   }
 
+  // 日コメント（記録がない日でも残せる声かけ）
+  const { byDate: dayCommentsByDateMap } = await fetchDayCommentsForStudent(
+    supabase,
+    user.id,
+    startDate,
+    today,
+    user.id
+  )
+  const dayCommentsByDate: Record<string, DayCommentItemView[]> = {}
+  for (const [date, list] of dayCommentsByDateMap.entries()) {
+    dayCommentsByDate[date] = list
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
@@ -104,6 +119,9 @@ export default async function CalendarPage() {
         minutesByDate={minutesByDate}
         recordsByDate={recordsByDate}
         eventsByDate={eventsByDate}
+        studentId={user.id}
+        dayCommentsByDate={dayCommentsByDate}
+        canPostDayComment={true}
       />
     </div>
   )

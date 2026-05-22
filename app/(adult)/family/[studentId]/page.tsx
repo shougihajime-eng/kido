@@ -24,6 +24,8 @@ import { CalendarHeatmap } from '@/app/(student)/calendar/CalendarHeatmap'
 import { RecordWithComments } from './RecordWithComments'
 import { PrivateModeToggle } from './PrivateModeToggle'
 import { fetchCommentsForRecords } from '@/lib/comments-fetch'
+import { fetchDayCommentsForStudent } from '@/lib/day-comments-fetch'
+import type { DayCommentItemView } from '@/lib/day-comments'
 
 export const metadata = {
   title: '生徒の記録'
@@ -260,6 +262,19 @@ export default async function StudentDetailPage({ params }: PageProps) {
   const { byRecord: commentsByRecord, total: totalComments } =
     await fetchCommentsForRecords(supabase, recordIdsRecent, user.id)
 
+  // 日コメント（記録がなくても残せる声かけ）— ヒートマップ全期間分
+  const { byDate: dayCommentsByDateMap } = await fetchDayCommentsForStudent(
+    supabase,
+    studentId,
+    heatmapStart,
+    today,
+    user.id
+  )
+  const dayCommentsByDate: Record<string, DayCommentItemView[]> = {}
+  for (const [date, list] of dayCommentsByDateMap.entries()) {
+    dayCommentsByDate[date] = list
+  }
+
   // 共有カテゴリマップ（記録カード用）
   const catMap = new Map<string, { id: string; name_ja: string; color_token: string }>()
   for (const r of records) {
@@ -416,6 +431,9 @@ export default async function StudentDetailPage({ params }: PageProps) {
           weeks={26}
           minutesByDate={minutesByDate}
           recordsByDate={recordsByDate}
+          studentId={studentId}
+          dayCommentsByDate={dayCommentsByDate}
+          canPostDayComment={true}
         />
       </section>
 

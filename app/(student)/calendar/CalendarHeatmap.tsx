@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryColorVar, getCategoryIcon } from '@/lib/category-icon'
 import { parseYmd, ymdAddDays, todayLocalISO } from '@/lib/dates'
+import { DayCommentThread } from '@/components/comments/DayCommentThread'
+import type { DayCommentItemView } from '@/lib/day-comments'
 
 type RecordPreview = {
   id: string
@@ -23,6 +25,12 @@ interface Props {
   minutesByDate: Record<string, number>
   recordsByDate: Record<string, RecordPreview[]>
   eventsByDate?: Record<string, EventPreview[]>
+  /** カレンダーの主（生徒）の user_id。日コメントを書き込む対象。 */
+  studentId?: string
+  /** 日付 → コメント配列。指定された日のスレッドだけ表示。 */
+  dayCommentsByDate?: Record<string, DayCommentItemView[]>
+  /** コメント書き込み可能か（生徒・親・先生・スーパー先生は true） */
+  canPostDayComment?: boolean
 }
 
 const WEEKDAY_LABELS = ['日', '月', '火', '水', '木', '金', '土']
@@ -55,7 +63,16 @@ const LEVEL_BORDER = [
   'rgba(30, 64, 175, 1)'
 ]
 
-export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate, eventsByDate }: Props) {
+export function CalendarHeatmap({
+  startDate,
+  weeks,
+  minutesByDate,
+  recordsByDate,
+  eventsByDate,
+  studentId,
+  dayCommentsByDate,
+  canPostDayComment
+}: Props) {
   const today = todayLocalISO()
   const [selectedDate, setSelectedDate] = useState<string | null>(today)
 
@@ -265,7 +282,7 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
               </a>
             ) : null
           ) : selectedRecords.length === 0 ? (
-            <p className="text-xs text-text-dim text-center py-3">この日の記録はまだありません</p>
+            <p className="text-xs text-text-dim text-center py-2">この日の記録はまだありません</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {selectedRecords.map((r) => {
@@ -295,6 +312,18 @@ export function CalendarHeatmap({ startDate, weeks, minutesByDate, recordsByDate
                 )
               })}
             </ul>
+          )}
+
+          {/* 日コメント（記録がなくても書ける） */}
+          {studentId && !selectedIsFuture && (
+            <div className="border-t border-border pt-3">
+              <DayCommentThread
+                studentId={studentId}
+                date={selectedDate}
+                comments={dayCommentsByDate?.[selectedDate] ?? []}
+                canPost={canPostDayComment ?? false}
+              />
+            </div>
           )}
         </motion.div>
       )}
