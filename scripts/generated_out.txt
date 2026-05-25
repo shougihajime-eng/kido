@@ -1,0 +1,72 @@
+  {
+    id: 'gen-1',
+    tesuu: 3,
+    level: 'easy',
+    startSfen: '9/9/k8/9/9/GSR6/9/9/8K b GS 1',
+    finalSfen: '9/kG7/2+R6/9/9/GS7/9/9/8K w S 4',
+    movesJa: ['▲７三飛成', '△９二玉', '▲８二金打']
+  },  // USI: 7f7c+ 9c9b G*8b
+  {
+    id: 'gen-2',
+    tesuu: 3,
+    level: 'easy',
+    startSfen: '4k1G2/9/6R2/4B4/9/9/9/9/K8 b NS 1',
+    finalSfen: '3k2G2/2S6/4+R4/4B4/9/9/9/9/K8 w N 4',
+    movesJa: ['▲５三飛成', '△６一玉', '▲７二銀打']
+  },  // USI: 3c5c+ 5a6a S*7b
+  {
+    id: 'gen-3',
+    tesuu: 3,
+    level: 'easy',
+    startSfen: 'k8/1L7/9/1G7/9/9/9/9/8K b GS 1',
+    finalSfen: '1G7/kL7/S8/1G7/9/9/9/9/8K w - 4',
+    movesJa: ['▲８一金打', '△９二玉', '▲９三銀打']
+  },  // USI: G*8a 9a9b S*9c
+  {
+    id: 'gen-4',
+    tesuu: 3,
+    level: 'easy',
+    startSfen: '9/k8/2G6/9/9/9/9/9/8K b GN 1',
+    finalSfen: 'k8/1G7/2G6/9/9/9/9/9/8K w N 4',
+    movesJa: ['▲８三金打', '△９一玉', '▲８二金']
+  },  // USI: G*8c 9b9a 8c8b
+  {
+    id: 'gen-5',
+    tesuu: 5,
+    level: 'normal',
+    startSfen: '9/9/7k1/5BS2/9/5B3/9/9/1K7 b - 1',
+    finalSfen: '7k1/7+S1/6+B2/9/9/5B3/9/9/1K7 w - 6',
+    movesJa: ['▲３三角成', '△１二玉', '▲２三銀', '△２一玉', '▲２二銀成']
+  },  // USI: 4d3c+ 2c1b 3d2c 1b2a 2c2b+
+  {
+    id: 'gen-6',
+    tesuu: 5,
+    level: 'normal',
+    startSfen: '9/9/kN7/2G6/B8/9/9/9/K8 b GL 1',
+    finalSfen: 'G8/1k7/1NG6/1B7/9/9/9/9/K8 w L 6',
+    movesJa: ['▲８四角', '△９二玉', '▲９一金打', '△８二玉', '▲７三金']
+  },  // USI: 9e8d 9c9b G*9a 9b8b 7d7c
+  {
+    id: 'gen-7',
+    tesuu: 5,
+    level: 'normal',
+    startSfen: '9/9/8k/6G2/6G2/9/9/K8/9 b G 1',
+    finalSfen: '6k2/6G2/6G2/7G1/9/9/9/K8/9 w - 6',
+    movesJa: ['▲２四金', '△２二玉', '▲３三金', '△３一玉', '▲３二金打']
+  },  // USI: 3e2d 1c2b 3d3c 2b3a G*3b
+  {
+    id: 'gen-8',
+    tesuu: 5,
+    level: 'normal',
+    startSfen: '9/6k2/8G/9/4R2R1/9/9/9/8K b - 1',
+    finalSfen: '4R1k2/9/5+R2G/9/9/9/9/9/8K w - 6',
+    movesJa: ['▲２三飛成', '△４一玉', '▲４三龍', '△３一玉', '▲５一飛']
+  },  // USI: 2e2c+ 3b4a 2c4c 4a3a 5e5a
+  {
+    id: 'gen-9',
+    tesuu: 5,
+    level: 'normal',
+    startSfen: '9/7k1/5N3/7G1/6G2/9/9/9/K8 b GN 1',
+    finalSfen: '5k3/5+N3/5NG2/7G1/6G2/9/9/9/K8 w - 6',
+    movesJa: ['▲３四桂打', '△３二玉', '▲３三金打', '△４一玉', '▲４二桂成']
+  },  // USI: N*3d 2b3b G*3c 3b4a 3d4b+
