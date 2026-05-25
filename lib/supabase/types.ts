@@ -642,6 +642,74 @@ export type Database = {
           },
         ]
       }
+      tsume_problems: {
+        Row: {
+          composer: string | null
+          created_at: string
+          created_by: string | null
+          final_sfen: string
+          frames: string[]
+          id: string
+          level: string
+          moves_ja: string[]
+          moves_usi: string[]
+          note: string | null
+          published: boolean
+          sort_order: number
+          source: string | null
+          start_sfen: string
+          tesuu: number
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          composer?: string | null
+          created_at?: string
+          created_by?: string | null
+          final_sfen: string
+          frames?: string[]
+          id?: string
+          level?: string
+          moves_ja?: string[]
+          moves_usi?: string[]
+          note?: string | null
+          published?: boolean
+          sort_order?: number
+          source?: string | null
+          start_sfen: string
+          tesuu: number
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          composer?: string | null
+          created_at?: string
+          created_by?: string | null
+          final_sfen?: string
+          frames?: string[]
+          id?: string
+          level?: string
+          moves_ja?: string[]
+          moves_usi?: string[]
+          note?: string | null
+          published?: boolean
+          sort_order?: number
+          source?: string | null
+          start_sfen?: string
+          tesuu?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tsume_problems_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           badge_id: string

@@ -2,17 +2,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { KeyRound, User, UsersRound, Quote } from 'lucide-react'
+import { KeyRound, User, UsersRound, Quote, Sparkles } from 'lucide-react'
 
-const ITEMS = [
+const BASE_ITEMS = [
   { href: '/family', label: '見守り', icon: UsersRound },
   { href: '/family/link', label: '紐づけ', icon: KeyRound },
   { href: '/meigen', label: '名言の間', icon: Quote },
   { href: '/profile', label: '自分', icon: User }
 ]
 
-export function AdultSideNav() {
+const TSUME_ITEM = { href: '/family/tsume', label: '詰将棋を作る', icon: Sparkles }
+
+export function AdultSideNav({ role }: { role?: string }) {
   const pathname = usePathname()
+  const items =
+    role === 'teacher'
+      ? [BASE_ITEMS[0], TSUME_ITEM, ...BASE_ITEMS.slice(1)]
+      : BASE_ITEMS
 
   return (
     <aside className="hidden md:flex w-60 lg:w-64 shrink-0 flex-col bg-surface border-r border-border py-6 sticky top-0 h-screen">
@@ -25,13 +31,17 @@ export function AdultSideNav() {
       </Link>
 
       <nav className="flex-1 px-3 flex flex-col gap-1">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon
           const active =
             item.href === '/family'
               ? pathname === '/family' ||
-                (pathname.startsWith('/family/') && pathname !== '/family/link')
-              : pathname === item.href || pathname.startsWith(item.href + '/')
+                (pathname.startsWith('/family/') &&
+                  pathname !== '/family/link' &&
+                  !pathname.startsWith('/family/tsume'))
+              : item.href === '/family/tsume'
+                ? pathname.startsWith('/family/tsume')
+                : pathname === item.href || pathname.startsWith(item.href + '/')
           return (
             <Link
               key={item.href}

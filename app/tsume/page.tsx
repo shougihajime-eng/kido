@@ -1,14 +1,18 @@
 import { todayLocalISO } from '@/lib/dates'
-import { todayTsumeIndex, TSUME } from '@/lib/tsume'
+import { dailyIndex, TSUME } from '@/lib/tsume'
+import { fetchPublishedTsume } from '@/lib/tsume-fetch'
 import { TsumeSolver } from '@/components/tsume/TsumeSolver'
 
 export const metadata = {
   title: '詰将棋'
 }
 
-export default function TsumePage() {
+export default async function TsumePage() {
   const today = todayLocalISO()
-  const initialIndex = todayTsumeIndex(today)
+  const problems = await fetchPublishedTsume()
+  const initialIndex = dailyIndex(today, problems.length)
+  // 先生が作って公開した問題があるかどうか（案内文の出し分けに使う）
+  const usingTeacherProblems = problems !== TSUME
 
   return (
     <div className="flex flex-col gap-6 md:gap-8">
@@ -24,19 +28,23 @@ export default function TsumePage() {
         </p>
       </header>
 
-      <TsumeSolver initialIndex={initialIndex} />
+      <TsumeSolver initialIndex={initialIndex} problems={problems} />
 
-      {/* お知らせ（はじめさん向けの正直なメモ） */}
+      {/* お知らせ */}
       <div className="bg-gold-soft/40 border border-gold/30 rounded-2xl p-4 text-center">
-        <p className="text-sm font-mincho text-gold-deep font-semibold mb-1">
-          コンピューターが作った検証ずみの問題です
-        </p>
+        {usingTeacherProblems ? (
+          <p className="text-sm font-mincho text-gold-deep font-semibold mb-1">
+            ぜんぶで {problems.length} 問。先生が作った問題だよ
+          </p>
+        ) : (
+          <p className="text-sm font-mincho text-gold-deep font-semibold mb-1">
+            コンピューターが作った検証ずみの問題です
+          </p>
+        )}
         <p className="text-xs text-text-muted font-mincho leading-relaxed">
-          いまは {TSUME.length} 問（3手詰・5手詰）。すべて
-          「最初に王手なし・本当に詰む・答えが一通り」を機械で確認ずみです。
+          こまをタップして動かす先をタップ。正解だと相手が受けて1手すすみます。
           <br />
-          これから問題数を増やし、著作権が切れた古典の名作（将棋図巧・将棋無双など）も
-          検証してから加えていきます。
+          こまった時は「ヒント」や「答えを見る」を押してね。
         </p>
       </div>
     </div>

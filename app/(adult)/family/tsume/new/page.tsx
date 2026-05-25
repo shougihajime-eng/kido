@@ -1,0 +1,39 @@
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { TsumeEditor } from '@/components/tsume/TsumeEditor'
+
+export const metadata = {
+  title: '詰将棋を新しく作る'
+}
+
+export default async function NewTsumePage() {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (profile?.role !== 'teacher') redirect('/family')
+
+  return (
+    <div className="flex flex-col gap-4">
+      <header className="flex flex-col gap-2">
+        <Link
+          href="/family/tsume"
+          className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-accent w-fit"
+        >
+          <ArrowLeft className="w-4 h-4" /> 一覧にもどる
+        </Link>
+        <h1 className="text-2xl font-bold">詰将棋を新しく作る</h1>
+      </header>
+      <TsumeEditor />
+    </div>
+  )
+}

@@ -28,7 +28,8 @@ import { StudentRecordCard } from '@/components/records/StudentRecordCard'
 import { ShareAppButton } from '@/components/ShareAppButton'
 import { fetchCommentsForRecords } from '@/lib/comments-fetch'
 import { todayMeigenIndex } from '@/lib/meigen'
-import { todayTsumeIndex } from '@/lib/tsume'
+import { dailyIndex } from '@/lib/tsume'
+import { fetchPublishedTsume } from '@/lib/tsume-fetch'
 import { FuchiBubble } from '@/components/mascot/Fuchi'
 
 export const metadata = {
@@ -200,8 +201,9 @@ export default async function DashboardPage() {
 
   // 今日の名言：日付シードで初期値を決定（同日中は同じ／日が変われば変わる）
   const meigenInitial = todayMeigenIndex(today)
-  // 今日の詰将棋：同じく日付シードで決定
-  const tsumeInitial = todayTsumeIndex(today)
+  // 今日の詰将棋：先生が公開した問題（なければ組み込み）から日付シードで決定
+  const tsumeProblems = await fetchPublishedTsume()
+  const tsumeInitial = dailyIndex(today, tsumeProblems.length)
 
   // カウントダウン（直近2件）
   type CountdownRow = { id: string; title: string; target_date: string; emoji: string }
@@ -275,7 +277,7 @@ export default async function DashboardPage() {
       <MeigenCard initialIndex={meigenInitial} />
 
       {/* 今日の詰将棋（一問） */}
-      <TsumeViewer initialIndex={tsumeInitial} compact />
+      <TsumeViewer initialIndex={tsumeInitial} compact problems={tsumeProblems} />
 
       {/* カウントダウン（直近2件まで） */}
       {upcomingCountdowns.length > 0 && (

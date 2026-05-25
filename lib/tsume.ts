@@ -199,9 +199,51 @@ export const TSUME: TsumeProblem[] = [
 
 // 「今日の一問」を日付で決める（同じ日は同じ問題、日が変われば変わる）
 export function todayTsumeIndex(dateISO: string): number {
-  if (TSUME.length === 0) return 0
+  return dailyIndex(dateISO, TSUME.length)
+}
+
+// 日付 → 0..len-1 の番号（同じ日は同じ、日が変われば変わる）。
+// DB から読み込んだ問題リストの長さに合わせて使う。
+export function dailyIndex(dateISO: string, len: number): number {
+  if (len <= 0) return 0
   const seed = parseInt(dateISO.split('-').join(''), 10) || 0
-  return seed % TSUME.length
+  return seed % len
+}
+
+// データベースの1行（snake_case）を TsumeProblem（camelCase）に変換する。
+// 生徒・保護者の画面、先生のプレビューで使う。
+export type TsumeRow = {
+  id: string
+  tesuu: number
+  level: string
+  start_sfen: string
+  final_sfen: string
+  moves_ja: string[] | null
+  moves_usi: string[] | null
+  frames: string[] | null
+  title: string | null
+  composer: string | null
+  source: string | null
+  note: string | null
+}
+
+export function rowToTsume(row: TsumeRow): TsumeProblem {
+  return {
+    id: row.id,
+    tesuu: row.tesuu,
+    level: (['demo', 'easy', 'normal', 'hard', 'master'].includes(row.level)
+      ? row.level
+      : 'normal') as TsumeLevel,
+    startSfen: row.start_sfen,
+    finalSfen: row.final_sfen,
+    movesJa: row.moves_ja ?? [],
+    movesUsi: row.moves_usi ?? [],
+    frames: row.frames ?? [row.start_sfen],
+    title: row.title ?? undefined,
+    composer: row.composer ?? undefined,
+    source: row.source ?? undefined,
+    note: row.note ?? undefined
+  }
 }
 
 // 「次の問題」：直前と同じを避けてランダムに1問

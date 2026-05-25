@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, RefreshCw, ChevronRight } from 'lucide-react'
-import { TSUME, LEVEL_BADGE, pickNextTsume } from '@/lib/tsume'
+import { TSUME, LEVEL_BADGE, type TsumeProblem } from '@/lib/tsume'
 import { ShogiBoard } from './ShogiBoard'
 
 type Props = {
@@ -11,20 +11,31 @@ type Props = {
   initialIndex?: number
   /** ダッシュボード用のコンパクト表示 */
   compact?: boolean
+  /** 表示する問題リスト（省略時は組み込みの TSUME）。DB の公開問題で使う */
+  problems?: TsumeProblem[]
 }
 
-export function TsumeViewer({ initialIndex = 0, compact = false }: Props) {
-  const start = useMemo(() => initialIndex % Math.max(1, TSUME.length), [initialIndex])
+export function TsumeViewer({ initialIndex = 0, compact = false, problems }: Props) {
+  const list = useMemo(
+    () => (problems && problems.length > 0 ? problems : TSUME),
+    [problems]
+  )
+  const start = useMemo(() => initialIndex % Math.max(1, list.length), [initialIndex, list.length])
   const [index, setIndex] = useState<number>(start)
   const [showAnswer, setShowAnswer] = useState<boolean>(false)
 
-  const item = TSUME[index] ?? TSUME[0]
+  const item = list[index] ?? list[0]
   const badge = LEVEL_BADGE[item.level]
 
   const handleNext = useCallback(() => {
-    setIndex((prev) => pickNextTsume(prev))
+    setIndex((prev) => {
+      if (list.length <= 1) return 0
+      let n = Math.floor(Math.random() * list.length)
+      if (n === prev) n = (n + 1) % list.length
+      return n
+    })
     setShowAnswer(false)
-  }, [])
+  }, [list.length])
 
   const toggleAnswer = useCallback(() => setShowAnswer((v) => !v), [])
 

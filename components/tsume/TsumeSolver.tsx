@@ -3,13 +3,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import confetti from 'canvas-confetti'
 import { Lightbulb, Eye, RotateCcw, RefreshCw } from 'lucide-react'
-import {
-  TSUME,
-  LEVEL_BADGE,
-  pickNextTsume,
-  parseSfen,
-  parseUsiMove
-} from '@/lib/tsume'
+import { TSUME, LEVEL_BADGE, parseSfen, parseUsiMove, type TsumeProblem } from '@/lib/tsume'
 import { SolveBoard } from './SolveBoard'
 
 const DROP_KANJI: Record<string, string> = {
@@ -26,10 +20,21 @@ type Feedback = { kind: 'none' | 'good' | 'wrong' | 'solved'; text: string }
 
 type Props = {
   initialIndex?: number
+  /** 解かせる問題リスト（省略時は組み込みの TSUME）。DB の問題やプレビューで使う */
+  problems?: TsumeProblem[]
+  /** 1問だけ（「次の問題」ボタンを隠す。先生のためし解きで使う） */
+  single?: boolean
 }
 
-export function TsumeSolver({ initialIndex = 0 }: Props) {
-  const startIndex = useMemo(() => initialIndex % Math.max(1, TSUME.length), [initialIndex])
+export function TsumeSolver({ initialIndex = 0, problems, single = false }: Props) {
+  const list = useMemo(
+    () => (problems && problems.length > 0 ? problems : TSUME),
+    [problems]
+  )
+  const startIndex = useMemo(
+    () => initialIndex % Math.max(1, list.length),
+    [initialIndex, list.length]
+  )
   const [index, setIndex] = useState(startIndex)
   const [step, setStep] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
@@ -40,10 +45,9 @@ export function TsumeSolver({ initialIndex = 0 }: Props) {
   const [revealed, setRevealed] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>({ kind: 'none', text: '' })
 
-  const item = TSUME[index] ?? TSUME[0]
+  const item = list[index] ?? list[0]
   const boardSfen = item.frames[Math.min(step, item.frames.length - 1)]
-  const lastMoveTo =
-    step > 0 ? parseUsiMove(item.movesUsi[step - 1]).toIdx : null
+  const lastMoveTo = step > 0 ? parseUsiMove(item.movesUsi[step - 1]).toIdx : null
 
   const resetProblem = useCallback((nextIndex: number) => {
     setIndex(nextIndex)
@@ -56,6 +60,13 @@ export function TsumeSolver({ initialIndex = 0 }: Props) {
     setRevealed(false)
     setFeedback({ kind: 'none', text: '' })
   }, [])
+
+  const pickNext = useCallback(() => {
+    if (list.length <= 1) return 0
+    let n = Math.floor(Math.random() * list.length)
+    if (n === index) n = (n + 1) % list.length
+    return n
+  }, [list.length, index])
 
   const fireConfetti = useCallback(() => {
     confetti({ particleCount: 110, spread: 70, origin: { y: 0.7 } })
@@ -247,13 +258,15 @@ export function TsumeSolver({ initialIndex = 0 }: Props) {
         >
           <RotateCcw className="w-4 h-4" /> もう一度
         </button>
-        <button
-          type="button"
-          onClick={() => resetProblem(pickNextTsume(index))}
-          className="inline-flex items-center gap-1.5 px-5 min-h-[44px] rounded-full bg-accent text-white font-mincho text-sm font-bold shadow-[0_4px_16px_rgba(30,64,175,0.25)] hover:bg-accent-deep active:scale-95 transition-all"
-        >
-          <RefreshCw className="w-4 h-4" /> 次の問題
-        </button>
+        {!single && list.length > 1 && (
+          <button
+            type="button"
+            onClick={() => resetProblem(pickNext())}
+            className="inline-flex items-center gap-1.5 px-5 min-h-[44px] rounded-full bg-accent text-white font-mincho text-sm font-bold shadow-[0_4px_16px_rgba(30,64,175,0.25)] hover:bg-accent-deep active:scale-95 transition-all"
+          >
+            <RefreshCw className="w-4 h-4" /> 次の問題
+          </button>
+        )}
       </div>
     </section>
   )
