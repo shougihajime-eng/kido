@@ -78,7 +78,7 @@ function ValueProps() {
     {
       emoji: '📝',
       title: '毎日の研鑽を記録',
-      body: '棋譜並べ・詰将棋・実戦・研究会…3ステップで1分で記録。'
+      body: '棋譜並べ・実戦・研究会・定跡…3ステップで1分で記録。'
     },
     {
       emoji: '🔥',
@@ -319,7 +319,6 @@ function PhoneMockup({
 function ScreenRecord() {
   const cats = [
     { name: '棋譜', color: 'var(--cat-kifu)' },
-    { name: '詰将棋', color: 'var(--cat-tsume)' },
     { name: '実戦', color: 'var(--cat-game)' },
     { name: '研究会', color: 'var(--cat-study)' },
     { name: 'VS', color: 'var(--cat-vs)' },
@@ -515,7 +514,7 @@ function ScreenComments() {
       <div className="font-bold text-[11px]">はじめくんの記録</div>
       <div className="p-2 rounded-lg bg-surface border border-border">
         <div className="flex items-center justify-between">
-          <span className="font-semibold">詰将棋</span>
+          <span className="font-semibold">棋譜並べ</span>
           <span className="font-num text-text-muted">45 分</span>
         </div>
         <div className="text-text-dim text-[9px] mt-0.5">5月19日 19:30</div>
@@ -535,7 +534,7 @@ function ScreenComments() {
             師
           </div>
           <div className="flex-1 p-1.5 rounded-lg bg-gold-soft text-[9px] leading-snug">
-            次は3手詰めにも挑戦してみよう
+            ていねいに並べられたね。その調子！
           </div>
         </div>
       </div>
@@ -556,7 +555,7 @@ function ScreenComments() {
  * =======================================================*/
 function ScreenGoals() {
   const goals = [
-    { name: '今週・詰将棋', value: 75, target: '120分', color: 'var(--cat-tsume)' },
+    { name: '今週・研究会', value: 75, target: '120分', color: 'var(--cat-study)' },
     { name: '今週・棋譜並べ', value: 55, target: '180分', color: 'var(--cat-kifu)' },
     { name: '今月・実戦', value: 90, target: '600分', color: 'var(--cat-game)' }
   ]

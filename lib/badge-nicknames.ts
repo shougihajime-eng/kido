@@ -13,7 +13,6 @@ export const BADGE_NICKNAME: Record<string, string> = {
   total_10h: '駆け出し研究家',
   total_100h: '将棋大好きさん',
   total_1000h: '千時間の旅人',
-  tsume_50h: '詰将棋の達人',
   jissen_50h: '実戦の人',
   week_full: '皆勤の人',
 

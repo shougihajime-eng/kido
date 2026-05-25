@@ -51,7 +51,6 @@
   /* カテゴリカラー（明るい背景でも識別しやすい彩度・暗度に調整）*/
   /* 将棋カテゴリ（あたたかめ・鮮やか）*/
   --cat-kifu: #b8893a; /* 棋譜並べ：金 */
-  --cat-tsume: #7c3aed; /* 詰将棋：紫 */
   --cat-game: #dc2626; /* 実戦：赤 */
   --cat-study: #1e40af; /* 研究会：藍 */
   --cat-vs: #db2777; /* VS：桃 */
@@ -103,7 +102,6 @@
   --color-sakura-soft: var(--sakura-soft);
 
   --color-cat-kifu: var(--cat-kifu);
-  --color-cat-tsume: var(--cat-tsume);
   --color-cat-game: var(--cat-game);
   --color-cat-study: var(--cat-study);
   --color-cat-vs: var(--cat-vs);

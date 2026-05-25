@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { KeyRound, User, UsersRound, Quote, Sparkles } from 'lucide-react'
+import { KeyRound, User, UsersRound, Quote } from 'lucide-react'
 
 const BASE_ITEMS = [
   { href: '/family', label: '見守り', icon: UsersRound },
@@ -11,15 +11,9 @@ const BASE_ITEMS = [
   { href: '/profile', label: '自分', icon: User }
 ]
 
-const TSUME_ITEM = { href: '/family/tsume', label: '詰将棋', icon: Sparkles }
-
-export function AdultBottomNav({ role }: { role?: string }) {
+export function AdultBottomNav() {
   const pathname = usePathname()
-  // 先生だけ「詰将棋を作る」を表示（見守りの次に差し込む）
-  const items =
-    role === 'teacher'
-      ? [BASE_ITEMS[0], TSUME_ITEM, ...BASE_ITEMS.slice(1)]
-      : BASE_ITEMS
+  const items = BASE_ITEMS
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur border-t border-border safe-area-inset">
@@ -32,12 +26,8 @@ export function AdultBottomNav({ role }: { role?: string }) {
           const active =
             item.href === '/family'
               ? pathname === '/family' ||
-                (pathname.startsWith('/family/') &&
-                  pathname !== '/family/link' &&
-                  !pathname.startsWith('/family/tsume'))
-              : item.href === '/family/tsume'
-                ? pathname.startsWith('/family/tsume')
-                : pathname === item.href || pathname.startsWith(item.href + '/')
+                (pathname.startsWith('/family/') && pathname !== '/family/link')
+              : pathname === item.href || pathname.startsWith(item.href + '/')
           return (
             <li key={item.href}>
               <Link

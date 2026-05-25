@@ -46,6 +46,6 @@ next-env.d.ts
 .vercel
 .env*.local
 
-# Python cache (tsume scripts)
+# Python cache (scripts)
 __pycache__/
 *.pyc
