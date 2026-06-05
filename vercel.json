@@ -4,5 +4,8 @@
       "path": "/api/cron/push-daily",
       "schedule": "0 22 * * *"
     }
+  ],
+  "regions": [
+    "hnd1"
   ]
 }
